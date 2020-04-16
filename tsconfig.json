@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "rootDir": "src",
-        "target": "ES5"
+        "target": "ES5",
+        "experimentalDecorators": true
     }
 }
