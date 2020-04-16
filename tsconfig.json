@@ -1,0 +1,6 @@
+{
+    "compilerOptions": {
+        "rootDir": "src",
+        "target": "ES5"
+    }
+}
