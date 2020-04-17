@@ -30,7 +30,5 @@
     "tslib": "^1.11.1",
     "typescript": "^3.8.3"
   },
-  "dependencies": {
-    "lit-element": "^2.3.1"
-  }
+  "dependencies": {}
 }
