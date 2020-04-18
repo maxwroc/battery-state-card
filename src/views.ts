@@ -4,9 +4,9 @@ function getIcon(batteryLevel: number): string {
     const roundedLevel = Math.round(batteryLevel / 10) * 10;
     switch (roundedLevel) {
         case 100:
-            return 'mdi:battery'; // mdi:battery should have an alias of mdi:battery-100, doesn't work in current HASS
+            return 'mdi:battery';
         case 0:
-            return 'mdi:battery-outline'; // mdi:battery-outline should have an alias of mdi:battery-0, doesn't work in current HASS
+            return 'mdi:battery-outline';
         default:
             return 'mdi:battery-' + roundedLevel;
     }
@@ -24,7 +24,7 @@ function getColor(batteryLevel: number): string {
 }
 
 
-const header = text => html`
+const header = (text: string) => html`
 <div class="card-header">
     <div class="name">
         ${text}

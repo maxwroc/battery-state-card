@@ -2,6 +2,10 @@
     "compilerOptions": {
         "rootDir": "src",
         "target": "ES6",
-        "experimentalDecorators": true
+        "alwaysStrict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "noImplicitThis": true,
+        "strict": true
     }
 }

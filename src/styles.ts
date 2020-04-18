@@ -10,18 +10,11 @@ const styles = css`
     margin-left: 16px;
 }
 .battery .icon {
-    width: 40px;
-    height: 40px;
-    flex: 0 0 40px;
 }
 .battery .icon {
-    position: relative;
-    display: inline-block;
-    width: 40px;
+    flex: 0 0 40px;
     border-radius: 50%;
-    height: 40px;
     text-align: center;
-    background-size: cover;
 }
 .good {
     color: var(--label-badge-green);

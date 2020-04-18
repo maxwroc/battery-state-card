@@ -1,98 +1,139 @@
 import { HomeAssistant } from "./ha-types";
-import { IBatteryStateCardConfig, IBatteryEntity, IBatteryViewData } from "./types";
+import { IBatteryStateCardConfig, IBatteryEntity } from "./types";
 import { LitElement } from "./lit-element";
 import * as views from "./views";
 import styles from "./styles";
+import BatteryViewModel from "./battery-vm";
 
-let zzz = 0;
+console.info(
+    '%c BATTERY-STATE-CARD %c 0.1.0 ',
+    'color: white; background: forestgreen; font-weight: 700;',
+    'color: forestgreen; background: white; font-weight: 700;',
+);
 
+/**
+ * Card main class.
+ */
 class BatteryStateCard extends LitElement {
 
-    public config: IBatteryStateCardConfig;
+    /**
+     * Card configuration.
+     */
+    public config: IBatteryStateCardConfig = <any>{};
 
-    public states: number[];
+    /**
+     * Whether we should render it as an entity - not a card.
+     */
+    public simpleView: boolean = false;
 
-    public displayNames: string[];
+    /**
+     * Battery objects to track.
+     */
+    public batteries: BatteryViewModel[] = [];
 
-    public simpleView: boolean;
-
-    public entities: IBatteryEntity[];
-
+    /**
+     * Properties defined here are used by Polymer to detect
+     * changes and update card UI.
+     */
     static get properties() {
         return {
-            states: [],
-            displayNames: [],
-            config: <IBatteryStateCardConfig>{}
+            batteries: Array,
+            config: Object
         };
     }
 
+    /**
+     * CSS for the card
+     */
     static get styles() {
         return styles;
     }
 
-    setConfig(config) {
+    /**
+     * Called by HA on init or when configuration is updated.
+     *
+     * @param config Card configuration
+     */
+    setConfig(config: IBatteryStateCardConfig) {
         if (!config.entities && !config.entity) {
             throw new Error("You need to define entities");
         }
 
-        console.log(config);
-
         this.config = config;
-
-        this.states = [];
-        this.displayNames = [];
-
-        this.entities = config.entity ? [config.entity] : <IBatteryEntity[]>config.entities;
         this.simpleView = !!config.entity;
-        console.log(this.simpleView);
+
+        let entities = config.entity
+            ? [config]
+            : config.entities!.map((entity: string | IBatteryEntity) => {
+                // check if it is just the id string
+                if (typeof (entity) === "string") {
+                    entity = <IBatteryEntity>{ entity: entity };
+                }
+
+                return entity;
+            });
+
+        this.batteries = entities.map(entity => new BatteryViewModel(entity));
     }
 
+    /**
+     * Called when HA state changes (very often).
+     */
     set hass(hass: HomeAssistant) {
-        this.entities.forEach((entity, index) => {
-            // make sure we have proper entity objects
-            if (typeof (entity) === "string") {
-                entity = { entity: entity };
-            }
+        let updated = false;
+        this.batteries.forEach((battery, index) => {
 
-            const viewData = this.getViewData(entity, hass);
-            this.states[index] = viewData.level;
-            this.displayNames[index] = viewData.name;
+            this.updateBattery(battery, hass);
+            updated = updated || battery.updated;
         });
+
+        if (updated) {
+            // trigger the update
+            this.batteries = [...this.batteries];
+        }
     }
 
+    /**
+     * Renders the card. Called when update detected.
+     */
     render() {
-        console.log("render");
-
+        // check if we should render it without card container
         if (this.simpleView) {
-            return views.battery(this.states[0], this.displayNames[0])
+            return views.battery(this.batteries[0].level, this.batteries[0].name);
         }
 
         return views.card(
             this.config.name || "Battery levels",
-            this.states.map((state, index) =>
-                views.battery(state, this.displayNames[index]))
+            this.batteries.map(battery =>
+                views.battery(battery.level, battery.name))
         );
     }
 
-    // The height of your card. Home Assistant uses this to automatically
-    // distribute all cards over the available columns.
+    /**
+     * Gets the height of your card. Home Assistant uses this to automatically
+     * distribute all cards over the available columns.
+     */
     getCardSize() {
-        return this.config.entities.length + 1;
+        return this.batteries.length + 1;
     }
 
-    private getViewData(batteryEntity: IBatteryEntity, hass: HomeAssistant): IBatteryViewData {
-        const entityData = hass.states[batteryEntity.entity];
+    /**
+     * Updates view properties of the given battery view model.
+     * @param battery Battery view data
+     * @param hass Home assistant object with states
+     */
+    private updateBattery(battery: BatteryViewModel, hass: HomeAssistant) {
+        const entityData = hass.states[battery.entity.entity];
         if (!entityData) {
+            console.error("[battery-state-card] Entity not found: " + battery.entity.entity);
             return null;
         }
 
-        const result = <IBatteryViewData>{
-            name: batteryEntity.name || entityData.attributes.friendly_name,
-            level: 0
-        };
+        battery.name = battery.entity.name || entityData.attributes.friendly_name
 
-        if (batteryEntity.attribute) {
-            result.level = entityData.attributes[batteryEntity.attribute]
+        let level = 0;
+        if (battery.entity.attribute) {
+            level = entityData.attributes[battery.entity.attribute]
         }
         else {
             const candidates: number[] = [
@@ -102,15 +143,16 @@ class BatteryStateCard extends LitElement {
                 0
             ];
 
-            result.level = candidates.find(n => n !== null && !isNaN(n));
+            level = candidates.find(n => n !== null && !isNaN(n)) || 0;
         }
 
-        if (batteryEntity.multiplier) {
-            result.level *= batteryEntity.multiplier;
+        if (battery.entity.multiplier) {
+            level *= battery.entity.multiplier;
         }
 
-        return result;
+        battery.level = level;
     }
 }
 
+// Registering card
 customElements.define("battery-state-card", <any>BatteryStateCard);

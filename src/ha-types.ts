@@ -75,11 +75,11 @@ export interface ToggleActionConfig extends BaseActionConfig {
     ShadyCSS: {
       nativeCss: boolean;
       nativeShadow: boolean;
-      prepareTemplate(templateElement, elementName, elementExtension);
-      styleElement(element);
-      styleSubtree(element, overrideProperties);
-      styleDocument(overrideProperties);
-      getComputedStyleValue(element, propertyName);
+      prepareTemplate(templateElement: any, elementName: any, elementExtension: any): void;
+      styleElement(element: any): void;
+      styleSubtree(element: any, overrideProperties: any): void;
+      styleDocument(overrideProperties: any): void;
+      getComputedStyleValue(element: any, propertyName: any): void;
     };
   }
 
@@ -100,7 +100,6 @@ export interface ToggleActionConfig extends BaseActionConfig {
         replace: boolean;
       };
       "show-dialog": {};
-      undefined;
     }
   }
 
