@@ -1,6 +1,6 @@
 import typescript from '@rollup/plugin-typescript';
 import resolve from '@rollup/plugin-node-resolve';
-import { uglify } from 'rollup-plugin-uglify';
+import { terser } from 'rollup-plugin-terser';
 import pkg from './package.json';
 
 export default function (agrs) {
@@ -14,7 +14,7 @@ export default function (agrs) {
 
   if (agrs.release) {
     plugins.push(
-      uglify({
+      terser({
         compress: {}
       })
     );
