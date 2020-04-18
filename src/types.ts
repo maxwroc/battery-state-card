@@ -15,5 +15,6 @@ export interface IAppearance {
 }
 
 export interface IBatteryStateCardConfig extends IBatteryEntity, IAppearance  {
-    entities: IBatteryEntity[],
+    entities: IBatteryEntity[];
+    sort_by_level?: "asc" | "desc";
 }

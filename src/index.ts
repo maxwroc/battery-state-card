@@ -1,15 +1,10 @@
 import { HomeAssistant } from "./ha-types";
 import { IBatteryStateCardConfig, IBatteryEntity } from "./types";
 import { LitElement } from "./lit-element";
+import { log } from "./utils";
+import BatteryViewModel from "./battery-vm";
 import * as views from "./views";
 import styles from "./styles";
-import BatteryViewModel from "./battery-vm";
-
-console.info(
-    '%c BATTERY-STATE-CARD %c 0.1.0 ',
-    'color: white; background: forestgreen; font-weight: 700;',
-    'color: forestgreen; background: white; font-weight: 700;',
-);
 
 /**
  * Card main class.
@@ -88,6 +83,20 @@ class BatteryStateCard extends LitElement {
         });
 
         if (updated) {
+
+            switch (this.config.sort_by_level) {
+                case "asc":
+                    this.batteries.sort((a, b) => a.level - b.level);
+                    break;
+                case "desc":
+                    this.batteries.sort((a, b) => b.level - a.level);
+                    break;
+                default:
+                    if (this.config.sort_by_level) {
+                        log("Unknown sort option. Allowed values: 'asc', 'desc'");
+                    }
+            }
+
             // trigger the update
             this.batteries = [...this.batteries];
         }
@@ -124,7 +133,7 @@ class BatteryStateCard extends LitElement {
     private updateBattery(battery: BatteryViewModel, hass: HomeAssistant) {
         const entityData = hass.states[battery.entity.entity];
         if (!entityData) {
-            console.error("[battery-state-card] Entity not found: " + battery.entity.entity);
+            log("Entity not found: " + battery.entity.entity, "error");
             return null;
         }
 
