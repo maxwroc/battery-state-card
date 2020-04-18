@@ -1,4 +1,4 @@
-import { IBatteryEntity } from "./types";
+import { IBatteryEntity, IAppearance } from "./types";
 
 /**
  * Battery view model.
@@ -14,7 +14,7 @@ class BatteryViewModel {
     /**
      * @param entity Battery entity
      */
-    constructor(public entity: IBatteryEntity) {
+    constructor(public entity: IBatteryEntity, private config: IAppearance) {
     }
 
     /**
@@ -45,6 +45,35 @@ class BatteryViewModel {
      */
     get level(): number {
         return this._level;
+    }
+
+    /**
+     * Battery level color.
+     */
+    get levelColor(): string {
+        if (this.level > (this.config.warrning_level || 35)) {
+            return this.config.good_color || "var(--label-badge-green)";
+        }
+        else if (this.level > (this.config.critical_level || 15)) {
+            return this.config.warrning_color || "var(--label-badge-yellow)";
+        }
+
+        return this.config.critical_color || "var(--label-badge-red)";
+    }
+
+    /**
+     * Icon showing battery level/state.
+     */
+    get icon(): string {
+        const roundedLevel = Math.round(this.level / 10) * 10;
+        switch (roundedLevel) {
+            case 100:
+                return 'mdi:battery';
+            case 0:
+                return 'mdi:battery-outline';
+            default:
+                return 'mdi:battery-' + roundedLevel;
+        }
     }
 }
 

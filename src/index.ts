@@ -73,7 +73,7 @@ class BatteryStateCard extends LitElement {
                 return entity;
             });
 
-        this.batteries = entities.map(entity => new BatteryViewModel(entity));
+        this.batteries = entities.map(entity => new BatteryViewModel(entity, this.config));
     }
 
     /**
@@ -99,13 +99,12 @@ class BatteryStateCard extends LitElement {
     render() {
         // check if we should render it without card container
         if (this.simpleView) {
-            return views.battery(this.batteries[0].level, this.batteries[0].name);
+            return views.battery(this.batteries[0]);
         }
 
         return views.card(
             this.config.name || "Battery levels",
-            this.batteries.map(battery =>
-                views.battery(battery.level, battery.name))
+            this.batteries.map(battery => views.battery(battery))
         );
     }
 

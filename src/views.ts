@@ -1,27 +1,5 @@
 import { html } from "./lit-element";
-
-function getIcon(batteryLevel: number): string {
-    const roundedLevel = Math.round(batteryLevel / 10) * 10;
-    switch (roundedLevel) {
-        case 100:
-            return 'mdi:battery';
-        case 0:
-            return 'mdi:battery-outline';
-        default:
-            return 'mdi:battery-' + roundedLevel;
-    }
-}
-
-function getColor(batteryLevel: number): string {
-    if (batteryLevel > 35) {
-        return  "good";
-    }
-    else if (batteryLevel > 15) {
-        return "warning";
-    }
-
-    return "critical";
-}
+import BatteryViewModel from "./battery-vm";
 
 
 const header = (text: string) => html`
@@ -33,19 +11,19 @@ const header = (text: string) => html`
 `;
 
 
-export const battery = (level: number, name: string) => html`
+export const battery = (model: BatteryViewModel) => html`
 <div class="battery">
     <div class="icon">
         <ha-icon
-            class="${getColor(level)}"
-            icon="${getIcon(level)}"
+            style="color: ${model.levelColor}"
+            icon="${model.icon}"
         ></ha-icon>
     </div>
     <div class="name">
-        ${name}
+        ${model.name}
     </div>
     <div class="state">
-        ${level} %
+        ${model.level} %
     </div>
 </div>
 `;
