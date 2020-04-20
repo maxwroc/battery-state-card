@@ -10,7 +10,8 @@
   "scripts": {
     "build": "npm run build:debug",
     "build:debug": "rollup -c",
-    "build:release": "rollup --release -c",
+    "build:release": "rollup --release -c && npm run build:release:es5",
+    "build:release:es5": "rollup --release --target=es5 -c",
     "watch": "rollup -c --watch"
   },
   "keywords": [
