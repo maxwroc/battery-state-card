@@ -4,6 +4,7 @@ export interface IBatteryEntity {
     name?: string;
     attribute?: string;
     multiplier?: number;
+    value_override: number; // dev purposes only
 }
 
 export interface IAppearance {

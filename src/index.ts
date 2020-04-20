@@ -158,7 +158,8 @@ class BatteryStateCard extends LitElement {
             level *= battery.entity.multiplier;
         }
 
-        battery.level = level;
+        // for dev/testing purposes we allow override for value
+        battery.level = battery.entity.value_override || level;
     }
 }
 
