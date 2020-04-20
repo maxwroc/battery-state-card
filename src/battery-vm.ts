@@ -51,6 +51,10 @@ class BatteryViewModel {
      * Battery level color.
      */
     get levelColor(): string {
+        if (this.config.icon_colors === false) {
+            return "inherit";
+        }
+
         if (this.level > (this.config.warrning_level || 35)) {
             return this.config.good_color || "var(--label-badge-green)";
         }

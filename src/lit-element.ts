@@ -6,7 +6,7 @@ declare var LitElement: any;
  *
  * Maybe in the future LitElement will be globally available but currently only Polymer.Element is there.
  */
-LitElement = LitElement || Object.getPrototypeOf(customElements.get("home-assistant-main"));
+var LitElement = LitElement || Object.getPrototypeOf(customElements.get("home-assistant-main"));
 const { html, css } = LitElement.prototype;
 
 export {

@@ -7,6 +7,7 @@ export interface IBatteryEntity {
 }
 
 export interface IAppearance {
+    icon_colors: boolean;
     good_color?: string;
     warrning_color?: string;
     warrning_level?: number;
