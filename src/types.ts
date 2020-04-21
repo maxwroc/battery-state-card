@@ -1,4 +1,10 @@
 
+
+interface IColorThreshold {
+    value: number;
+    color: string;
+}
+
 export interface IBatteryEntity {
     entity: string;
     name?: string;
@@ -8,12 +14,8 @@ export interface IBatteryEntity {
 }
 
 export interface IAppearance {
-    icon_colors: boolean;
-    good_color?: string;
-    warrning_color?: string;
-    warrning_level?: number;
-    critical_color?: string;
-    critical_level?: number;
+    color_thresholds?: IColorThreshold[];
+    color_gradient: string[]
 }
 
 export interface IBatteryStateCardConfig extends IBatteryEntity, IAppearance  {

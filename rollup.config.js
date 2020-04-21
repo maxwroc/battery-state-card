@@ -11,8 +11,6 @@ export default function (args) {
     resolve()
   ];
 
-  console.log(args);
-
   const target = args.target ? args.target.toUpperCase() : null;
   const allowedTargets = ["ES3", "ES5", "ES6"];
   if (allowedTargets.some(t => t == target)) {

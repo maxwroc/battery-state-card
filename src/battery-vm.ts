@@ -1,4 +1,5 @@
 import { IBatteryEntity, IAppearance } from "./types";
+import { log, getColorInterpolationForPercentage } from "./utils";
 
 /**
  * Battery view model.
@@ -10,6 +11,8 @@ class BatteryViewModel {
     private _level: number = 0;
 
     public updated: boolean = false;
+
+    private colorPattern = /^#[A-Fa-f0-9]{6}$/;
 
     /**
      * @param entity Battery entity
@@ -51,18 +54,17 @@ class BatteryViewModel {
      * Battery level color.
      */
     get levelColor(): string {
-        if (this.config.icon_colors === false) {
-            return "inherit";
+
+        if (this.isColorGradientValid(this.config.color_gradient)) {
+            return getColorInterpolationForPercentage(this.config.color_gradient, this.level);
         }
 
-        if (this.level > (this.config.warrning_level || 35)) {
-            return this.config.good_color || "var(--label-badge-green)";
-        }
-        else if (this.level > (this.config.critical_level || 15)) {
-            return this.config.warrning_color || "var(--label-badge-yellow)";
-        }
 
-        return this.config.critical_color || "var(--label-badge-red)";
+        const defaultColor = "inherit";
+        const thresholds = this.config.color_thresholds ||
+            [{ value: 20, color: "var(--label-badge-red)" }, { value: 55, color: "var(--label-badge-yellow)" }, { value: 101, color: "var(--label-badge-green)" }];
+
+        return thresholds.find(th => this.level <= th.value)?.color || defaultColor;
     }
 
     /**
@@ -78,6 +80,25 @@ class BatteryViewModel {
             default:
                 return 'mdi:battery-' + roundedLevel;
         }
+    }
+
+    private isColorGradientValid(color_gradient: string[]) {
+        if (!color_gradient) {
+            return false;
+        }
+
+        if (color_gradient.length > 1) {
+            log("Value for 'color_gradient' should be an array with at least 2 colors.");
+        }
+
+        for (const color of color_gradient) {
+            if (!this.colorPattern.test(color)) {
+                log("Color '${color}' is not valid. Please provide valid HTML hex color in #XXXXXX format.");
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 

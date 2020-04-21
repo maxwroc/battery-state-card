@@ -159,7 +159,7 @@ class BatteryStateCard extends LitElement {
         }
 
         // for dev/testing purposes we allow override for value
-        battery.level = battery.entity.value_override || level;
+        battery.level = battery.entity.value_override === undefined ? level : battery.entity.value_override;
     }
 }
 
