@@ -7,7 +7,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 Card code is very small - less than 10KB. It **doesn't** depend on external dependencies (eg. downloaded every time from CDN).
 
-![image](https://user-images.githubusercontent.com/8268674/79757248-be630880-8313-11ea-9c3d-531e0743eaf2.png)
+![image](https://user-images.githubusercontent.com/8268674/79861655-a4393100-83cc-11ea-8be1-328cdf35807b.png)
 
 ## Config
 
@@ -94,19 +94,19 @@ Entity view is useful when you want to add battery status next to other sensors 
 
 #### Custom threshold colors
 
-![image](https://user-images.githubusercontent.com/8268674/79767239-f6bd1380-8320-11ea-8b12-c3eaccc7c78c.png)
+![image](https://user-images.githubusercontent.com/8268674/79862088-6e487c80-83cd-11ea-8a84-4eecc3601ae2.png)
 
 ```yaml
 - type: custom:battery-state-card
   thresholds:
-    - value: 35 # all values below
-      color: "#E45E65"
-    - value: 60 # all values below
-      color: "orange"
-    - value: 90 # all values below
-      color: "yellow"
-    - value: 100 # all values below
-      color: "lightgreen"
+    - value: 35 # applied to all values below/equal
+      color: "#8fffe1"
+    - value: 45 # applied to all values below/equal
+      color: "#8fbbff"
+    - value: 60 # applied to all values below/equal
+      color: "#978fff"
+    - value: 100 # applied to all values below/equal
+      color: "#fe8fff"
   entities:
     - entity: sensor.bathroom_motion_battery_level
       name: "Bathroom motion sensor"
