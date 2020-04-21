@@ -30,8 +30,13 @@ export default function (args) {
       })
     );
 
-    sourcemapPathTransform = file =>
-      pkg.repository.url.replace(/.git$/, "") + "/blob/" + pkg.version + file.substr(2);
+    // https://raw.githubusercontent.com/maxwroc/battery-state-card/0.1.0/src/utils.ts
+    let repoRoot = pkg.repository.url
+      .replace("https://github.com", "https://raw.githubusercontent.com")
+      .replace(/.git$/, "");
+    repoRoot += "/";
+
+    sourcemapPathTransform = file => repoRoot + pkg.version + file.substr(2);
   }
 
   return {
