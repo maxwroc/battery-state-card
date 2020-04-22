@@ -59,7 +59,6 @@ class BatteryViewModel {
             return getColorInterpolationForPercentage(this.config.color_gradient, this.level);
         }
 
-
         const defaultColor = "inherit";
         const thresholds = this.config.color_thresholds ||
             [{ value: 20, color: "var(--label-badge-red)" }, { value: 55, color: "var(--label-badge-yellow)" }, { value: 101, color: "var(--label-badge-green)" }];
@@ -87,8 +86,9 @@ class BatteryViewModel {
             return false;
         }
 
-        if (color_gradient.length > 1) {
+        if (color_gradient.length < 2) {
             log("Value for 'color_gradient' should be an array with at least 2 colors.");
+            return;
         }
 
         for (const color of color_gradient) {
