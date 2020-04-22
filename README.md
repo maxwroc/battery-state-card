@@ -143,6 +143,42 @@ Entity view is useful when you want to add battery status next to other sensors 
       name: "Bedroom temp. sensor"
 ```
 
+#### Disabling colors
+
+When you put empty array in `color_thresholds` propertyyou can disable colors.
+
+![image](https://user-images.githubusercontent.com/8268674/79975932-aa461500-8493-11ea-9947-f4513863ae53.png)
+
+```yaml
+- type: custom:battery-state-card
+  color_thresholds: []
+  entities:
+    - sensor.bedroom_motion_battery_level
+    - sensor.bathroom_motion_battery_level
+    - sensor.bedroomtemp_battery_level
+    - sensor.bedroom_balcony_battery_level
+    - sensor.bedroom_switch_battery_level
+```
+
+You can setup as well colors only for lower battery levels and leave the default one for the rest.
+
+![image](https://user-images.githubusercontent.com/8268674/79977247-d793c280-8495-11ea-82f1-78f48ad4fc5b.png)
+
+```yaml
+- type: custom:battery-state-card
+  color_thresholds:
+    - value: 20
+      color: "red"
+    - value: 60
+      color: "yellow"
+  entities:
+    - sensor.bedroom_motion_battery_level
+    - sensor.bathroom_motion_battery_level
+    - sensor.bedroomtemp_battery_level
+    - sensor.bedroom_balcony_battery_level
+    - sensor.bedroom_switch_battery_level
+```
+
 ## Installation
 
 Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following to your lovelace configuration
