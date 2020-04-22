@@ -159,7 +159,7 @@ resources:
     type: module
 ```
 
-If you don't have HACS you can download latest release zip file. Unzip the card file and drop it in `www` folder in your `config` directory. Then add the following entry in lovelace configuration
+If you don't have HACS you can download [latest release](https://github.com/maxwroc/battery-state-card/releases/latest) zip file. Unzip the card file and drop it in `www` folder in your `config` directory. Then add the following entry in lovelace configuration
 ```yaml
 resources:
   - url: /local/battery-state-card.js
