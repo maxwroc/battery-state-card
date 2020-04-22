@@ -14,9 +14,9 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 ### Card config
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| entities | array(string \| [Entity](#entity-object)) | **(required)** | v0.1.0 | List of entities
-| name | string | `"Battery levels"` | v0.1.0 | Card title
-| sort_by_level | string |  | v0.1.0 | Values: `asc`, `desc`
+| entities | array(string \| [Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities
+| name | string | `"Battery levels"` | v0.9.0 | Card title
+| sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 
 +[appearance options](#appearance-options)
 
@@ -24,10 +24,10 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 ### Entity object
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| entity | string | **(required)** | v0.1.0 | Entity ID
-| name | string | | v0.1.0 | Entity name override
-| attribute | string | | v0.1.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
-| multiplier | number | `1` | v0.1.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
+| entity | string | **(required)** | v0.9.0 | Entity ID
+| name | string | | v0.9.0 | Entity name override
+| attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
+| multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
 
  +[appearance options](#appearance-options)
 
@@ -35,15 +35,15 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| color_thresholds | array([Threshold](#threshold-object)) | (see [below](#default-thresholds)) | v0.1.0 | Thresholds and colors for indication of battery level.
-| color_gradient | array(string) | | v0.1.0 | Array of hex HTML colors. At least two. In #XXXXXX format, eg. `"#FFB033"`.
+| color_thresholds | array([Threshold](#threshold-object)) | (see [below](#default-thresholds)) | v0.9.0 | Thresholds and colors for indication of battery level.
+| color_gradient | array(string) | | v0.9.0 | Array of hex HTML colors. At least two. In #XXXXXX format, eg. `"#FFB033"`.
 
 ### Threshold object
 
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| value | number | **(required)** | v0.1.0 | Threshold value
-| color | string | `inherit` | v0.1.0 | CSS color which will be used for levels below or equal the value field. If not specified the default one is used (default icon/text color for current HA theme)
+| value | number | **(required)** | v0.9.0 | Threshold value
+| color | string | `inherit` | v0.9.0 | CSS color which will be used for levels below or equal the value field. If not specified the default one is used (default icon/text color for current HA theme)
 
 #### Default thresholds
 | Value | Color | Description |
@@ -143,6 +143,28 @@ Entity view is useful when you want to add battery status next to other sensors 
       name: "Bedroom temp. sensor"
 ```
 
+## Installation
+
+Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following to your lovelace configuration
+```yaml
+resources:
+  - url: /hacsfiles/battery-state-card/battery-state-card.js
+    type: module
+```
+
+Please note the above version of the card is in ES6 standard, which means it works only in newer browsers. If you want to use the card on browsers which don't support it please use the following:
+```yaml
+resources:
+  - url: /hacsfiles/battery-state-card/battery-state-card.es5.js
+    type: module
+```
+
+If you don't have HACS you can download latest release zip file. Unzip the card file and drop it in `www` folder in your `config` directory. Then add the following entry in lovelace configuration
+```yaml
+resources:
+  - url: /local/battery-state-card.js
+    type: module
+```
 
 ## Development
 ```shell
