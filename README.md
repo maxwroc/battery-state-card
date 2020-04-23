@@ -17,6 +17,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | entities | array(string \| [Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities
 | name | string | `"Battery levels"` | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
+| collapse | number |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
 
 +[appearance options](#appearance-options)
 
@@ -171,6 +172,23 @@ You can setup as well colors only for lower battery levels and leave the default
       color: "red"
     - value: 60
       color: "yellow"
+  entities:
+    - sensor.bedroom_motion_battery_level
+    - sensor.bathroom_motion_battery_level
+    - sensor.bedroomtemp_battery_level
+    - sensor.bedroom_balcony_battery_level
+    - sensor.bedroom_switch_battery_level
+```
+
+### Sorted list and collapsed view
+
+![ezgif com-resize](https://user-images.githubusercontent.com/8268674/80119122-31bd8200-8581-11ea-9221-aee943d0b1a0.gif)
+
+```yaml
+- type: custom:battery-state-card
+  name: "Sorted list and collapsed view"
+  sort_by_level: "asc"
+  collapse: 4
   entities:
     - sensor.bedroom_motion_battery_level
     - sensor.bathroom_motion_battery_level
