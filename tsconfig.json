@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "rootDir": "src",
-        "target": "ES6",
+        "target": "ES5",
         "alwaysStrict": true,
         "noImplicitAny": true,
         "strictNullChecks": true,

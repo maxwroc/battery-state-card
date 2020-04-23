@@ -1,7 +1,6 @@
 {
     "name": "Battery State Card",
     "content_in_root": false,
-    "zip_release": true,
-    "filename": "battery-state-card.zip",
+    "filename": "battery-state-card.js",
     "render_readme": true
 }

@@ -11,8 +11,8 @@
     "build": "npm run build:debug",
     "build:debug": "rollup -c",
     "build:release": "rollup --release -c",
-    "build:release:es5": "rollup --release --target=es5 -c",
-    "release": "npm run build:release && npm run build:release:es5 && node build/postrelease.js",
+    "build:release:es6": "rollup --release --target=es6 -c",
+    "release": "npm run build:release && npm run build:release:es6 && node build/postrelease.js",
     "watch": "rollup -c --watch"
   },
   "keywords": [
