@@ -204,6 +204,10 @@ Bundeled transpiled code will appear in `dist` directory.
 
 Note: there is "undocumented" `value_override` property on the [entity object](#entity-object) which you can use for testing.
 
+## Do you like the card?
+
+No buy-me-a-beer option but if you do like the card please star it on [github](https://github.com/maxwroc/battery-state-card)! This is a great way to give feedback and motivate to continue working on it. Thanks!
+
 ## License
 
 This project is under the [MIT license](https://github.com/maxwroc/battery-state-card/blob/master/LICENSE).
