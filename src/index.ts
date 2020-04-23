@@ -124,7 +124,7 @@ class BatteryStateCard extends LitElement {
      * distribute all cards over the available columns.
      */
     getCardSize() {
-        return this.batteries.length + 1;
+        return (this.config.collapse || this.batteries.length) + 1;
     }
 
     /**
