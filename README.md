@@ -17,7 +17,6 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | entities | array(string \| [Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities
 | name | string | `"Battery levels"` | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
-| collapse | number |  | v1.0.0 | Number of visible entities - rest will be collapsed
 
 +[appearance options](#appearance-options)
 
@@ -180,12 +179,6 @@ You can setup as well colors only for lower battery levels and leave the default
     - sensor.bedroom_switch_battery_level
 ```
 
-### Sorted list and collapsed view
-
-Usually we care the most about the entities with lowest battery levels. The `sort_by_level` option gives you a way to sort list by battery levels (this way you can see the lowest ones on the beginning). The other useful option is to hide less important entities (to make the UI cleaner).
-
-
-
 ## Installation
 
 Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following to your lovelace configuration
@@ -195,7 +188,7 @@ resources:
     type: module
 ```
 
-If you don't have HACS you can download js file from [latest release](https://github.com/maxwroc/battery-state-card/releases/latest). Unzip the card file and drop it in `www` folder in your `config` directory. Then add the following entry in lovelace configuration
+If you don't have HACS you can download js file from [latest release](https://github.com/maxwroc/battery-state-card/releases/latest). Drop it then in `www` folder in your `config` directory. Next add the following entry in lovelace configuration
 ```yaml
 resources:
   - url: /local/battery-state-card.js
