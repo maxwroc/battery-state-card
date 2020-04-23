@@ -145,7 +145,7 @@ Entity view is useful when you want to add battery status next to other sensors 
 
 #### Disabling colors
 
-When you put empty array in `color_thresholds` propertyyou can disable colors.
+When you put empty array in `color_thresholds` property you can disable colors.
 
 ![image](https://user-images.githubusercontent.com/8268674/79975932-aa461500-8493-11ea-9947-f4513863ae53.png)
 
