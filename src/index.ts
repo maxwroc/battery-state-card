@@ -120,11 +120,21 @@ class BatteryStateCard extends LitElement {
     }
 
     /**
-     * Gets the height of your card. Home Assistant uses this to automatically
-     * distribute all cards over the available columns.
+     * Gets the height of your card.
+     *
+     * Home Assistant uses this to automatically distribute all cards over
+     * the available columns. One is equal 50px.
      */
     getCardSize() {
-        return (this.config.collapse || this.batteries.length) + 1;
+        let size = this.batteries.length;
+
+        if (this.config.collapse) {
+            // +1 to account the expand button
+            size = this.config.collapse + 1;
+        }
+
+        // +1 to account header
+        return size + 1;
     }
 
     /**
