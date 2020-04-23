@@ -188,14 +188,7 @@ resources:
     type: module
 ```
 
-Please note the above version of the card is in ES6 standard, which means it works only in newer browsers. If you want to use the card on browsers which don't support it please use the following:
-```yaml
-resources:
-  - url: /hacsfiles/battery-state-card/battery-state-card.es5.js
-    type: module
-```
-
-If you don't have HACS you can download [latest release](https://github.com/maxwroc/battery-state-card/releases/latest) zip file. Unzip the card file and drop it in `www` folder in your `config` directory. Then add the following entry in lovelace configuration
+If you don't have HACS you can download js file from [latest release](https://github.com/maxwroc/battery-state-card/releases/latest). Drop it then in `www` folder in your `config` directory. Next add the following entry in lovelace configuration
 ```yaml
 resources:
   - url: /local/battery-state-card.js
