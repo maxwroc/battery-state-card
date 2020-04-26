@@ -224,7 +224,7 @@ Note: there is "undocumented" `value_override` property on the [entity object](#
 
 ## Do you like the card?
 
-No buy-me-a-beer option but if you do like the card please star it on [github](https://github.com/maxwroc/battery-state-card)! This is a great way to give feedback and motivate to continue working on it. Thanks!
+If you do like the card please star it on [github](https://github.com/maxwroc/battery-state-card)! This is a great way to give feedback and motivation boost for me to continue working on it. Thanks!
 
 ## License
 
