@@ -55,7 +55,7 @@ class BatteryViewModel {
      */
     get levelColor(): string {
 
-        if (this.isColorGradientValid(this.config.color_gradient)) {
+        if (this.config.color_gradient && this.isColorGradientValid(this.config.color_gradient)) {
             return getColorInterpolationForPercentage(this.config.color_gradient, this.level);
         }
 
@@ -82,10 +82,6 @@ class BatteryViewModel {
     }
 
     private isColorGradientValid(color_gradient: string[]) {
-        if (!color_gradient) {
-            return false;
-        }
-
         if (color_gradient.length < 2) {
             log("Value for 'color_gradient' should be an array with at least 2 colors.");
             return;

@@ -111,18 +111,30 @@ class BatteryStateCard extends LitElement {
             return views.battery(this.batteries[0]);
         }
 
+        const batteryViews = this.batteries.map(battery => views.battery(battery));
+
         return views.card(
             this.config.name || "Battery levels",
-            this.batteries.map(battery => views.battery(battery))
+            this.config.collapse ? [ views.collapsableWrapper(batteryViews, this.config.collapse) ] : batteryViews
         );
     }
 
     /**
-     * Gets the height of your card. Home Assistant uses this to automatically
-     * distribute all cards over the available columns.
+     * Gets the height of your card.
+     *
+     * Home Assistant uses this to automatically distribute all cards over
+     * the available columns. One is equal 50px.
      */
     getCardSize() {
-        return this.batteries.length + 1;
+        let size = this.batteries.length;
+
+        if (this.config.collapse) {
+            // +1 to account the expand button
+            size = this.config.collapse + 1;
+        }
+
+        // +1 to account header
+        return size + 1;
     }
 
     /**
