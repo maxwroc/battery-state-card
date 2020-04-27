@@ -35,7 +35,7 @@ export default function (args) {
       .replace(/.git$/, "");
     repoRoot += "/";
 
-    sourcemapPathTransform = file => repoRoot + pkg.version + file.substr(2);
+    sourcemapPathTransform = file => repoRoot + "v" + pkg.version + file.substr(2);
   }
 
   return {
