@@ -16,10 +16,28 @@ exports.getDirectoryFiles = (path, extensions) => {
                 .map(f => path + f));
         });
     })
-}
+};
 
 exports.createZipFile = (files, targetFile) => {
     const zip = new AdmZip();
     files.forEach(f => zip.addLocalFile(f));
     zip.writeZip(targetFile);
+};
+
+exports.readFile = (filePath) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            resolve(data.toString());
+        });
+    });
+};
+
+exports.writeFile = (filePath, content) => {
+    return new Promise((resolve, reject) =>
+        fs.writeFile(filePath, content, () => resolve()));
 }

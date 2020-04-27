@@ -1,9 +1,7 @@
-import { css } from "./lit-element";
-
-const styles = css`
 .battery {
     display: flex;
     line-height: 40px;
+    margin: 8px 0;
 }
 .battery .name {
     flex: 1 0 60px;
@@ -46,6 +44,3 @@ const styles = css`
 .expand:checked + label + div {
     max-height: 1000px;
 }
-`;
-
-export default styles;
