@@ -1,8 +1,8 @@
 
 console.info(
-    '%c BATTERY-STATE-CARD %c 1.0.0 ',
-    'color: white; background: forestgreen; font-weight: 700;',
-    'color: forestgreen; background: white; font-weight: 700;',
+    "%c BATTERY-STATE-CARD %c 1.0.1",
+    "color: white; background: forestgreen; font-weight: 700;",
+    "color: forestgreen; background: white; font-weight: 700;",
 );
 
 /**
