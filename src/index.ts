@@ -86,10 +86,10 @@ class BatteryStateCard extends LitElement {
 
             switch (this.config.sort_by_level) {
                 case "asc":
-                    this.batteries.sort((a, b) => a.level - b.level);
+                    this.batteries.sort((a, b) => this.sort(a.level, b.level));
                     break;
                 case "desc":
-                    this.batteries.sort((a, b) => b.level - a.level);
+                    this.batteries.sort((a, b) => this.sort(b.level, a.level));
                     break;
                 default:
                     if (this.config.sort_by_level) {
@@ -151,27 +151,39 @@ class BatteryStateCard extends LitElement {
 
         battery.name = battery.entity.name || entityData.attributes.friendly_name
 
-        let level = 0;
+        let level: string;
         if (battery.entity.attribute) {
             level = entityData.attributes[battery.entity.attribute]
         }
         else {
-            const candidates: number[] = [
+            const candidates: string[] = [
                 entityData.attributes.battery_level,
                 entityData.attributes.battery,
-                entityData.state,
-                0
+                entityData.state
             ];
 
-            level = candidates.find(n => n !== null && !isNaN(n)) || 0;
+            level = candidates.find(n => n !== null && n !== undefined)?.toString() || "Unknown";
         }
 
-        if (battery.entity.multiplier) {
-            level *= battery.entity.multiplier;
+        if (battery.entity.multiplier && !isNaN(Number(level))) {
+            level = (battery.entity.multiplier * Number(level)).toString();
         }
 
         // for dev/testing purposes we allow override for value
         battery.level = battery.entity.value_override === undefined ? level : battery.entity.value_override;
+    }
+
+    /**
+     * Sorting function for battery levels which can have "Unknown" state.
+     * @param a First value
+     * @param b Second value
+     */
+    private sort(a: string, b: string): number {
+        let aNum = Number(a);
+        let bNum = Number(b);
+        aNum = isNaN(aNum) ? -1 : aNum;
+        bNum = isNaN(bNum) ? -1 : bNum;
+        return aNum - bNum;
     }
 }
 
