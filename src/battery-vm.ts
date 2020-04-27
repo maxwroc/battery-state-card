@@ -8,7 +8,7 @@ class BatteryViewModel {
 
     private _name: string = "";
 
-    private _level: number = 0;
+    private _level: string = "";
 
     public updated: boolean = false;
 
@@ -38,7 +38,7 @@ class BatteryViewModel {
     /**
      * Battery level.
      */
-    set level(level: number) {
+    set level(level: string) {
         this.updated = this._level != level;
         this._level = level;
     }
@@ -46,8 +46,8 @@ class BatteryViewModel {
     /**
      * Battery level.
      */
-    get level(): number {
-        return this._level;
+    get level(): string {
+        return isNaN(Number(this._level)) ? this._level : this._level;
     }
 
     /**
@@ -55,22 +55,35 @@ class BatteryViewModel {
      */
     get levelColor(): string {
 
-        if (this.config.color_gradient && this.isColorGradientValid(this.config.color_gradient)) {
-            return getColorInterpolationForPercentage(this.config.color_gradient, this.level);
+        const defaultColor = "inherit";
+        const level = Number(this._level);
+
+        if (isNaN(level)) {
+            return defaultColor;
         }
 
-        const defaultColor = "inherit";
+        if (this.config.color_gradient && this.isColorGradientValid(this.config.color_gradient)) {
+            return getColorInterpolationForPercentage(this.config.color_gradient, level);
+        }
+
         const thresholds = this.config.color_thresholds ||
             [{ value: 20, color: "var(--label-badge-red)" }, { value: 55, color: "var(--label-badge-yellow)" }, { value: 101, color: "var(--label-badge-green)" }];
 
-        return thresholds.find(th => this.level <= th.value)?.color || defaultColor;
+        return thresholds.find(th => level <= th.value)?.color || defaultColor;
     }
 
     /**
      * Icon showing battery level/state.
      */
     get icon(): string {
-        const roundedLevel = Math.round(this.level / 10) * 10;
+
+        const level = Number(this._level);
+
+        if (isNaN(level)) {
+            return "mdi:battery-unknown";
+        }
+
+        const roundedLevel = Math.round(level / 10) * 10;
         switch (roundedLevel) {
             case 100:
                 return 'mdi:battery';

@@ -23,7 +23,7 @@ export const battery = (model: BatteryViewModel) => html`
         ${model.name}
     </div>
     <div class="state">
-        ${model.level} %
+        ${model.level}${isNaN(Number(model.level)) ? "" : " %"}
     </div>
 </div>
 `;
