@@ -12,6 +12,11 @@ import styles from "./styles";
 class BatteryStateCard extends LitElement {
 
     /**
+     * Raw config used to check if there were changes.
+     */
+    private rawConfig: string = "";
+
+    /**
      * Card configuration.
      */
     public config: IBatteryStateCardConfig = <any>{};
@@ -53,6 +58,14 @@ class BatteryStateCard extends LitElement {
         if (!config.entities && !config.entity) {
             throw new Error("You need to define entities");
         }
+
+        // check for changes
+        const rawConfig = JSON.stringify(config);
+        if (this.rawConfig === rawConfig) {
+            return;
+        }
+
+        this.rawConfig = rawConfig;
 
         this.config = config;
         this.simpleView = !!config.entity;

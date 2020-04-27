@@ -6,9 +6,9 @@ import { log, getColorInterpolationForPercentage } from "./utils";
  */
 class BatteryViewModel {
 
-    private _name: string = "";
+    private _name: string;
 
-    private _level: string = "";
+    private _level: string = "Unknown";
 
     public updated: boolean = false;
 
@@ -18,6 +18,7 @@ class BatteryViewModel {
      * @param entity Battery entity
      */
     constructor(public entity: IBatteryEntity, private config: IAppearance) {
+        this._name = entity.name || entity.entity;
     }
 
     /**
