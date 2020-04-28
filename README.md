@@ -14,12 +14,11 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 ### Card config
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| entities | array(string \| [Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities
+| entities **(required)** | array(string \| [Entity](#entity-object)) |  | v0.9.0 | List of entities
 | name | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 | collapse | number |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
-| tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when a battery on card is tapped. This action will be applied to all entities on the card (unless the `tap_action` is specified explicitly in [Entity](#entity-object))
-| state_map | array([StateMap](#state-map)) |  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#state-string-values))
+| tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when an entity on card is tapped. This action will be applied to all entities on the card (unless the `tap_action` is specified explicitly in [Entity](#entity-object))
 
 +[appearance options](#appearance-options)
 
@@ -27,10 +26,12 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 ### Entity object
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| entity | string | **(required)** | v0.9.0 | Entity ID
+| entity **(required)** | string |  | v0.9.0 | Entity ID
 | name | string | | v0.9.0 | Entity name override
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
+| tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
+| state_map | array([StateMap](#state-map)) |  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
 
  +[appearance options](#appearance-options)
 
@@ -45,7 +46,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| value | number | **(required)** | v0.9.0 | Threshold value
+| value **(required)** | number |  | v0.9.0 | Threshold value
 | color | string | `inherit` | v0.9.0 | CSS color which will be used for levels below or equal the value field. If not specified the default one is used (default icon/text color for current HA theme)
 
 #### Default thresholds
@@ -71,8 +72,8 @@ The definition is similar to the default [tap-action](https://www.home-assistant
 
 | Name | Type | Default | Description |
 |:-----|:-----|:-----|:-----|
-| from | any | **(required)** | Value to convert. Note it is type sensitive (eg. `false` != `"false"`)
-| to | number | **(required)** | Target battery level value in `0-100` range
+| from **(required)** | any |  | Value to convert. Note it is type sensitive (eg. `false` != `"false"`)
+| to **(required)** | number |  | Target battery level value in `0-100` range
 
 ## Examples
 
@@ -220,7 +221,7 @@ You can setup as well colors only for lower battery levels and leave the default
     - sensor.bedroom_switch_battery_level
 ```
 
-### State string values
+### Non-numeric state values
 
 If your sensor doesn't produce numeric values you can use `state_map` property and provie mappings from one value to the other.
 
@@ -268,7 +269,18 @@ npm run build
 ```
 Bundeled transpiled code will appear in `dist` directory.
 
+For automatic compilation on detected changes use:
+```
+npm run watch
+```
+
 Note: there is "undocumented" `value_override` property on the [entity object](#entity-object) which you can use for testing.
+
+### Sending pull request
+
+When you send PR please remember to base your branch on:
+* `master` for bug-fixes
+* `vNext` for new features
 
 ## Do you like the card?
 
