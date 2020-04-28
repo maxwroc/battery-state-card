@@ -5,11 +5,22 @@ interface IColorThreshold {
     color?: string;
 }
 
+export type SupportedActions = "more-info" | "call-service" | "navigate" | "url";
+
+export interface IActionConfig {
+    action: SupportedActions;
+    navigation_path: string;
+    url_path: string;
+    service: string;
+    service_data: any;
+}
+
 export interface IBatteryEntity {
     entity: string;
     name?: string;
     attribute?: string;
     multiplier?: number;
+    tap_action?: IActionConfig;
     value_override?: string; // dev purposes only
 }
 
@@ -23,3 +34,4 @@ export interface IBatteryStateCardConfig extends IBatteryEntity, IAppearance  {
     sort_by_level?: "asc" | "desc";
     collapse?: number;
 }
+

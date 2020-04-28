@@ -5,11 +5,12 @@ import { log } from "./utils";
 import BatteryViewModel from "./battery-vm";
 import * as views from "./views";
 import styles from "./styles";
+import { ActionFactory } from "./action";
 
 /**
  * Card main class.
  */
-class BatteryStateCard extends LitElement {
+export class BatteryStateCard extends LitElement {
 
     /**
      * Raw config used to check if there were changes.
@@ -81,13 +82,26 @@ class BatteryStateCard extends LitElement {
                 return entity;
             });
 
-        this.batteries = entities.map(entity => new BatteryViewModel(entity, this.config));
+        this.batteries = entities.map(entity =>
+            new BatteryViewModel(
+                entity,
+                this.config,
+                ActionFactory.getAction({
+                    card: this,
+                    config: entity.tap_action || this.config.tap_action || <any>null,
+                    entity: entity
+                })
+            )
+        );
     }
 
     /**
      * Called when HA state changes (very often).
      */
     set hass(hass: HomeAssistant) {
+
+        ActionFactory.hass = hass;
+
         let updated = false;
         this.batteries.forEach((battery, index) => {
 

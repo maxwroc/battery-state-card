@@ -1,3 +1,7 @@
+.clickable {
+    cursor: pointer;
+}
+
 .battery {
     display: flex;
     line-height: 40px;

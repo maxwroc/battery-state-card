@@ -1,5 +1,6 @@
 import { IBatteryEntity, IAppearance } from "./types";
 import { log, getColorInterpolationForPercentage } from "./utils";
+import { IAction } from "./action";
 
 /**
  * Battery view model.
@@ -17,7 +18,7 @@ class BatteryViewModel {
     /**
      * @param entity Battery entity
      */
-    constructor(public entity: IBatteryEntity, private config: IAppearance) {
+    constructor(public entity: IBatteryEntity, private config: IAppearance, public action: IAction | null) {
         this._name = entity.name || entity.entity;
     }
 
@@ -93,6 +94,10 @@ class BatteryViewModel {
             default:
                 return 'mdi:battery-' + roundedLevel;
         }
+    }
+
+    get classNames(): string {
+        return this.action ? "clickable" : "";
     }
 
     private isColorGradientValid(color_gradient: string[]) {
