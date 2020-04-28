@@ -12,7 +12,7 @@ const header = (text: string) => html`
 
 
 export const battery = (model: BatteryViewModel) => html`
-<div class="battery">
+<div class="battery ${model.classNames}" @click=${model.action}>
     <div class="icon">
         <ha-icon
             style="color: ${model.levelColor}"
