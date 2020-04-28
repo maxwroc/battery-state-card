@@ -15,7 +15,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | entities | array(string \| [Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities
-| name | string | `"Battery levels"` | v0.9.0 | Card title
+| name | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 | collapse | number |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
 | tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when a battery on card is tapped. This action will be applied to all entities on the card (unless the `tap_action` is specified explicitly in [Entity](#entity-object))
@@ -85,6 +85,7 @@ Card view is useful when you want to have cleaner config (you don't need to dupl
 
 ```yaml
 - type: custom:battery-state-card
+  name: "Battery levels"
   entities:
     - sensor.bathroom_motion_battery_level
     - sensor.bedroom_balcony_battery_level
@@ -146,6 +147,7 @@ Entity view is useful when you want to add battery status next to other sensors 
 
 ```yaml
 - type: custom:battery-state-card
+  name: "Color gradient"
   color_gradient:
     - "#ff0000" # red
     - "#ffff00" # yellow
@@ -171,6 +173,7 @@ When you put empty array in `color_thresholds` property you can disable colors.
 
 ```yaml
 - type: custom:battery-state-card
+  name: "No color"
   color_thresholds: []
   entities:
     - sensor.bedroom_motion_battery_level
@@ -186,6 +189,7 @@ You can setup as well colors only for lower battery levels and leave the default
 
 ```yaml
 - type: custom:battery-state-card
+  name: "No color - selective"
   color_thresholds:
     - value: 20
       color: "red"
