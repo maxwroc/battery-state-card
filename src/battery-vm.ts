@@ -18,8 +18,12 @@ class BatteryViewModel {
     /**
      * @param config Battery entity
      */
-    constructor(public config: IBatteryEntity, private appearance: IAppearance, public action: IAction | null) {
+    constructor(private config: IBatteryEntity, private appearance: IAppearance, public action: IAction | null) {
         this._name = config.name || config.entity;
+    }
+
+    get entity_id(): string {
+        return this.config.entity;
     }
 
     /**
@@ -98,6 +102,50 @@ class BatteryViewModel {
 
     get classNames(): string {
         return this.action ? "clickable" : "";
+    }
+
+    /**
+     * Updates battery data.
+     * @param entityData HA entity data
+     */
+    public update(entityData: any) {
+        if (!entityData) {
+            log("Entity not found: " + this.config.entity, "error");
+        }
+
+        this.name = this.config.name || entityData.attributes.friendly_name
+
+        let level: string;
+        if (this.config.attribute) {
+            level = entityData.attributes[this.config.attribute]
+        }
+        else {
+            const candidates: string[] = [
+                entityData.attributes.battery_level,
+                entityData.attributes.battery,
+                entityData.state
+            ];
+
+            level = candidates.find(n => n !== null && n !== undefined)?.toString() || "Unknown";
+        }
+
+        // check if we should convert value eg. for binary sensors
+        if (this.config.state_map) {
+            const convertedVal = this.config.state_map.find(s => s.from == level);
+            if (convertedVal == undefined) {
+                log(`Missing option for '${level}' in 'state_map'`);
+            }
+            else {
+                level = convertedVal.to.toString();
+            }
+        }
+
+        if (this.config.multiplier && !isNaN(Number(level))) {
+            level = (this.config.multiplier * Number(level)).toString();
+        }
+
+        // for dev/testing purposes we allow override for value
+        this.level = this.config.value_override === undefined ? level : this.config.value_override;
     }
 
     private isColorGradientValid(color_gradient: string[]) {

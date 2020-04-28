@@ -104,13 +104,11 @@ export class BatteryStateCard extends LitElement {
 
         let updated = false;
         this.batteries.forEach((battery, index) => {
-
-            this.updateBattery(battery, hass);
+            battery.update(hass.states[battery.entity_id]);
             updated = updated || battery.updated;
         });
 
         if (updated) {
-
             switch (this.config.sort_by_level) {
                 case "asc":
                     this.batteries.sort((a, b) => this.sort(a.level, b.level));
@@ -162,53 +160,6 @@ export class BatteryStateCard extends LitElement {
 
         // +1 to account header
         return size + 1;
-    }
-
-    /**
-     * Updates view properties of the given battery view model.
-     * @param battery Battery view data
-     * @param hass Home assistant object with states
-     */
-    private updateBattery(battery: BatteryViewModel, hass: HomeAssistant) {
-        const entityData = hass.states[battery.config.entity];
-        if (!entityData) {
-            log("Entity not found: " + battery.config.entity, "error");
-            return null;
-        }
-
-        battery.name = battery.config.name || entityData.attributes.friendly_name
-
-        let level: string;
-        if (battery.config.attribute) {
-            level = entityData.attributes[battery.config.attribute]
-        }
-        else {
-            const candidates: string[] = [
-                entityData.attributes.battery_level,
-                entityData.attributes.battery,
-                entityData.state
-            ];
-
-            level = candidates.find(n => n !== null && n !== undefined)?.toString() || "Unknown";
-        }
-
-        // check if we should convert value eg. for binary sensors
-        if (battery.config.state_map) {
-            const convertedVal = battery.config.state_map.find(s => s.from == level);
-            if (convertedVal == undefined) {
-                log(`Missing option for '${level}' in 'state_map'`);
-            }
-            else {
-                level = convertedVal.to.toString();
-            }
-        }
-
-        if (battery.config.multiplier && !isNaN(Number(level))) {
-            level = (battery.config.multiplier * Number(level)).toString();
-        }
-
-        // for dev/testing purposes we allow override for value
-        battery.level = battery.config.value_override === undefined ? level : battery.config.value_override;
     }
 
     /**
