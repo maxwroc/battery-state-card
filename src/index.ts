@@ -10,7 +10,7 @@ import { ActionFactory } from "./action";
 /**
  * Card main class.
  */
-export class BatteryStateCard extends LitElement {
+class BatteryStateCard extends LitElement {
 
     /**
      * Raw config used to check if there were changes.
@@ -87,7 +87,7 @@ export class BatteryStateCard extends LitElement {
                 entity,
                 this.config,
                 ActionFactory.getAction({
-                    card: this,
+                    card: <any>this,
                     config: entity.tap_action || this.config.tap_action || <any>null,
                     entity: entity
                 })

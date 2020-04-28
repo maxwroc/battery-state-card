@@ -1,6 +1,5 @@
 import { IActionConfig, IBatteryEntity, SupportedActions } from "./types"
 import { HomeAssistant } from "./ha-types"
-import { BatteryStateCard } from "./index";
 import { log } from "./utils";
 
 export interface IAction {
@@ -9,7 +8,7 @@ export interface IAction {
 
 interface IActionData {
     config: IActionConfig
-    card: BatteryStateCard;
+    card: Node;
     entity: IBatteryEntity
 }
 
