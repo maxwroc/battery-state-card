@@ -170,17 +170,17 @@ export class BatteryStateCard extends LitElement {
      * @param hass Home assistant object with states
      */
     private updateBattery(battery: BatteryViewModel, hass: HomeAssistant) {
-        const entityData = hass.states[battery.entity.entity];
+        const entityData = hass.states[battery.config.entity];
         if (!entityData) {
-            log("Entity not found: " + battery.entity.entity, "error");
+            log("Entity not found: " + battery.config.entity, "error");
             return null;
         }
 
-        battery.name = battery.entity.name || entityData.attributes.friendly_name
+        battery.name = battery.config.name || entityData.attributes.friendly_name
 
         let level: string;
-        if (battery.entity.attribute) {
-            level = entityData.attributes[battery.entity.attribute]
+        if (battery.config.attribute) {
+            level = entityData.attributes[battery.config.attribute]
         }
         else {
             const candidates: string[] = [
@@ -192,12 +192,23 @@ export class BatteryStateCard extends LitElement {
             level = candidates.find(n => n !== null && n !== undefined)?.toString() || "Unknown";
         }
 
-        if (battery.entity.multiplier && !isNaN(Number(level))) {
-            level = (battery.entity.multiplier * Number(level)).toString();
+        // check if we should convert value eg. for binary sensors
+        if (battery.config.state_map) {
+            const convertedVal = battery.config.state_map.find(s => s.from == level);
+            if (convertedVal == undefined) {
+                log(`Missing option for '${level}' in 'state_map'`);
+            }
+            else {
+                level = convertedVal.to.toString();
+            }
+        }
+
+        if (battery.config.multiplier && !isNaN(Number(level))) {
+            level = (battery.config.multiplier * Number(level)).toString();
         }
 
         // for dev/testing purposes we allow override for value
-        battery.level = battery.entity.value_override === undefined ? level : battery.entity.value_override;
+        battery.level = battery.config.value_override === undefined ? level : battery.config.value_override;
     }
 
     /**

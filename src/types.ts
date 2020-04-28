@@ -15,12 +15,18 @@ export interface IActionConfig {
     service_data: any;
 }
 
+export interface IStateMap {
+    from: string;
+    to: number;
+}
+
 export interface IBatteryEntity {
     entity: string;
     name?: string;
     attribute?: string;
     multiplier?: number;
     tap_action?: IActionConfig;
+    state_map?: IStateMap[];
     value_override?: string; // dev purposes only
 }
 
