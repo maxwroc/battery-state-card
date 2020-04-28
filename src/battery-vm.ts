@@ -22,6 +22,9 @@ class BatteryViewModel {
         this._name = config.name || config.entity;
     }
 
+    /**
+     * Entity ID
+     */
     get entity_id(): string {
         return this.config.entity;
     }

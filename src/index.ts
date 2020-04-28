@@ -63,6 +63,7 @@ class BatteryStateCard extends LitElement {
         // check for changes
         const rawConfig = JSON.stringify(config);
         if (this.rawConfig === rawConfig) {
+            // no changes so stop processing
             return;
         }
 
