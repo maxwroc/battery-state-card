@@ -19,7 +19,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 | collapse | number |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
 | tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when a battery on card is tapped. This action will be applied to all entities on the card (unless the `tap_action` is specified explicitly in [Entity](#entity-object))
-| state_map | array([StateMap](#state-map)) |  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values.
+| state_map | array([StateMap](#state-map)) |  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#state-string-values))
 
 +[appearance options](#appearance-options)
 
@@ -66,6 +66,13 @@ The definition is similar to the default [tap-action](https://www.home-assistant
 | service_data | object |  | Service data to inlclue when `action` defined as `call-service`
 | navigation_path | string |  | Path to navigate to when `action` defined as `navigate`. Eg. `"/lovelace/0"`
 | url_path | string |  | Uel to navigate to when `action` defined as `url`. Eg. `"https://www.home-assistant.io"`
+
+### State map
+
+| Name | Type | Default | Description |
+|:-----|:-----|:-----|:-----|
+| from | any | **(required)** | Value to convert. Note it is type sensitive (eg. `false` != `"false"`)
+| to | number | **(required)** | Target battery level value in `0-100` range
 
 ## Examples
 
@@ -209,7 +216,7 @@ You can setup as well colors only for lower battery levels and leave the default
     - sensor.bedroom_switch_battery_level
 ```
 
-### State map
+### State string values
 
 If your sensor doesn't produce numeric values you can use `state_map` property and provie mappings from one value to the other.
 
