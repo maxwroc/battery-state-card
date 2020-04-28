@@ -28,9 +28,9 @@ export const battery = (model: BatteryViewModel) => html`
 </div>
 `;
 
-export const card = (headerText: string, contents: string[]) => html`
+export const card = (headerText: string | undefined, contents: string[]) => html`
 <ha-card>
-    ${header(headerText)}
+    ${headerText ? header(headerText) : ""}
     <div class="card-content">
         ${contents}
     </div>
