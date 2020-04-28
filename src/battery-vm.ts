@@ -16,10 +16,10 @@ class BatteryViewModel {
     private colorPattern = /^#[A-Fa-f0-9]{6}$/;
 
     /**
-     * @param entity Battery entity
+     * @param config Battery entity
      */
-    constructor(public entity: IBatteryEntity, private config: IAppearance, public action: IAction | null) {
-        this._name = entity.name || entity.entity;
+    constructor(public config: IBatteryEntity, private appearance: IAppearance, public action: IAction | null) {
+        this._name = config.name || config.entity;
     }
 
     /**
@@ -64,11 +64,11 @@ class BatteryViewModel {
             return defaultColor;
         }
 
-        if (this.config.color_gradient && this.isColorGradientValid(this.config.color_gradient)) {
-            return getColorInterpolationForPercentage(this.config.color_gradient, level);
+        if (this.appearance.color_gradient && this.isColorGradientValid(this.appearance.color_gradient)) {
+            return getColorInterpolationForPercentage(this.appearance.color_gradient, level);
         }
 
-        const thresholds = this.config.color_thresholds ||
+        const thresholds = this.appearance.color_thresholds ||
             [{ value: 20, color: "var(--label-badge-red)" }, { value: 55, color: "var(--label-badge-yellow)" }, { value: 101, color: "var(--label-badge-green)" }];
 
         return thresholds.find(th => level <= th.value)?.color || defaultColor;
