@@ -1,5 +1,5 @@
 import { HomeAssistant } from "./ha-types";
-import { IBatteryStateCardConfig, IBatteryEntity } from "./types";
+import { IBatteryStateCardConfig, IBatteryEntity, IMap } from "./types";
 import { LitElement } from "./lit-element";
 import { log } from "./utils";
 import BatteryViewModel from "./battery-vm";
@@ -105,7 +105,7 @@ class BatteryStateCard extends LitElement {
 
         let updated = false;
         this.batteries.forEach((battery, index) => {
-            battery.update(hass.states[battery.entity_id]);
+            battery.update(hass);
             updated = updated || battery.updated;
         });
 
