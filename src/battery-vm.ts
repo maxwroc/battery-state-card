@@ -106,12 +106,12 @@ class BatteryViewModel {
 
         const level = Number(this._level);
 
-        if (isNaN(level)) {
-            return "mdi:battery-unknown";
-        }
-
         if (this.charging && this.config.charging_state?.icon) {
             return this.config.charging_state.icon;
+        }
+
+        if (isNaN(level)) {
+            return "mdi:battery-unknown";
         }
 
         const roundedLevel = Math.round(level / 10) * 10;
