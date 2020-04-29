@@ -32,6 +32,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
 | tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
 | state_map | array([StateMap](#state-map)) |  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
+| charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
 
  +[appearance options](#appearance-options)
 
@@ -74,6 +75,16 @@ The definition is similar to the default [tap-action](https://www.home-assistant
 |:-----|:-----|:-----|:-----|
 | from **(required)** | any |  | Value to convert. Note it is type sensitive (eg. `false` != `"false"`)
 | to **(required)** | number |  | Target battery level value in `0-100` range
+
+### Charging-state object
+
+All of these values are optional but at least `entity_id` or `state` is required.
+
+| Name | Type | Default | Description |
+|:-----|:-----|:-----|:-----|
+| entity_id | string |  | Other entity id where chargign state can be found
+| state | any |  | State value indicating charging in progress
+| icon | string |  | Icon override - to show when charging is in progress
 
 ## Examples
 
@@ -244,6 +255,27 @@ If your sensor doesn't produce numeric values you can use `state_map` property a
           to: 100
         - from: true
           to: 25
+```
+
+### Charging state indicators
+
+If your device provides charging state you can configure it in the following way:
+
+![image](https://user-images.githubusercontent.com/8268674/80610521-5e661380-8a31-11ea-9c71-75e11c2ec009.png)
+
+```yaml
+- type: custom:battery-state-card
+  title: "Charging indicators"
+  entities:
+    - entity: sensor.device_battery_numeric
+      charging_state:
+        entity_id: binary_sensor.device_charging
+        state: "on"
+    - entity: sensor.mi_roborock
+      charging_state:
+        state: "charging"
+        icon: "mdi:flash"
+        color: "yellow"
 ```
 
 ## Installation
