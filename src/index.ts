@@ -63,6 +63,7 @@ class BatteryStateCard extends LitElement {
         // check for changes
         const rawConfig = JSON.stringify(config);
         if (this.rawConfig === rawConfig) {
+            // no changes so stop processing
             return;
         }
 
@@ -104,7 +105,7 @@ class BatteryStateCard extends LitElement {
 
         let updated = false;
         this.batteries.forEach((battery, index) => {
-            battery.update(hass.states[battery.entity_id]);
+            battery.update(hass);
             updated = updated || battery.updated;
         });
 

@@ -1,6 +1,7 @@
 import { IBatteryEntity, IAppearance } from "./types";
 import { log, getColorInterpolationForPercentage } from "./utils";
 import { IAction } from "./action";
+import { HomeAssistant } from "./ha-types";
 
 /**
  * Battery view model.
@@ -10,6 +11,8 @@ class BatteryViewModel {
     private _name: string;
 
     private _level: string = "Unknown";
+
+    private _charging: boolean = false;
 
     public updated: boolean = false;
 
@@ -22,8 +25,13 @@ class BatteryViewModel {
         this._name = config.name || config.entity;
     }
 
-    get entity_id(): string {
-        return this.config.entity;
+    /**
+     * List of entity ids for which data is required.
+     */
+    get data_required_for(): string[] {
+        return this.config.charging_state?.entity_id ?
+            [this.config.entity, this.config.charging_state.entity_id] :
+            [this.config.entity];
     }
 
     /**
@@ -56,6 +64,15 @@ class BatteryViewModel {
         return isNaN(Number(this._level)) ? this._level : this._level;
     }
 
+    set charging(charging: boolean) {
+        this.updated = this.updated || this.charging != charging;
+        this._charging = charging;
+    }
+
+    get charging(): boolean {
+        return this._charging;
+    }
+
     /**
      * Battery level color.
      */
@@ -63,6 +80,10 @@ class BatteryViewModel {
 
         const defaultColor = "inherit";
         const level = Number(this._level);
+
+        if (this.charging && this.config.charging_state?.color) {
+            return this.config.charging_state.color;
+        }
 
         if (isNaN(level)) {
             return defaultColor;
@@ -85,6 +106,10 @@ class BatteryViewModel {
 
         const level = Number(this._level);
 
+        if (this.charging && this.config.charging_state?.icon) {
+            return this.config.charging_state.icon;
+        }
+
         if (isNaN(level)) {
             return "mdi:battery-unknown";
         }
@@ -92,11 +117,11 @@ class BatteryViewModel {
         const roundedLevel = Math.round(level / 10) * 10;
         switch (roundedLevel) {
             case 100:
-                return 'mdi:battery';
+                return this.charging ? 'mdi:battery-charging-100' : "mdi:battery";
             case 0:
-                return 'mdi:battery-outline';
+                return this.charging ? "mdi:battery-charging-outline" : "mdi:battery-outline";
             default:
-                return 'mdi:battery-' + roundedLevel;
+                return (this.charging ? "mdi:battery-charging-" : "mdi:battery-") + roundedLevel;
         }
     }
 
@@ -108,9 +133,12 @@ class BatteryViewModel {
      * Updates battery data.
      * @param entityData HA entity data
      */
-    public update(entityData: any) {
+    public update(hass: HomeAssistant) {
+        const entityData = hass.states[this.config.entity];
+
         if (!entityData) {
             log("Entity not found: " + this.config.entity, "error");
+            return;
         }
 
         this.name = this.config.name || entityData.attributes.friendly_name
@@ -146,6 +174,33 @@ class BatteryViewModel {
 
         // for dev/testing purposes we allow override for value
         this.level = this.config.value_override === undefined ? level : this.config.value_override;
+
+        this.setChargingState(hass);
+    }
+
+    /**
+     * Sets charging state if configuration specified.
+     * @param entityDataList HA entity data
+     */
+    private setChargingState(hass: HomeAssistant) {
+        const chargingState = this.config.charging_state;
+        if (!chargingState) {
+            return;
+        }
+
+        let state = this.level;
+
+        // check whether we should use different entity state
+        if (chargingState.entity_id) {
+            if (!hass.states[chargingState.entity_id]) {
+                log(`'charging_state' entity id (${chargingState.entity_id}) not found`);
+                return;
+            }
+
+            state = hass.states[chargingState.entity_id].state;
+        }
+
+        this.charging = chargingState.state == undefined ? !!state : chargingState.state == state;
     }
 
     private isColorGradientValid(color_gradient: string[]) {

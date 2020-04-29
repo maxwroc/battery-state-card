@@ -1,5 +1,4 @@
 
-
 interface IColorThreshold {
     value: number;
     color?: string;
@@ -20,6 +19,13 @@ export interface IStateMap {
     to: number;
 }
 
+interface IChargingState {
+    entity_id?: string;
+    state?: string;
+    icon?: string;
+    color?: string;
+}
+
 export interface IBatteryEntity {
     entity: string;
     name?: string;
@@ -27,6 +33,7 @@ export interface IBatteryEntity {
     multiplier?: number;
     tap_action?: IActionConfig;
     state_map?: IStateMap[];
+    charging_state: IChargingState;
     value_override?: string; // dev purposes only
 }
 
