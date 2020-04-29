@@ -1,5 +1,5 @@
 import { HomeAssistant } from "./ha-types";
-import { IBatteryStateCardConfig, IBatteryEntity, IMap } from "./types";
+import { IBatteryStateCardConfig, IBatteryEntity } from "./types";
 import { LitElement } from "./lit-element";
 import { log } from "./utils";
 import BatteryViewModel from "./battery-vm";

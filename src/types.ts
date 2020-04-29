@@ -1,8 +1,4 @@
 
-export interface IMap<T> {
-    [key: string]: T
-}
-
 interface IColorThreshold {
     value: number;
     color?: string;

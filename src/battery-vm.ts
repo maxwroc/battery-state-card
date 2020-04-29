@@ -1,4 +1,4 @@
-import { IMap, IBatteryEntity, IAppearance } from "./types";
+import { IBatteryEntity, IAppearance } from "./types";
 import { log, getColorInterpolationForPercentage } from "./utils";
 import { IAction } from "./action";
 import { HomeAssistant } from "./ha-types";
