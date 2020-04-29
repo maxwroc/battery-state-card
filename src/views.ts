@@ -12,7 +12,7 @@ const header = (text: string) => html`
 
 
 export const battery = (model: BatteryViewModel) => html`
-<div class="battery">
+<div class="battery ${model.classNames}" @click=${model.action}>
     <div class="icon">
         <ha-icon
             style="color: ${model.levelColor}"
@@ -23,14 +23,14 @@ export const battery = (model: BatteryViewModel) => html`
         ${model.name}
     </div>
     <div class="state">
-        ${model.level}${isNaN(Number(model.level)) ? "" : " %"}
+        ${model.level}${isNaN(Number(model.level)) ? "" : html`&nbsp;%`}
     </div>
 </div>
 `;
 
-export const card = (headerText: string, contents: string[]) => html`
+export const card = (headerText: string | undefined, contents: string[]) => html`
 <ha-card>
-    ${header(headerText)}
+    ${headerText ? header(headerText) : ""}
     <div class="card-content">
         ${contents}
     </div>

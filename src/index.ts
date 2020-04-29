@@ -5,6 +5,7 @@ import { log } from "./utils";
 import BatteryViewModel from "./battery-vm";
 import * as views from "./views";
 import styles from "./styles";
+import { ActionFactory } from "./action";
 
 /**
  * Card main class.
@@ -62,6 +63,7 @@ class BatteryStateCard extends LitElement {
         // check for changes
         const rawConfig = JSON.stringify(config);
         if (this.rawConfig === rawConfig) {
+            // no changes so stop processing
             return;
         }
 
@@ -81,22 +83,33 @@ class BatteryStateCard extends LitElement {
                 return entity;
             });
 
-        this.batteries = entities.map(entity => new BatteryViewModel(entity, this.config));
+        this.batteries = entities.map(entity =>
+            new BatteryViewModel(
+                entity,
+                this.config,
+                ActionFactory.getAction({
+                    card: <any>this,
+                    config: entity.tap_action || this.config.tap_action || <any>null,
+                    entity: entity
+                })
+            )
+        );
     }
 
     /**
      * Called when HA state changes (very often).
      */
     set hass(hass: HomeAssistant) {
+
+        ActionFactory.hass = hass;
+
         let updated = false;
         this.batteries.forEach((battery, index) => {
-
-            this.updateBattery(battery, hass);
+            battery.update(hass);
             updated = updated || battery.updated;
         });
 
         if (updated) {
-
             switch (this.config.sort_by_level) {
                 case "asc":
                     this.batteries.sort((a, b) => this.sort(a.level, b.level));
@@ -127,7 +140,7 @@ class BatteryStateCard extends LitElement {
         const batteryViews = this.batteries.map(battery => views.battery(battery));
 
         return views.card(
-            this.config.name || "Battery levels",
+            this.config.name,
             this.config.collapse ? [ views.collapsableWrapper(batteryViews, this.config.collapse) ] : batteryViews
         );
     }
@@ -148,42 +161,6 @@ class BatteryStateCard extends LitElement {
 
         // +1 to account header
         return size + 1;
-    }
-
-    /**
-     * Updates view properties of the given battery view model.
-     * @param battery Battery view data
-     * @param hass Home assistant object with states
-     */
-    private updateBattery(battery: BatteryViewModel, hass: HomeAssistant) {
-        const entityData = hass.states[battery.entity.entity];
-        if (!entityData) {
-            log("Entity not found: " + battery.entity.entity, "error");
-            return null;
-        }
-
-        battery.name = battery.entity.name || entityData.attributes.friendly_name
-
-        let level: string;
-        if (battery.entity.attribute) {
-            level = entityData.attributes[battery.entity.attribute]
-        }
-        else {
-            const candidates: string[] = [
-                entityData.attributes.battery_level,
-                entityData.attributes.battery,
-                entityData.state
-            ];
-
-            level = candidates.find(n => n !== null && n !== undefined)?.toString() || "Unknown";
-        }
-
-        if (battery.entity.multiplier && !isNaN(Number(level))) {
-            level = (battery.entity.multiplier * Number(level)).toString();
-        }
-
-        // for dev/testing purposes we allow override for value
-        battery.level = battery.entity.value_override === undefined ? level : battery.entity.value_override;
     }
 
     /**
