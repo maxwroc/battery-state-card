@@ -14,6 +14,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 ### Card config
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
+| type **(required)** | string | | v0.9.0 | Must be `custom:battery-state-card` |
 | entities **(required)** | array(string \| [Entity](#entity-object)) |  | v0.9.0 | List of entities
 | name | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
