@@ -103,29 +103,8 @@ class BatteryStateCard extends LitElement {
 
         ActionFactory.hass = hass;
 
-        let updated = false;
-        this.batteries.forEach((battery, index) => {
-            battery.update(hass);
-            updated = updated || battery.updated;
-        });
-
-        if (updated) {
-            switch (this.config.sort_by_level) {
-                case "asc":
-                    this.batteries.sort((a, b) => this.sort(a.level, b.level));
-                    break;
-                case "desc":
-                    this.batteries.sort((a, b) => this.sort(b.level, a.level));
-                    break;
-                default:
-                    if (this.config.sort_by_level) {
-                        log("Unknown sort option. Allowed values: 'asc', 'desc'");
-                    }
-            }
-
-            // trigger the update
-            this.batteries = [...this.batteries];
-        }
+        // call async without waiting to improve perf
+        this.updateBatteries(hass);
     }
 
     /**
@@ -161,6 +140,37 @@ class BatteryStateCard extends LitElement {
 
         // +1 to account header
         return size + 1;
+    }
+
+    /**
+     * Updates batteries, sorts them and triggers UI update.
+     * @param hass Home Assistant instance
+     */
+    private async updateBatteries(hass: HomeAssistant) {
+        let updated = false;
+
+        this.batteries.forEach((battery, index) => {
+            battery.update(hass);
+            updated = updated || battery.updated;
+        });
+
+        if (updated) {
+            switch (this.config.sort_by_level) {
+                case "asc":
+                    this.batteries.sort((a, b) => this.sort(a.level, b.level));
+                    break;
+                case "desc":
+                    this.batteries.sort((a, b) => this.sort(b.level, a.level));
+                    break;
+                default:
+                    if (this.config.sort_by_level) {
+                        log("Unknown sort option. Allowed values: 'asc', 'desc'");
+                    }
+            }
+
+            // trigger the UI update
+            this.batteries = [...this.batteries];
+        }
     }
 
     /**
