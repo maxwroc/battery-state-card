@@ -281,7 +281,7 @@ If your device provides charging state you can configure it in the following way
 
 ### Filtering with entity-filter card
 
-If you want to see batteries (or card) only if they are below specific threshold you can use [entity-filter]() card combined with this card.
+If you want to see batteries (or card) only if they are below specific threshold you can use [entity-filter](https://www.home-assistant.io/lovelace/entity-filter/) card combined with this card.
 
 ```yaml
 - type: entity-filter
