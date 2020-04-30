@@ -113,9 +113,9 @@ Entity view is useful when you want to add battery status next to other sensors 
 
 ```yaml
 - type: entities
-    title: Other
-    show_header_toggle: false
-    entities:
+  title: Other
+  show_header_toggle: false
+  entities:
     - sensor.energy_rpi_monthly
     - sensor.home_assistant_v2_db
     - sensor.hassio_online
