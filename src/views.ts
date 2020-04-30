@@ -46,3 +46,5 @@ export const collapsableWrapper = (contents: string[], collapseAfter: number) =>
     <div>${contents.slice(collapseAfter)}</div>
     `
 };
+
+export const empty = () => html``;
