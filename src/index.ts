@@ -116,6 +116,12 @@ class BatteryStateCard extends LitElement {
             return views.battery(this.batteries[0]);
         }
 
+        // filer cards (entity-filter) can produce empty collection
+        if (this.batteries.length == 0) {
+            // don't render anything
+            return views.empty;
+        }
+
         const batteryViews = this.batteries.map(battery => views.battery(battery));
 
         return views.card(

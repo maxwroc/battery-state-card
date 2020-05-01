@@ -7,13 +7,14 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 Card code is very small - less than 10KB. It **doesn't** depend on external dependencies (eg. downloaded every time from CDN).
 
-![image](https://user-images.githubusercontent.com/8268674/79861655-a4393100-83cc-11ea-8be1-328cdf35807b.png)
+![image](https://user-images.githubusercontent.com/8268674/80753326-fabd1280-8b24-11ea-8f90-4c934793f231.png)
 
 ## Config
 
 ### Card config
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
+| type **(required)** | string | | v0.9.0 | Must be `custom:battery-state-card` |
 | entities **(required)** | array(string \| [Entity](#entity-object)) |  | v0.9.0 | List of entities
 | name | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
@@ -112,9 +113,9 @@ Entity view is useful when you want to add battery status next to other sensors 
 
 ```yaml
 - type: entities
-    title: Other
-    show_header_toggle: false
-    entities:
+  title: Other
+  show_header_toggle: false
+  entities:
     - sensor.energy_rpi_monthly
     - sensor.home_assistant_v2_db
     - sensor.hassio_online
@@ -276,6 +277,36 @@ If your device provides charging state you can configure it in the following way
         state: "charging"
         icon: "mdi:flash"
         color: "yellow"
+```
+
+### Filtering with entity-filter card
+
+If you want to see batteries (or card) only if they are below specific threshold you can use [entity-filter](https://www.home-assistant.io/lovelace/entity-filter/) card combined with this card.
+
+```yaml
+- type: entity-filter
+  entities:
+    - sensor.bathroom_motion_battery_level
+    - sensor.bedroom_balcony_battery_level
+    - sensor.bedroom_motion_battery_level
+    - sensor.bedroom_switch_battery_level
+    - sensor.bedroomtemp_battery_level
+    - sensor.living_room_balcony_battery_level
+    - sensor.living_room_switch_battery_level
+    - sensor.livingroomtemp_battery_level
+    - sensor.main_door_battery_level
+    - sensor.master_bathroom_motion_battery_level
+    - sensor.master_bedroom_motion_battery_level
+  state_filter:
+    - operator: "<"
+      value: 100
+  card:
+    type: custom:battery-state-card
+    name: Filtering with entity-filter
+    color_gradient:
+      - "#ff0000" # red
+      - "#0000ff" # blue
+      - "#00ff00" # green
 ```
 
 ## Installation
