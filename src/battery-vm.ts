@@ -193,7 +193,7 @@ class BatteryViewModel {
             return;
         }
 
-        // take the state from the level property as it can be extracted from
+        // take the state from the level property as it originate from various places
         let state = this.level;
         let entityWithChargingState = hass.states[this.config.entity];
 
