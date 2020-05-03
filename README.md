@@ -105,7 +105,7 @@ Card view is useful when you want to have cleaner config (you don't need to dupl
 
 ```yaml
 - type: custom:battery-state-card
-  name: "Battery levels"
+  title: "Battery levels"
   entities:
     - sensor.bathroom_motion_battery_level
     - sensor.bedroom_balcony_battery_level
@@ -139,6 +139,7 @@ Entity view is useful when you want to add battery status next to other sensors 
 
 ```yaml
 - type: custom:battery-state-card
+  title: "Custom color thresholds"
   thresholds:
     - value: 35 # applied to all values below/equal
       color: "#8fffe1"
@@ -167,7 +168,7 @@ Entity view is useful when you want to add battery status next to other sensors 
 
 ```yaml
 - type: custom:battery-state-card
-  name: "Color gradient"
+  title: "Color gradient"
   color_gradient:
     - "#ff0000" # red
     - "#ffff00" # yellow
@@ -193,7 +194,7 @@ When you put empty array in `color_thresholds` property you can disable colors.
 
 ```yaml
 - type: custom:battery-state-card
-  name: "No color"
+  title: "No color"
   color_thresholds: []
   entities:
     - sensor.bedroom_motion_battery_level
@@ -209,7 +210,7 @@ You can setup as well colors only for lower battery levels and leave the default
 
 ```yaml
 - type: custom:battery-state-card
-  name: "No color - selective"
+  title: "No color - selective"
   color_thresholds:
     - value: 20
       color: "red"
@@ -229,7 +230,7 @@ You can setup as well colors only for lower battery levels and leave the default
 
 ```yaml
 - type: custom:battery-state-card
-  name: "Sorted list and collapsed view"
+  title: "Sorted list and collapsed view"
   sort_by_level: "asc"
   collapse: 4
   entities:
@@ -246,7 +247,7 @@ If your sensor doesn't produce numeric values you can use `state_map` property a
 
 ```yaml
 - type: custom:battery-state-card
-  name: String values - state map
+  title: "String values - state map"
   entities:
     - entity: binary_sensor.battery_state
       name: "Binary sensor state"
@@ -334,7 +335,7 @@ If you want to see batteries (or card) only if they are below specific threshold
       value: 100
   card:
     type: custom:battery-state-card
-    name: Filtering with entity-filter
+    title: Filtering with entity-filter
     color_gradient:
       - "#ff0000" # red
       - "#0000ff" # blue
