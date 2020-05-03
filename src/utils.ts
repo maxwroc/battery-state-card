@@ -1,6 +1,6 @@
 
 console.info(
-    "%c BATTERY-STATE-CARD %c 1.1.1",
+    "%c BATTERY-STATE-CARD %c 1.2.0",
     "color: white; background: forestgreen; font-weight: 700;",
     "color: forestgreen; background: white; font-weight: 700;",
 );
@@ -64,4 +64,22 @@ export const getColorInterpolationForPercentage = function (colors: string[], pc
         b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper)
     };
     return "rgb(" + [color.r, color.g, color.b].join(",") + ")";
+};
+
+/**
+ * Checks whether given value is a number
+ * @param val String value to check
+ */
+export const isNumber = (val: string) => !isNaN(Number(val));
+
+/**
+ * Returns array of values regardles if given value is string array or null
+ * @param val Value to process
+ */
+export const safeGetArray = <T>(val: T | T[] | undefined): T[] => {
+    if (Array.isArray(val)) {
+        return val;
+    }
+
+    return val ? [val] : [];
 };

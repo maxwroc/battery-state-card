@@ -1,10 +1,11 @@
 import { html } from "./lit-element";
 import BatteryViewModel from "./battery-vm";
+import { isNumber } from "./utils";
 
 
 const header = (text: string) => html`
 <div class="card-header">
-    <div class="name">
+    <div class="truncate">
         ${text}
     </div>
 </div>
@@ -19,11 +20,11 @@ export const battery = (model: BatteryViewModel) => html`
             icon="${model.icon}"
         ></ha-icon>
     </div>
-    <div class="name">
+    <div class="name truncate">
         ${model.name}
     </div>
     <div class="state">
-        ${model.level}${isNaN(Number(model.level)) ? "" : html`&nbsp;%`}
+        ${model.level}${isNumber(model.level) ? html`&nbsp;%` : ""}
     </div>
 </div>
 `;

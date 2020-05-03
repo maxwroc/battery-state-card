@@ -159,13 +159,18 @@ export interface ToggleActionConfig extends BaseActionConfig {
     nativeName: string;
     isRTL: boolean;
     fingerprints: { [fragment: string]: string };
-  }
+}
+
+export interface HassEntity {
+  attributes: { [key: string]: any };
+  state: any;
+}
 
   export interface HomeAssistant {
     auth: any;// Auth;
     connection: any;// Connection;
     connected: any;// boolean;
-    states: any;// HassEntities;
+    states: { [entity_id: string]: HassEntity };
     services: any;// HassServices;
     config: any;// HassConfig;
     themes: Themes;
