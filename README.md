@@ -90,7 +90,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 ### Attribute object
 
 | Name | Type | Default | Description |
-|:-----|:-----|:-----|:-----|:-----|
+|:-----|:-----|:-----|:-----|
 | name | string | **(required)** | Name of the attribute
 | value | string |  | Value of the attribute
 
