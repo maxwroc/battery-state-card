@@ -19,9 +19,8 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | name | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 | collapse | number |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
-| tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when an entity on card is tapped. This action will be applied to all entities on the card (unless the `tap_action` is specified explicitly in [Entity](#entity-object))
 
-+[appearance options](#appearance-options)
++[common options](#common-options)
 
 
 ### Entity object
@@ -31,18 +30,18 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | name | string | | v0.9.0 | Entity name override
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
-| tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
-| state_map | [StateMap](#state-map)[ ]|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
-| charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
 
- +[appearance options](#appearance-options)
+ +[common options](#common-options)
 
-### Appearance options
+### Common options
 
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | color_thresholds | [Threshold](#threshold-object)[ ] | (see [below](#default-thresholds)) | v0.9.0 | Thresholds and colors for indication of battery level.
 | color_gradient | array(string) | | v0.9.0 | Array of hex HTML colors. At least two. In #XXXXXX format, eg. `"#FFB033"`.
+| tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
+| state_map | [StateMap](#state-map)[ ]|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
+| charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
 
 ### Threshold object
 
