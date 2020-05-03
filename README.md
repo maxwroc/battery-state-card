@@ -16,7 +16,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 |:-----|:-----|:-----|:-----|:-----|
 | type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-card` |
 | entities | list([Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities
-| name | string |  | v0.9.0 | Card title
+| title | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 | collapse | number |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
 

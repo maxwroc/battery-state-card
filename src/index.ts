@@ -103,7 +103,7 @@ class BatteryStateCard extends LitElement {
         const batteryViews = this.batteries.map(battery => views.battery(battery));
 
         return views.card(
-            this.config.name,
+            this.config.name || this.config.title,
             this.config.collapse ? [ views.collapsableWrapper(batteryViews, this.config.collapse) ] : batteryViews
         );
     }

@@ -214,7 +214,9 @@ class BatteryViewModel {
             // take first attribute name which exists on entity
             const exisitngAttrib = attributesLookup.find(attr => entityWithChargingState.attributes[attr.name] != undefined);
             if (exisitngAttrib) {
-                this.charging = entityWithChargingState.attributes[exisitngAttrib.name] == exisitngAttrib.value;
+                this.charging = exisitngAttrib.value != undefined ?
+                    entityWithChargingState.attributes[exisitngAttrib.name] == exisitngAttrib.value :
+                    true;
                 return;
             }
         }

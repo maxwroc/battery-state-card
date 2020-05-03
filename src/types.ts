@@ -34,7 +34,8 @@ interface IChargingState {
 
 export interface IBatteryEntity {
     entity: string;
-    name?: string;
+    name?: string; // deprecated
+    title?: string;
     attribute?: string;
     multiplier?: number;
     tap_action?: IActionConfig;
