@@ -5,7 +5,7 @@ import { isNumber } from "./utils";
 
 const header = (text: string) => html`
 <div class="card-header">
-    <div class="name">
+    <div class="truncate">
         ${text}
     </div>
 </div>
@@ -20,7 +20,7 @@ export const battery = (model: BatteryViewModel) => html`
             icon="${model.icon}"
         ></ha-icon>
     </div>
-    <div class="name">
+    <div class="name truncate">
         ${model.name}
     </div>
     <div class="state">
