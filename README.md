@@ -291,6 +291,26 @@ If your device provides charging state you can configure it in the following way
           value: "yes"
 ```
 
+Card-level charging state configuration
+
+```yaml
+- type: custom:battery-state-card
+  title: "Charging indicators"
+  charging_state:
+    attribute: # whenever one of below attributes is matching
+      - name: "Battery State"
+        value: "Charging"
+      - name: "is_charging"
+        value: true
+    state: # or if entity state matches one of the following
+      - "charging"
+      - "Charging"
+  entities:
+    - sensor.device_battery_numeric
+    - sensor.mi_roborock
+    - sensor.samsung
+```
+
 ### Filtering with entity-filter card
 
 If you want to see batteries (or card) only if they are below specific threshold you can use [entity-filter](https://www.home-assistant.io/lovelace/entity-filter/) card combined with this card.
