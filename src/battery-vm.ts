@@ -1,5 +1,5 @@
-import { IBatteryEntity, IAppearance } from "./types";
-import { log, getColorInterpolationForPercentage } from "./utils";
+import { IBatteryEntity } from "./types";
+import { log, getColorInterpolationForPercentage, isNumber, safeGetArray } from "./utils";
 import { IAction } from "./action";
 import { HomeAssistant } from "./ha-types";
 
@@ -21,7 +21,7 @@ class BatteryViewModel {
     /**
      * @param config Battery entity
      */
-    constructor(private config: IBatteryEntity, private appearance: IAppearance, public action: IAction | null) {
+    constructor(private config: IBatteryEntity, public action: IAction | null) {
         this._name = config.name || config.entity;
     }
 
@@ -61,7 +61,7 @@ class BatteryViewModel {
      * Battery level.
      */
     get level(): string {
-        return isNaN(Number(this._level)) ? this._level : this._level;
+        return this._level;
     }
 
     set charging(charging: boolean) {
@@ -89,11 +89,11 @@ class BatteryViewModel {
             return defaultColor;
         }
 
-        if (this.appearance.color_gradient && this.isColorGradientValid(this.appearance.color_gradient)) {
-            return getColorInterpolationForPercentage(this.appearance.color_gradient, level);
+        if (this.config.color_gradient && this.isColorGradientValid(this.config.color_gradient)) {
+            return getColorInterpolationForPercentage(this.config.color_gradient, level);
         }
 
-        const thresholds = this.appearance.color_thresholds ||
+        const thresholds = this.config.color_thresholds ||
             [{ value: 20, color: "var(--label-badge-red)" }, { value: 55, color: "var(--label-badge-yellow)" }, { value: 101, color: "var(--label-badge-green)" }];
 
         return thresholds.find(th => level <= th.value)?.color || defaultColor;
@@ -168,12 +168,17 @@ class BatteryViewModel {
             }
         }
 
-        if (this.config.multiplier && !isNaN(Number(level))) {
+        if (this.config.multiplier && isNumber(level)) {
             level = (this.config.multiplier * Number(level)).toString();
         }
 
         // for dev/testing purposes we allow override for value
         this.level = this.config.value_override === undefined ? level : this.config.value_override;
+
+        if (!isNumber(this.level)) {
+            // capitalize first letter
+            this.level = this.level.charAt(0).toUpperCase() + this.level.slice(1);
+        }
 
         this.setChargingState(hass);
     }
@@ -183,24 +188,40 @@ class BatteryViewModel {
      * @param entityDataList HA entity data
      */
     private setChargingState(hass: HomeAssistant) {
-        const chargingState = this.config.charging_state;
-        if (!chargingState) {
+        const chargingConfig = this.config.charging_state;
+        if (!chargingConfig) {
             return;
         }
 
+        // take the state from the level property as it can be extracted from
         let state = this.level;
+        let entityWithChargingState = hass.states[this.config.entity];
 
-        // check whether we should use different entity state
-        if (chargingState.entity_id) {
-            if (!hass.states[chargingState.entity_id]) {
-                log(`'charging_state' entity id (${chargingState.entity_id}) not found`);
+        // check whether we should use different entity to get charging state
+        if (chargingConfig.entity_id) {
+            entityWithChargingState = hass.states[chargingConfig.entity_id]
+            if (!entityWithChargingState) {
+                log(`'charging_state' entity id (${chargingConfig.entity_id}) not found`);
                 return;
             }
 
-            state = hass.states[chargingState.entity_id].state;
+            state = entityWithChargingState.state;
         }
 
-        this.charging = chargingState.state == undefined ? !!state : chargingState.state == state;
+        const attributesLookup = safeGetArray(chargingConfig.attribute);
+        // check if we should take the state from attribute
+        if (attributesLookup.length != 0) {
+            // take first attribute name which exists on entity
+            const exisitngAttrib = attributesLookup.find(attr => entityWithChargingState.attributes[attr.name] != undefined);
+            if (exisitngAttrib) {
+                this.charging = entityWithChargingState.attributes[exisitngAttrib.name] == exisitngAttrib.value;
+                return;
+            }
+        }
+
+        const statesIndicatingCharging = safeGetArray(chargingConfig.state);
+
+        this.charging = statesIndicatingCharging.length == 0 ? !!state : statesIndicatingCharging.some(s => s == state);
     }
 
     private isColorGradientValid(color_gradient: string[]) {

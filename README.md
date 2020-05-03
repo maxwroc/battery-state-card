@@ -15,7 +15,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | type **(required)** | string | | v0.9.0 | Must be `custom:battery-state-card` |
-| entities **(required)** | array(string \| [Entity](#entity-object)) |  | v0.9.0 | List of entities
+| entities **(required)** | string[ ] \| [Entity](#entity-object)[ ] |  | v0.9.0 | List of entities
 | name | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 | collapse | number |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
@@ -32,7 +32,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
 | tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
-| state_map | array([StateMap](#state-map)) |  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
+| state_map | [StateMap](#state-map)[ ]|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
 | charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
 
  +[appearance options](#appearance-options)
@@ -41,7 +41,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| color_thresholds | array([Threshold](#threshold-object)) | (see [below](#default-thresholds)) | v0.9.0 | Thresholds and colors for indication of battery level.
+| color_thresholds | [Threshold](#threshold-object)[ ] | (see [below](#default-thresholds)) | v0.9.0 | Thresholds and colors for indication of battery level.
 | color_gradient | array(string) | | v0.9.0 | Array of hex HTML colors. At least two. In #XXXXXX format, eg. `"#FFB033"`.
 
 ### Threshold object
@@ -81,11 +81,19 @@ The definition is similar to the default [tap-action](https://www.home-assistant
 
 All of these values are optional but at least `entity_id` or `state` is required.
 
+| Name | Type | Default | Since | Description |
+|:-----|:-----|:-----|:-----|:-----|
+| entity_id | string |  | v1.1.0 | Other entity id where chargign state can be found
+| attribute | [Attribute](#attribute-object) \| [Attribute](#attribute-object)[ ] |  | v1.2.0 | Name of attribute to extract the value from
+| state | any \| any[ ] |  | v1.1.0 | Value indicating charging in progress
+| icon | string |  | v1.1.0 | Icon override - to show when charging is in progress
+
+### Attribute object
+
 | Name | Type | Default | Description |
-|:-----|:-----|:-----|:-----|
-| entity_id | string |  | Other entity id where chargign state can be found
-| state | any |  | State value indicating charging in progress
-| icon | string |  | Icon override - to show when charging is in progress
+|:-----|:-----|:-----|:-----|:-----|
+| name | string |  | Name of the attribute
+| value | string |  | Value of the attribute
 
 ## Examples
 
@@ -269,14 +277,19 @@ If your device provides charging state you can configure it in the following way
   title: "Charging indicators"
   entities:
     - entity: sensor.device_battery_numeric
-      charging_state:
+      charging_state: # uses other entity state value
         entity_id: binary_sensor.device_charging
         state: "on"
     - entity: sensor.mi_roborock
-      charging_state:
+      charging_state: # uses sensor.mi_roborock state value
         state: "charging"
         icon: "mdi:flash"
         color: "yellow"
+    - entity: sensor.samsung
+      charging_state: # uses is_charging attribute on sensor.samsung entity
+        attribute:
+          name: "is_charging"
+          value: "yes"
 ```
 
 ### Filtering with entity-filter card

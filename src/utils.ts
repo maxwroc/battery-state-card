@@ -65,3 +65,21 @@ export const getColorInterpolationForPercentage = function (colors: string[], pc
     };
     return "rgb(" + [color.r, color.g, color.b].join(",") + ")";
 };
+
+/**
+ * Checks whether given value is a number
+ * @param val String value to check
+ */
+export const isNumber = (val: string) => !isNaN(Number(val));
+
+/**
+ * Returns array of values regardles if given value is string array or null
+ * @param val Value to process
+ */
+export const safeGetArray = <T>(val: T | T[] | undefined): T[] => {
+    if (Array.isArray(val)) {
+        return val;
+    }
+
+    return val ? [val] : [];
+};
