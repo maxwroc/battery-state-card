@@ -20,7 +20,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 | collapse | number |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
 
-+[common options](#common-options)
++[common options](#common-options) (if specified they will be apllied to all entities)
 
 
 ### Entity object
@@ -31,7 +31,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
 
- +[common options](#common-options)
+ +[common options](#common-options) (if specified they will override the card-level ones)
 
 ### Common options
 
