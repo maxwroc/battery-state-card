@@ -38,8 +38,7 @@ class BatteryStateCard extends LitElement {
      */
     static get properties() {
         return {
-            batteries: Array,
-            config: Object
+            batteries: Array
         };
     }
 
@@ -69,31 +68,10 @@ class BatteryStateCard extends LitElement {
 
         this.rawConfig = rawConfig;
 
-        this.config = config;
-        this.simpleView = !!config.entity;
+        // config is readonly and we want to apply default values so we need to recreate it
+        this.config = JSON.parse(rawConfig);
 
-        let entities = config.entity
-            ? [config]
-            : config.entities!.map((entity: string | IBatteryEntity) => {
-                // check if it is just the id string
-                if (typeof (entity) === "string") {
-                    entity = <IBatteryEntity>{ entity: entity };
-                }
-
-                return entity;
-            });
-
-        this.batteries = entities.map(entity =>
-            new BatteryViewModel(
-                entity,
-                this.config,
-                ActionFactory.getAction({
-                    card: <any>this,
-                    config: entity.tap_action || this.config.tap_action || <any>null,
-                    entity: entity
-                })
-            )
-        );
+        this.onConfigUpdate();
     }
 
     /**
@@ -125,7 +103,7 @@ class BatteryStateCard extends LitElement {
         const batteryViews = this.batteries.map(battery => views.battery(battery));
 
         return views.card(
-            this.config.name,
+            this.config.name || this.config.title,
             this.config.collapse ? [ views.collapsableWrapper(batteryViews, this.config.collapse) ] : batteryViews
         );
     }
@@ -146,6 +124,41 @@ class BatteryStateCard extends LitElement {
 
         // +1 to account header
         return size + 1;
+    }
+
+    /**
+     * Updates batteries based on the new config
+     */
+    private async onConfigUpdate() {
+        this.simpleView = !!this.config.entity;
+
+        let entities = this.config.entity
+            ? [this.config]
+            : this.config.entities!.map((entity: string | IBatteryEntity) => {
+                // check if it is just the id string
+                if (typeof (entity) === "string") {
+                    entity = <IBatteryEntity>{ entity: entity };
+                }
+
+                return entity;
+            });
+
+        const entititesGlobalProps = [ "tap_action", "state_map", "charging_state", "color_thresholds", "color_gradient" ];
+        this.batteries = entities.map(entity => {
+            // assing card-level values if they were not defined on entity-level
+            entititesGlobalProps
+                .filter(p => (<any>entity)[p] == undefined)
+                .forEach(p => (<any>entity)[p] = (<any>this.config)[p]);
+
+            return new BatteryViewModel(
+                entity,
+                ActionFactory.getAction({
+                    card: <any>this,
+                    config: entity.tap_action || this.config.tap_action || <any>null,
+                    entity: entity
+                })
+            );
+        });
     }
 
     /**

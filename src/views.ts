@@ -1,5 +1,6 @@
 import { html } from "./lit-element";
 import BatteryViewModel from "./battery-vm";
+import { isNumber } from "./utils";
 
 
 const header = (text: string) => html`
@@ -23,7 +24,7 @@ export const battery = (model: BatteryViewModel) => html`
         ${model.name}
     </div>
     <div class="state">
-        ${model.level}${isNaN(Number(model.level)) ? "" : html`&nbsp;%`}
+        ${model.level}${isNumber(model.level) ? html`&nbsp;%` : ""}
     </div>
 </div>
 `;
