@@ -143,7 +143,7 @@ class BatteryStateCard extends LitElement {
                 return entity;
             });
 
-        const entititesGlobalProps = [ "tap_action", "state_map", "charging_state", "color_thresholds", "color_gradient" ];
+        const entititesGlobalProps = [ "tap_action", "state_map", "charging_state", "secondary_info", "color_thresholds", "color_gradient" ];
         this.batteries = entities.map(entity => {
             // assing card-level values if they were not defined on entity-level
             entititesGlobalProps

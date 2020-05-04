@@ -30,6 +30,7 @@ interface IChargingState {
     attribute?: IAttribute | IAttribute[];
     icon?: string;
     color?: string;
+    secondary_info_text?: string;
 }
 
 export interface IBatteryEntity {
@@ -44,6 +45,7 @@ export interface IBatteryEntity {
     value_override?: string; // dev purposes only
     color_thresholds?: IColorThreshold[];
     color_gradient?: string[];
+    secondary_info?: string;
 }
 
 export interface IBatteryStateCardConfig extends IBatteryEntity  {

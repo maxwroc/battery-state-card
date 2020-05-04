@@ -1,3 +1,4 @@
+import { HomeAssistant } from "./ha-types";
 
 console.info(
     "%c BATTERY-STATE-CARD %c 1.2.0",
@@ -83,3 +84,32 @@ export const safeGetArray = <T>(val: T | T[] | undefined): T[] => {
 
     return val ? [val] : [];
 };
+
+/**
+ * Converts given date to localized string representation of relative time
+ * @param hass Home Assistant instance
+ * @param rawDate Date string
+ */
+export const getRelativeTime = (hass: HomeAssistant, rawDate: string): string => {
+    let time = Date.parse(rawDate);
+    if (isNaN(time)) {
+        return hass.localize("ui.components.relative_time.never");
+    }
+
+    time = Math.round((Date.now() - time) / 1000); // convert to seconds diff
+
+    let relativeTime = "";
+    if (time < 60) {
+        relativeTime = hass.localize("ui.components.relative_time.duration.second", "count", time);
+    } else if (time < 60 * 60) {
+        relativeTime = hass.localize("ui.components.relative_time.duration.minute", "count", Math.round(time / 60));
+    } else if (time < 60 * 60 * 24) {
+        relativeTime = hass.localize("ui.components.relative_time.duration.hour", "count", Math.round(time / (60 * 60)));
+    } else if (time < 60 * 60 * 24 * 7) {
+        relativeTime = hass.localize("ui.components.relative_time.duration.day", "count", Math.round(time / (60 * 60 * 24)));
+    } else {
+        relativeTime = hass.localize("ui.components.relative_time.duration.week", "count", Math.round(time / (60 * 60 * 24 * 7)));
+    }
+
+    return hass.localize("ui.components.relative_time.past", "time", relativeTime);
+}
