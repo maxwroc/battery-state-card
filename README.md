@@ -42,6 +42,7 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
 | state_map | list([StateMap](#state-map))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
 | charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
+| secondary_info | string |  | v1.3.0 | Secondary info text. It can be a custom text, attribute name or state property name e.g. `charging`, `last_changed`, `"My battery"`. ([example](#secondary-info))
 
 ### Threshold object
 
@@ -340,6 +341,29 @@ If you want to see batteries (or card) only if they are below specific threshold
       - "#ff0000" # red
       - "#0000ff" # blue
       - "#00ff00" # green
+```
+
+### Secondary info
+
+![image](https://user-images.githubusercontent.com/8268674/80970635-63510b80-8e13-11ea-8a9a-6bc8d873092b.png)
+
+```yaml
+- type: custom:battery-state-card
+  name: Secondary info
+  secondary_info: last_updated
+  entities:
+    - entity: sensor.bedroom_motion_battery_level
+      name: "Bedroom motion sensor"
+    - entity: sensor.mi_robrock
+      secondary_info: charging # only appears when charging is detected
+      charging_state:
+        attribute:
+          name: "is_charging"
+          value: true
+        secondary_info_text: "Charging in progress" # override for "Charging" text
+    - entity: sensor.jacks_motorola
+      name: "Jack's phone"
+      secondary_info: "Battery state" # Static text
 ```
 
 ## Installation

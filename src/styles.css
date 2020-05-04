@@ -9,17 +9,21 @@
 
 .battery {
     display: flex;
-    line-height: 40px;
+    align-items: center;
     margin: 8px 0;
 }
 .battery .name {
     flex: 1 0 60px;
     margin: 0 5px 0 16px;
 }
+.battery .secondary {
+    color: var(--primary-color);
+}
 .battery .icon {
     flex: 0 0 40px;
     border-radius: 50%;
     text-align: center;
+    line-height: 40px;
 }
 
 

@@ -1,7 +1,7 @@
 import { IBatteryEntity } from "./types";
-import { log, getColorInterpolationForPercentage, isNumber, safeGetArray } from "./utils";
+import { log, getColorInterpolationForPercentage, isNumber, safeGetArray, getRelativeTime } from "./utils";
 import { IAction } from "./action";
-import { HomeAssistant } from "./ha-types";
+import { HomeAssistant, HassEntity } from "./ha-types";
 
 /**
  * Battery view model.
@@ -13,6 +13,8 @@ class BatteryViewModel {
     private _level: string = "Unknown";
 
     private _charging: boolean = false;
+
+    private _secondary_info: string = <any>null;
 
     public updated: boolean = false;
 
@@ -71,6 +73,15 @@ class BatteryViewModel {
 
     get charging(): boolean {
         return this._charging;
+    }
+
+    get secondary_info(): string {
+        return this._secondary_info;
+    }
+
+    set secondary_info(val: string) {
+        this.updated = this.updated || this._secondary_info != val;
+        this._secondary_info = val;
     }
 
     /**
@@ -143,6 +154,20 @@ class BatteryViewModel {
 
         this.name = this.config.name || entityData.attributes.friendly_name
 
+        this.level = this.getLevel(entityData);
+
+        // must be called after getting battery level
+        this.charging = this.getChargingState(hass);
+
+        // must be called after getting charging state
+        this.secondary_info = this.setSecondaryInfo(hass, entityData);
+    }
+
+    /**
+     * Gets battery level
+     * @param entityData Entity state data
+     */
+    private getLevel(entityData: HassEntity): string {
         let level: string;
         if (this.config.attribute) {
             level = entityData.attributes[this.config.attribute]
@@ -173,24 +198,24 @@ class BatteryViewModel {
         }
 
         // for dev/testing purposes we allow override for value
-        this.level = this.config.value_override === undefined ? level : this.config.value_override;
+        level = this.config.value_override === undefined ? level : this.config.value_override;
 
-        if (!isNumber(this.level)) {
+        if (!isNumber(level)) {
             // capitalize first letter
-            this.level = this.level.charAt(0).toUpperCase() + this.level.slice(1);
+            level = level.charAt(0).toUpperCase() + level.slice(1);
         }
 
-        this.setChargingState(hass);
+        return level;
     }
 
     /**
-     * Sets charging state if configuration specified.
+     * Gets charging state if configuration specified.
      * @param entityDataList HA entity data
      */
-    private setChargingState(hass: HomeAssistant) {
+    private getChargingState(hass: HomeAssistant): boolean {
         const chargingConfig = this.config.charging_state;
         if (!chargingConfig) {
-            return;
+            return false;
         }
 
         // take the state from the level property as it originate from various places
@@ -202,7 +227,7 @@ class BatteryViewModel {
             entityWithChargingState = hass.states[chargingConfig.entity_id]
             if (!entityWithChargingState) {
                 log(`'charging_state' entity id (${chargingConfig.entity_id}) not found`);
-                return;
+                return false;
             }
 
             state = entityWithChargingState.state;
@@ -214,18 +239,40 @@ class BatteryViewModel {
             // take first attribute name which exists on entity
             const exisitngAttrib = attributesLookup.find(attr => entityWithChargingState.attributes[attr.name] != undefined);
             if (exisitngAttrib) {
-                this.charging = exisitngAttrib.value != undefined ?
+                return exisitngAttrib.value != undefined ?
                     entityWithChargingState.attributes[exisitngAttrib.name] == exisitngAttrib.value :
                     true;
-                return;
             }
         }
 
         const statesIndicatingCharging = safeGetArray(chargingConfig.state);
 
-        this.charging = statesIndicatingCharging.length == 0 ? !!state : statesIndicatingCharging.some(s => s == state);
+        return statesIndicatingCharging.length == 0 ? !!state : statesIndicatingCharging.some(s => s == state);
     }
 
+    /**
+     * Gets secondary info
+     * @param hass Home Assistant instance
+     * @param entityData Entity state data
+     */
+    private setSecondaryInfo(hass: HomeAssistant, entityData: HassEntity): string {
+        if (this.config.secondary_info) {
+            if (this.config.secondary_info == "charging" && this.charging) {
+                return this.config.charging_state?.secondary_info_text || "Charging"; // todo: think about i18n
+            }
+            else {
+                const val = (<any>entityData)[this.config.secondary_info] || entityData.attributes[this.config.secondary_info] || this.config.secondary_info;
+                return isNaN(Date.parse(val)) ? val : getRelativeTime(hass, val);
+            }
+        }
+
+        return <any>null;
+    }
+
+    /**
+     * Validates if given color values are correct
+     * @param color_gradient List of color values to validate
+     */
     private isColorGradientValid(color_gradient: string[]) {
         if (color_gradient.length < 2) {
             log("Value for 'color_gradient' should be an array with at least 2 colors.");
