@@ -55,5 +55,5 @@
     overflow: hidden;
 }
 .expand:checked + label + div {
-    max-height: 1000px;
+    max-height: 10000px;
 }
