@@ -16,6 +16,8 @@ class BatteryViewModel {
 
     private _secondary_info: string = <any>null;
 
+    private _is_hidden: boolean = false;
+
     public updated: boolean = false;
 
     private colorPattern = /^#[A-Fa-f0-9]{6}$/;
@@ -25,6 +27,10 @@ class BatteryViewModel {
      */
     constructor(private config: IBatteryEntity, public action: IAction | null) {
         this._name = config.name || config.entity;
+    }
+
+    get entity_id(): string {
+        return this.config.entity;
     }
 
     /**
@@ -73,6 +79,15 @@ class BatteryViewModel {
 
     get charging(): boolean {
         return this._charging;
+    }
+
+    get is_hidden(): boolean {
+        return this._is_hidden;
+    }
+
+    set is_hidden(val: boolean) {
+        this.updated = this.updated || this._is_hidden != val;
+        this._is_hidden = val;
     }
 
     get secondary_info(): string {
