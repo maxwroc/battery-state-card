@@ -5,8 +5,6 @@ Battery state card for [Home Assistant](https://github.com/home-assistant/home-a
 
 This card was inspired by [another great card](https://github.com/cbulock/lovelace-battery-entity) showing the battery states. I have decided to implement my own as there was no response for pull requests from author and I wanted to fix few things and also add couple new features.
 
-Card code is very small - less than 10KB. It **doesn't** depend on external dependencies (eg. downloaded every time from CDN).
-
 ![image](https://user-images.githubusercontent.com/8268674/80753326-fabd1280-8b24-11ea-8f90-4c934793f231.png)
 
 ## Config
@@ -19,9 +17,47 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | title | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 | collapse | number |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
-| filter | [FilterGroups](#filter-groups) |  | v1.3.0 | Filter groups to automatically include or exclude entities
+| filter | [FilterGroups](#filter-groups) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
+| bulk_rename | list([Convert](#convert)) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
 
 +[common options](#common-options) (if specified they will be apllied to all entities)
+
+### Entity object
+| Name | Type | Default | Since | Description |
+|:-----|:-----|:-----|:-----|:-----|
+| entity | string | **(required)** | v0.9.0 | Entity ID
+| name | string | | v0.9.0 | Entity name override
+| attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
+| multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
+
+ +[common options](#common-options) (if specified they will override the card-level ones)
+
+### Common options
+
+| Name | Type | Default | Since | Description |
+|:-----|:-----|:-----|:-----|:-----|
+| color_thresholds | list([Threshold](#threshold-object)) | (see [below](#default-thresholds)) | v0.9.0 | Thresholds and colors for indication of battery level.
+| color_gradient | list(string) | | v0.9.0 | List of hex HTML colors. At least two. In #XXXXXX format, eg. `"#FFB033"`.
+| tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
+| state_map | list([Convert](#convert))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
+| charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
+| secondary_info | string |  | v1.3.0 | Secondary info text. It can be a custom text, attribute name or state property name e.g. `charging`, `last_changed`, `"My battery"`. ([example](#secondary-info))
+
+### Threshold object
+
+| Name | Type | Default | Since | Description |
+|:-----|:-----|:-----|:-----|:-----|
+| value | number | **(required)** | v0.9.0 | Threshold value
+| color | string | `inherit` | v0.9.0 | CSS color which will be used for levels below or equal the value field. If not specified the default one is used (default icon/text color for current HA theme)
+
+#### Default thresholds
+| Value | Color | Description |
+|:------|:------|:------|
+| 20 | `var(--label-badge-red)` | If value is less or equal `20` the color will be red
+| 55 | `var(--label-badge-yellow)` | If value is less or equal `55` the color will be yellow
+| 100 | `var(--label-badge-green)` | If value is less or equal `100` the color will be green
+
+Note: the exact color is taken from CSS variable and it depends on your current template.
 
 
 ### Filter groups
@@ -53,45 +89,6 @@ Operator is an optional property. If operator is not specified it depends on `va
 | `"contains"` | If value contains the one specified in `value` property
 | `"matches"` | If value matches the one specified in `value` property. You can use wildcards (e.g. `"*_battery_level"`) or regular expression (must be prefixed and followed by slash e.g. `"/[a-z_]+_battery_level/"`)
 
-
-
-### Entity object
-| Name | Type | Default | Since | Description |
-|:-----|:-----|:-----|:-----|:-----|
-| entity | string | **(required)** | v0.9.0 | Entity ID
-| name | string | | v0.9.0 | Entity name override
-| attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
-| multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
-
- +[common options](#common-options) (if specified they will override the card-level ones)
-
-### Common options
-
-| Name | Type | Default | Since | Description |
-|:-----|:-----|:-----|:-----|:-----|
-| color_thresholds | list([Threshold](#threshold-object)) | (see [below](#default-thresholds)) | v0.9.0 | Thresholds and colors for indication of battery level.
-| color_gradient | list(string) | | v0.9.0 | List of hex HTML colors. At least two. In #XXXXXX format, eg. `"#FFB033"`.
-| tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
-| state_map | list([StateMap](#state-map))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
-| charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
-| secondary_info | string |  | v1.3.0 | Secondary info text. It can be a custom text, attribute name or state property name e.g. `charging`, `last_changed`, `"My battery"`. ([example](#secondary-info))
-
-### Threshold object
-
-| Name | Type | Default | Since | Description |
-|:-----|:-----|:-----|:-----|:-----|
-| value | number | **(required)** | v0.9.0 | Threshold value
-| color | string | `inherit` | v0.9.0 | CSS color which will be used for levels below or equal the value field. If not specified the default one is used (default icon/text color for current HA theme)
-
-#### Default thresholds
-| Value | Color | Description |
-|:------|:------|:------|
-| 20 | `var(--label-badge-red)` | If value is less or equal `20` the color will be red
-| 55 | `var(--label-badge-yellow)` | If value is less or equal `55` the color will be yellow
-| 100 | `var(--label-badge-green)` | If value is less or equal `100` the color will be green
-
-Note: the exact color is taken from CSS variable and it depends on your current template.
-
 ### Tap-Action
 The definition is similar to the default [tap-action](https://www.home-assistant.io/lovelace/actions/#tap-action) in HomeAssistant.
 | Name | Type | Default | Description |
@@ -102,12 +99,12 @@ The definition is similar to the default [tap-action](https://www.home-assistant
 | navigation_path | string |  | Path to navigate to when `action` defined as `navigate`. Eg. `"/lovelace/0"`
 | url_path | string |  | Url to navigate to when `action` defined as `url`. Eg. `"https://www.home-assistant.io"`
 
-### State map
+### Convert
 
 | Name | Type | Default | Description |
 |:-----|:-----|:-----|:-----|
 | from | any | **(required)** | Value to convert. Note it is type sensitive (eg. `false` != `"false"`)
-| to | number | **(required)** | Target battery level value in `0-100` range
+| to | any | **(required)** | Target value
 
 ### Charging-state object
 
@@ -345,13 +342,21 @@ Card-level charging state configuration
     - sensor.samsung
 ```
 
-### Entity filtering
+### Entity filtering and bulk renaming
 If you want to add battery entities automatically or if you want to see them only in specific conditions you can use filters.
+
+If you add entities automatically you cannot specify properties for individual entities. If you wanted to set custom names (e.g. if your sensors are suffixed with some common string) you can use `bulk_rename` property to define renaming rules.
+
+![filters](https://user-images.githubusercontent.com/8268674/82096304-97240f00-96f8-11ea-9376-a9878f56ce94.png)
 
 ```yaml
 - type: 'custom:battery-state-card'
   title: Filters
   sort_by_level: "asc"
+  bulk_rename:
+    - from: "Battery Level" # simple string replace (note: "to" is not required if you want to remove string)
+    - from: "/\\s(temperature|temp)\\s/" # regular expression
+      to: " temp. "
   entities:
     # entities requiring additional properties can be added explicitly
     - entity: sensor.temp_outside_battery_numeric
