@@ -54,7 +54,7 @@ export interface IBatteryStateCardConfig extends IBatteryEntity  {
     entities: IBatteryEntity[];
     sort_by_level?: "asc" | "desc";
     collapse?: number;
-    filter?: { [key in FilterCollection]: IFilter[] }
+    filter?: { [key in FilterCollection]: IFilter[] };
 }
 
 export type FilterOperator = "exists" | "=" | ">" | "<" | ">=" | "<=" | "contains" | "matches";

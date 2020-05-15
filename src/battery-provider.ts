@@ -25,14 +25,15 @@ const operatorHandlers: { [key in FilterOperator]: (val: string | undefined, exp
             return false;
         }
 
-        let regEx: RegExp | undefined;
+        let exp: RegExp | undefined;
         if (pattern[0] == "/" && pattern[pattern.length - 1] == "/") {
-            regEx = new RegExp(pattern);
+            // create regexp after removing slashes
+            exp = new RegExp(pattern.substr(1, pattern.length - 2));
         } else if (pattern.indexOf("*") != -1) {
-            regEx = new RegExp(pattern.replace(/\*/g, ".*"));
+            exp = new RegExp(pattern.replace(/\*/g, ".*"));
         }
 
-        return regEx ? regEx.test(val) : val === pattern;
+        return exp ? exp.test(val) : val === pattern;
     }
 }
 
