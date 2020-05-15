@@ -48,9 +48,20 @@ export interface IBatteryEntity {
     secondary_info?: string;
 }
 
+type FilterCollection = "exclude" | "include";
+
 export interface IBatteryStateCardConfig extends IBatteryEntity  {
     entities: IBatteryEntity[];
     sort_by_level?: "asc" | "desc";
     collapse?: number;
+    filter?: { [key in FilterCollection]: IFilter[] };
+}
+
+export type FilterOperator = "exists" | "=" | ">" | "<" | ">=" | "<=" | "contains" | "matches";
+
+export interface IFilter {
+    name: string;
+    operator?: FilterOperator;
+    value: any;
 }
 
