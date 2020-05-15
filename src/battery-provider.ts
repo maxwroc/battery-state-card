@@ -7,7 +7,7 @@ import { ActionFactory } from "./action";
 /**
  * Properties which should be copied over to individual entities from the card
  */
-const entititesGlobalProps = [ "tap_action", "state_map", "charging_state", "secondary_info", "color_thresholds", "color_gradient" ];
+const entititesGlobalProps = [ "tap_action", "state_map", "charging_state", "secondary_info", "color_thresholds", "color_gradient", "bulk_rename" ];
 
 /**
  * Functions to check if filter condition is met

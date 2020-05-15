@@ -54,7 +54,22 @@ class BatteryViewModel {
      * Device name to display.
      */
     get name(): string {
-        return this._name;
+        let name = this._name;
+
+        // since the getter is called only during rendering while setter always to check
+        // if value has changed it is more efficient to apply rename here
+        const renameRules = safeGetArray(this.config.bulk_rename)
+        renameRules.forEach(r => {
+            if (r.from[0] == "/" && r.from[r.from.length - 1] == "/") {
+                // create regexp after removing slashes
+                name = name.replace(new RegExp(r.from.substr(1, r.from.length - 2)), r.to || "");
+            }
+            else {
+                name = name.replace(r.from, r.to || "");
+            }
+        });
+
+        return name;
     }
 
     /**

@@ -50,9 +50,9 @@ export interface IActionConfig {
 }
 
 /**
- * State map to convert one value to another
+ * Convert one value to another
  */
-export interface IStateMap {
+interface IConvert {
     /**
      * Value to look for
      */
@@ -61,7 +61,7 @@ export interface IStateMap {
     /**
      * Value replacement
      */
-    to: number;
+    to: string;
 }
 
 /**
@@ -111,6 +111,36 @@ interface IChargingState {
     secondary_info_text?: string;
 }
 
+/**
+ * Filter group types
+ */
+type FilterGroups = "exclude" | "include";
+
+/**
+ * Supprted filter operators
+ */
+export type FilterOperator = "exists" | "=" | ">" | "<" | ">=" | "<=" | "contains" | "matches";
+
+/**
+ * Filter object
+ */
+export interface IFilter {
+    /**
+     * Name of the entity property or attribute (attributes has to be prefixed with "attributes.")
+     */
+    name: string;
+
+    /**
+     * Operator used to compare the values
+     */
+    operator?: FilterOperator;
+
+    /**
+     * Value to compare with the extracted one
+     */
+    value: any;
+}
+
 export interface IBatteryEntity {
 
     /**
@@ -141,7 +171,7 @@ export interface IBatteryEntity {
     /**
      * Collection of mappings for values (useful when state/level is not numeric)
      */
-    state_map?: IStateMap[];
+    state_map?: IConvert[];
 
     /**
      * Configuration for charging state indication
@@ -167,36 +197,11 @@ export interface IBatteryEntity {
      * What to display as secondary info
      */
     secondary_info?: string;
-}
-
-/**
- * Filter group types
- */
-type FilterGroups = "exclude" | "include";
-
-/**
- * Supprted filter operators
- */
-export type FilterOperator = "exists" | "=" | ">" | "<" | ">=" | "<=" | "contains" | "matches";
-
-/**
- * Filter object
- */
-export interface IFilter {
-    /**
-     * Name of the entity property or attribute (attributes has to be prefixed with "attributes.")
-     */
-    name: string;
 
     /**
-     * Operator used to compare the values
+     * Rules for renaming entities/batteries
      */
-    operator?: FilterOperator;
-
-    /**
-     * Value to compare with the extracted one
-     */
-    value: any;
+    bulk_rename?: IConvert | IConvert[]
 }
 
 /**
