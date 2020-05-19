@@ -66,6 +66,9 @@ Note: the exact color is taken from CSS variable and it depends on your current 
 | include | list([Filter](#filter-object)) |  | Filters for auto adding entities
 | exclude | list([Filter](#filter-object)) |  | Filters to remove entities dynamically
 
+Note: The action (include/exclude) is performed when at least one of the filters is matching (OR). It is not possible currently to specify two or more conditions (filters combined with AND operator).
+
+Note: Include filters should rely on static entity properties. E.g. you should not add include filter which checks the `state` property. Include filters are processed only once - when page is loaded (to minimize perf impact).
 
 ### Filter object
 | Name | Type | Default | Description |
