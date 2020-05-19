@@ -211,6 +211,10 @@ export class BatteryProvider {
         // avoiding processing filter.include again
         this.initialized = true;
 
+        if (!this.include) {
+            return;
+        }
+
         Object.keys(hass.states).forEach(entity_id => {
             // check if entity matches filter conditions
             if (this.include?.some(filter => filter.isValid(hass.states[entity_id])) &&
