@@ -46,7 +46,7 @@ class BatteryViewModel {
      * Device name to display.
      */
     set name(name: string) {
-        this.updated = this._name != name;
+        this.updated = this.updated || this._name != name;
         this._name = name;
     }
 
@@ -76,7 +76,7 @@ class BatteryViewModel {
      * Battery level.
      */
     set level(level: string) {
-        this.updated = this._level != level;
+        this.updated = this.updated || this._level != level;
         this._level = level;
     }
 
@@ -181,6 +181,8 @@ class BatteryViewModel {
             log("Entity not found: " + this.config.entity, "error");
             return;
         }
+
+        this.updated = false;
 
         this.name = this.config.name || entityData.attributes.friendly_name
 
