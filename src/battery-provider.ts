@@ -191,7 +191,7 @@ export class BatteryProvider {
     private processExplicitEntities() {
         let entities = this.config.entity
             ? [this.config]
-            : this.config.entities!.map((entity: string | IBatteryEntity) => {
+            : (this.config.entities || []).map((entity: string | IBatteryEntity) => {
                 // check if it is just the id string
                 if (typeof (entity) === "string") {
                     entity = <IBatteryEntity>{ entity: entity };
