@@ -109,7 +109,7 @@ class BatteryStateCard extends LitElement {
         // filer cards (entity-filter) can produce empty collection
         if (batteryViews.length == 0) {
             // don't render anything
-            return views.empty;
+            return views.empty();
         }
 
         return views.card(
