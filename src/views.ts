@@ -11,6 +11,9 @@ const header = (text: string) => html`
 </div>
 `;
 
+const secondaryInfo = (model: BatteryViewModel) => model.secondary_info && html`
+<div class="secondary">${model.secondary_info}</div>
+`;
 
 export const battery = (model: BatteryViewModel) => html`
 <div class="battery ${model.classNames}" @click=${model.action}>
@@ -22,6 +25,7 @@ export const battery = (model: BatteryViewModel) => html`
     </div>
     <div class="name truncate">
         ${model.name}
+        ${secondaryInfo(model)}
     </div>
     <div class="state">
         ${model.level}${isNumber(model.level) ? html`&nbsp;%` : ""}

@@ -5,8 +5,6 @@ Battery state card for [Home Assistant](https://github.com/home-assistant/home-a
 
 This card was inspired by [another great card](https://github.com/cbulock/lovelace-battery-entity) showing the battery states. I have decided to implement my own as there was no response for pull requests from author and I wanted to fix few things and also add couple new features.
 
-Card code is very small - less than 10KB. It **doesn't** depend on external dependencies (eg. downloaded every time from CDN).
-
 ![image](https://user-images.githubusercontent.com/8268674/80753326-fabd1280-8b24-11ea-8f90-4c934793f231.png)
 
 ## Config
@@ -19,9 +17,10 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | title | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 | collapse | number |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
+| filter | [FilterGroups](#filter-groups) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
+| bulk_rename | list([Convert](#convert)) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
 
 +[common options](#common-options) (if specified they will be apllied to all entities)
-
 
 ### Entity object
 | Name | Type | Default | Since | Description |
@@ -40,8 +39,9 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 | color_thresholds | list([Threshold](#threshold-object)) | (see [below](#default-thresholds)) | v0.9.0 | Thresholds and colors for indication of battery level.
 | color_gradient | list(string) | | v0.9.0 | List of hex HTML colors. At least two. In #XXXXXX format, eg. `"#FFB033"`.
 | tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
-| state_map | list([StateMap](#state-map))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
+| state_map | list([Convert](#convert))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
 | charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
+| secondary_info | string |  | v1.3.0 | Secondary info text. It can be a custom text, attribute name or state property name e.g. `charging`, `last_changed`, `"My battery"`. ([example](#secondary-info))
 
 ### Threshold object
 
@@ -59,6 +59,39 @@ Card code is very small - less than 10KB. It **doesn't** depend on external depe
 
 Note: the exact color is taken from CSS variable and it depends on your current template.
 
+
+### Filter groups
+| Name | Type | Default | Description |
+|:-----|:-----|:-----|:-----|
+| include | list([Filter](#filter-object)) |  | Filters for auto adding entities
+| exclude | list([Filter](#filter-object)) |  | Filters to remove entities dynamically
+
+Note: The action (include/exclude) is performed when at least one of the filters is matching (OR). It is not possible currently to specify two or more conditions (filters combined with AND operator).
+
+Note: Include filters should rely on static entity properties. E.g. you should not add include filter which checks the `state` property. Include filters are processed only once - when page is loaded (to minimize perf impact).
+
+### Filter object
+| Name | Type | Default | Description |
+|:-----|:-----|:-----|:-----|
+| name | string | **(required)** | Name of the property/attribute. E.g. `state`, `attribute.device_class`
+| operator | string |  | Operator for value comparison (see [filter operators](#filter-operators))
+| value | any |  | Value to compare the property/attribute to
+
+### Filter operators
+
+Operator is an optional property. If operator is not specified it depends on `value` config property:
+* if `value` is not specified the default operator is `exists`
+* if `value` starts and ends with shalsh "`/`" or if it contains wildcard "`*`" the operator is `matches`
+
+| Name | Type |
+|:-----|:-----|
+| `"exists"` | It just checks if value is present (e.g. to match entities having particular attribute regardless of the attribute value). It doesn't require `value` to be specified.
+| `"="` | If value equals the one specified in `value` property.
+| `">"` | If value is greater than one specified in `value` property. Possible variant: `">="`. Value must be numeric type.
+| `"<"` | If value is lower than one specified in `value` property. Possible variant: `"<="`. Value must be numeric type.
+| `"contains"` | If value contains the one specified in `value` property
+| `"matches"` | If value matches the one specified in `value` property. You can use wildcards (e.g. `"*_battery_level"`) or regular expression (must be prefixed and followed by slash e.g. `"/[a-z_]+_battery_level/"`)
+
 ### Tap-Action
 The definition is similar to the default [tap-action](https://www.home-assistant.io/lovelace/actions/#tap-action) in HomeAssistant.
 | Name | Type | Default | Description |
@@ -69,12 +102,12 @@ The definition is similar to the default [tap-action](https://www.home-assistant
 | navigation_path | string |  | Path to navigate to when `action` defined as `navigate`. Eg. `"/lovelace/0"`
 | url_path | string |  | Url to navigate to when `action` defined as `url`. Eg. `"https://www.home-assistant.io"`
 
-### State map
+### Convert
 
 | Name | Type | Default | Description |
 |:-----|:-----|:-----|:-----|
 | from | any | **(required)** | Value to convert. Note it is type sensitive (eg. `false` != `"false"`)
-| to | number | **(required)** | Target battery level value in `0-100` range
+| to | any | **(required)** | Target value
 
 ### Charging-state object
 
@@ -312,34 +345,60 @@ Card-level charging state configuration
     - sensor.samsung
 ```
 
-### Filtering with entity-filter card
+### Entity filtering and bulk renaming
+If you want to add battery entities automatically or if you want to see them only in specific conditions you can use filters.
 
-If you want to see batteries (or card) only if they are below specific threshold you can use [entity-filter](https://www.home-assistant.io/lovelace/entity-filter/) card combined with this card.
+If you add entities automatically you cannot specify properties for individual entities. It is possible though to specify card-level properties which will be applied to all entities (see [common options](#common-options)). For example if you wanted to set custom names (e.g. if your sensors are suffixed with some common string) you can use `bulk_rename` property to define renaming rules.
+
+![filters](https://user-images.githubusercontent.com/8268674/82096304-97240f00-96f8-11ea-9376-a9878f56ce94.png)
 
 ```yaml
-- type: entity-filter
+- type: 'custom:battery-state-card'
+  title: Filters
+  sort_by_level: "asc"
+  bulk_rename:
+    - from: "Battery Level" # simple string replace (note: "to" is not required if you want to remove string)
+      to: "sensor"
+    - from: "/\\s(temperature|temp)\\s/" # regular expression
+      to: " temp. "
   entities:
-    - sensor.bathroom_motion_battery_level
-    - sensor.bedroom_balcony_battery_level
-    - sensor.bedroom_motion_battery_level
-    - sensor.bedroom_switch_battery_level
-    - sensor.bedroomtemp_battery_level
-    - sensor.living_room_balcony_battery_level
-    - sensor.living_room_switch_battery_level
-    - sensor.livingroomtemp_battery_level
-    - sensor.main_door_battery_level
-    - sensor.master_bathroom_motion_battery_level
-    - sensor.master_bedroom_motion_battery_level
-  state_filter:
-    - operator: "<"
-      value: 100
-  card:
-    type: custom:battery-state-card
-    title: Filtering with entity-filter
-    color_gradient:
-      - "#ff0000" # red
-      - "#0000ff" # blue
-      - "#00ff00" # green
+    # entities requiring additional properties can be added explicitly
+    - entity: sensor.temp_outside_battery_numeric
+      multiplier: 10
+      name: "Outside temp. sensor"
+  filter:
+    include: # filters for auto-adding
+      - name: entity_id # entities which id ends with "_battery_level"
+        value: "*_battery_level"
+      - name: attributes.device_class # and entities which device_class attribute equals "battery"
+        value: battery
+    exclude: # filters for removing
+      - name: state # exclude entities above 99% of battery level
+        value: 99
+        operator: ">"
+```
+
+### Secondary info
+
+![image](https://user-images.githubusercontent.com/8268674/80970635-63510b80-8e13-11ea-8a9a-6bc8d873092b.png)
+
+```yaml
+- type: custom:battery-state-card
+  name: Secondary info
+  secondary_info: last_updated
+  entities:
+    - entity: sensor.bedroom_motion_battery_level
+      name: "Bedroom motion sensor"
+    - entity: sensor.mi_robrock
+      secondary_info: charging # only appears when charging is detected
+      charging_state:
+        attribute:
+          name: "is_charging"
+          value: true
+        secondary_info_text: "Charging in progress" # override for "Charging" text
+    - entity: sensor.jacks_motorola
+      name: "Jack's phone"
+      secondary_info: "Battery state" # Static text
 ```
 
 ## Installation
