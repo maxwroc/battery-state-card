@@ -348,7 +348,7 @@ Card-level charging state configuration
 ### Entity filtering and bulk renaming
 If you want to add battery entities automatically or if you want to see them only in specific conditions you can use filters.
 
-If you add entities automatically you cannot specify properties for individual entities. If you wanted to set custom names (e.g. if your sensors are suffixed with some common string) you can use `bulk_rename` property to define renaming rules.
+If you add entities automatically you cannot specify properties for individual entities. It is possible though to specify card-level properties which will be applied to all entities (see [common options](#common-options)). For example if you wanted to set custom names (e.g. if your sensors are suffixed with some common string) you can use `bulk_rename` property to define renaming rules.
 
 ![filters](https://user-images.githubusercontent.com/8268674/82096304-97240f00-96f8-11ea-9376-a9878f56ce94.png)
 
@@ -358,6 +358,7 @@ If you add entities automatically you cannot specify properties for individual e
   sort_by_level: "asc"
   bulk_rename:
     - from: "Battery Level" # simple string replace (note: "to" is not required if you want to remove string)
+      to: "sensor"
     - from: "/\\s(temperature|temp)\\s/" # regular expression
       to: " temp. "
   entities:
@@ -372,8 +373,8 @@ If you add entities automatically you cannot specify properties for individual e
       - name: attributes.device_class # and entities which device_class attribute equals "battery"
         value: battery
     exclude: # filters for removing
-      - name: state # exclude entities above 90% of battery level
-        value: 90
+      - name: state # exclude entities above 99% of battery level
+        value: 99
         operator: ">"
 ```
 
