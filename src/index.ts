@@ -78,7 +78,7 @@ class BatteryStateCard extends LitElement {
 
         this.simpleView = !!this.config.entity;
 
-        this.batteryProvider = new BatteryProvider(this.config);
+        this.batteryProvider = new BatteryProvider(this.config, this);
         this.batteries = this.batteryProvider.getBatteries()
     }
 
