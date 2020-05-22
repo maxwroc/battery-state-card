@@ -226,11 +226,16 @@ export interface IBatteryStateCardConfig extends IBatteryEntity  {
     /**
      * Collapse after given number of entities
      */
-    collapse?: number;
+    collapse?: number | ICollapsingGroups[];
 
     /**
      * Filters for auto adding or removing entities
      */
     filter?: { [key in FilterGroups]: IFilter[] };
+}
+
+export interface ICollapsingGroups {
+    name?: string;
+    threshold: number;
 }
 

@@ -42,13 +42,12 @@ export const card = (headerText: string | undefined, contents: string[]) => html
 </ha-card>
 `;
 
-export const collapsableWrapper = (contents: string[], collapseAfter: number) => {
+export const collapsableWrapper = (contents: string[], name?: string) => {
     const elemId = "expander" + Math.random().toString().substr(2);
     return html`
-    ${contents.slice(0, collapseAfter)}
     <input type="checkbox" class="expand" id="${elemId}" />
-    <label for="${elemId}"><div>&lsaquo;</div></label>
-    <div>${contents.slice(collapseAfter)}</div>
+    <label for="${elemId}"><div>${name}</div>><div>&lsaquo;</div></label>
+    <div>${contents}</div>
     `
 };
 

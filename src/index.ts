@@ -1,5 +1,5 @@
 import { HomeAssistant } from "./ha-types";
-import { IBatteryStateCardConfig } from "./types";
+import { IBatteryStateCardConfig, ICollapsingGroups } from "./types";
 import { LitElement } from "./lit-element";
 import BatteryViewModel from "./battery-vm";
 import * as views from "./views";
@@ -102,20 +102,68 @@ class BatteryStateCard extends LitElement {
             return views.battery(this.batteries[0]);
         }
 
-        const batteryViews = this.batteries
-            .filter(battery => !battery.is_hidden)
-            .map(battery => views.battery(battery));
+        const batteries = this.batteries.filter(battery => !battery.is_hidden);
 
         // filer cards (entity-filter) can produce empty collection
-        if (batteryViews.length == 0) {
+        if (batteries.length == 0) {
             // don't render anything
             return views.empty();
         }
 
         return views.card(
             this.config.name || this.config.title,
-            this.config.collapse ? [ views.collapsableWrapper(batteryViews, this.config.collapse) ] : batteryViews
+            this.getBatteryViews(batteries)
         );
+    }
+
+    getBatteryViews(batteries: BatteryViewModel[]): any[] {
+        if (!this.config.collapse) {
+            // collapsing is off so we return flat list
+            return batteries.map(battery => views.battery(battery));
+        }
+
+        let batteryGroups: ICollapsingGroups[] = typeof (this.config.collapse) == "number" ? [{ threshold: this.config.collapse }] : this.config.collapse;
+
+        let renderedViews: any[] = [];
+
+        let grouppedBatteries: BatteryViewModel[][] = [];
+
+        let batteryIndex = 0;
+        batteryGroups.forEach((g, groupIndex) => {
+
+            // make sure array is initialized
+            grouppedBatteries[groupIndex] = grouppedBatteries[groupIndex] || [];
+
+            for (let i = batteryIndex; i < batteries.length; i++) {
+                const b = batteries[i];
+                const level = isNaN(Number(b.level)) ? 0 : Number(b.level);
+
+                if (level > g.threshold) {
+                    groupIndex++;
+                    return;
+                }
+
+                grouppedBatteries[groupIndex].push(b);
+            }
+        });
+
+        if (batteryIndex != batteries.length - 1) {
+            // add rest of the batteries to the next group
+            grouppedBatteries.push(batteries.slice(batteryIndex));
+        }
+
+        grouppedBatteries.forEach((g, i) => {
+            const batteryViews = grouppedBatteries[i].map(battery => views.battery(battery));
+            if (i == 0) {
+                // first group not collapsed
+                renderedViews = batteryViews;
+                return;
+            }
+
+            renderedViews.push(views.collapsableWrapper(batteryViews, batteryGroups[i].name))
+        })
+
+        return renderedViews;
     }
 
     /**
@@ -129,7 +177,7 @@ class BatteryStateCard extends LitElement {
 
         if (this.config.collapse) {
             // +1 to account the expand button
-            size = this.config.collapse + 1;
+            size = typeof(this.config.collapse) == "number" ? this.config.collapse + 1 : size + 1;
         }
 
         // +1 to account header
