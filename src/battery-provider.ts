@@ -12,18 +12,20 @@ const entititesGlobalProps = [ "tap_action", "state_map", "charging_state", "sec
 /**
  * Functions to check if filter condition is met
  */
-const operatorHandlers: { [key in FilterOperator]: (val: string | undefined, expectedVal: any) => boolean } = {
+const operatorHandlers: { [key in FilterOperator]: (val: string | number | undefined, expectedVal: string | number) => boolean } = {
     "exists": val => val !== undefined,
-    "contains": (val, searchString) => val !== undefined && val.indexOf(searchString) != -1,
+    "contains": (val, searchString) => val !== undefined && val.toString().indexOf(searchString.toString()) != -1,
     "=": (val, expectedVal) => val == expectedVal,
     ">": (val, expectedVal) => Number(val) > expectedVal,
     "<": (val, expectedVal) => Number(val) < expectedVal,
     ">=": (val, expectedVal) => Number(val) >= expectedVal,
     "<=": (val, expectedVal) => Number(val) <= expectedVal,
-    "matches": (val, pattern: string) => {
+    "matches": (val, pattern) => {
         if (val === undefined) {
             return false;
         }
+
+        pattern = pattern.toString();
 
         let exp: RegExp | undefined;
         if (pattern[0] == "/" && pattern[pattern.length - 1] == "/") {
@@ -33,7 +35,7 @@ const operatorHandlers: { [key in FilterOperator]: (val: string | undefined, exp
             exp = new RegExp(pattern.replace(/\*/g, ".*"));
         }
 
-        return exp ? exp.test(val) : val === pattern;
+        return exp ? exp.test(val.toString()) : val === pattern;
     }
 }
 
@@ -92,11 +94,19 @@ class Filter {
      * Checks whether value meets the filter conditions.
      * @param val Value to validate
      */
-    private meetsExpectations(val: string | undefined): boolean {
+    private meetsExpectations(val: string | number | undefined): boolean {
 
         let operator = this.config.operator;
         if (!operator) {
-            operator = val === undefined ? "exists" : "=";
+            if (val === undefined) {
+                operator = "exists";
+            }
+            else {
+                const expectedVal = this.config.value.toString();
+                operator = expectedVal.indexOf("*") != -1 || (expectedVal[0] == "/" && expectedVal[expectedVal.length - 1] == "/") ?
+                    "matches" :
+                    "=";
+            }
         }
 
         const func = operatorHandlers[operator];

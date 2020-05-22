@@ -138,7 +138,7 @@ export interface IFilter {
     /**
      * Value to compare with the extracted one
      */
-    value: any;
+    value: string | number;
 }
 
 export interface IBatteryEntity {
