@@ -60,8 +60,8 @@ class BatteryStateCard extends LitElement {
      * @param config Card configuration
      */
     setConfig(config: IBatteryStateCardConfig) {
-        if (!config.entities && !config.entity) {
-            throw new Error("You need to define entities");
+        if (!config.entities && !config.entity && !config.filter?.include) {
+            throw new Error("You need to define entities or filter.include");
         }
 
         // check for changes
@@ -78,7 +78,7 @@ class BatteryStateCard extends LitElement {
 
         this.simpleView = !!this.config.entity;
 
-        this.batteryProvider = new BatteryProvider(this.config);
+        this.batteryProvider = new BatteryProvider(this.config, this);
         this.batteries = this.batteryProvider.getBatteries()
     }
 

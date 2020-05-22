@@ -289,8 +289,12 @@ class BatteryViewModel {
      */
     private setSecondaryInfo(hass: HomeAssistant, entityData: HassEntity): string {
         if (this.config.secondary_info) {
-            if (this.config.secondary_info == "charging" && this.charging) {
-                return this.config.charging_state?.secondary_info_text || "Charging"; // todo: think about i18n
+            if (this.config.secondary_info == "charging") {
+                if (this.charging) {
+                    return this.config.charging_state?.secondary_info_text || "Charging"; // todo: think about i18n
+                }
+
+                return <any>null;
             }
             else {
                 const val = (<any>entityData)[this.config.secondary_info] || entityData.attributes[this.config.secondary_info] || this.config.secondary_info;

@@ -134,7 +134,7 @@ export class BatteryProvider {
      */
     private initialized: boolean = false;
 
-    constructor(private config: IBatteryStateCardConfig) {
+    constructor(private config: IBatteryStateCardConfig, private cardNode: Node) {
         this.include = config.filter?.include?.map(f => new Filter(f));
         this.exclude = config.filter?.exclude?.map(f => new Filter(f));
 
@@ -178,7 +178,7 @@ export class BatteryProvider {
         return new BatteryViewModel(
             entity,
             ActionFactory.getAction({
-                card: <any>this,
+                card: this.cardNode,
                 config: entity.tap_action || this.config.tap_action || <any>null,
                 entity: entity
             })
@@ -191,7 +191,7 @@ export class BatteryProvider {
     private processExplicitEntities() {
         let entities = this.config.entity
             ? [this.config]
-            : this.config.entities!.map((entity: string | IBatteryEntity) => {
+            : (this.config.entities || []).map((entity: string | IBatteryEntity) => {
                 // check if it is just the id string
                 if (typeof (entity) === "string") {
                     entity = <IBatteryEntity>{ entity: entity };

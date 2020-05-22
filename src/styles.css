@@ -12,6 +12,9 @@
     align-items: center;
     margin: 8px 0;
 }
+.battery:first-child {
+    margin-top: 0;
+}
 .battery .name {
     flex: 1 0 60px;
     margin: 0 5px 0 16px;
