@@ -369,6 +369,7 @@ If you add entities automatically you cannot specify properties for individual e
   filter:
     include: # filters for auto-adding
       - name: entity_id # entities which id ends with "_battery_level"
+        operator: "matches"
         value: "*_battery_level"
       - name: attributes.device_class # and entities which device_class attribute equals "battery"
         value: battery
