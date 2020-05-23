@@ -82,6 +82,7 @@ Note: Include filters should rely on static entity properties. E.g. you should n
 Operator is an optional property. If operator is not specified it depends on `value` config property:
 * if `value` is not specified the default operator is `exists`
 * if `value` starts and ends with shalsh "`/`" or if it contains wildcard "`*`" the operator is `matches`
+* if `value` property is set but above conditions are not met the operator is "`=`"
 
 | Name | Type |
 |:-----|:-----|
