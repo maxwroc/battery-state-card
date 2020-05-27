@@ -1,4 +1,11 @@
+
+
 # Battery State Card
+[![GitHub Release][releases-shield]][releases]
+[![GitHub All Releases][downloads-total-shield]][releases]
+[![hacs_badge][hacs-shield]][hacs]
+[![Community Forum][forum-shield]][forum]
+
 Battery state card for [Home Assistant](https://github.com/home-assistant/home-assistant). It shows battery levels from connected devices (entities).
 
 ## Overview
@@ -445,3 +452,13 @@ If you do like the card please star it on [github](https://github.com/maxwroc/ba
 ## License
 
 This project is under the [MIT license](https://github.com/maxwroc/battery-state-card/blob/master/LICENSE).
+
+
+
+[releases]: https://github.com/maxwroc/battery-state-card/releases
+[releases-shield]: https://img.shields.io/github/release/maxwroc/battery-state-card.svg?style=popout
+[downloads-total-shield]: https://img.shields.io/github/downloads/maxwroc/battery-state-card/total
+[forum]: https://community.home-assistant.io/t/lovelace-battery-state-card/191535
+[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=popout
+[hacs-shield]: https://img.shields.io/badge/HACS-Default-orange.svg
+[hacs]: https://hacs.xyz/docs/default_repositories
