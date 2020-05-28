@@ -18,7 +18,9 @@ assignees: ''
 
 **YAML configuration**
 ```yaml
+
 # please paste here your card config
+
 ```
 
 **Screenshots**
