@@ -21,14 +21,14 @@ export const getRenderedGroups = (config: number | ICollapsingGroups[], batterie
     }
     else {
         // make sure that max property is set for every group
-        populateMaxFields(config);
+        populateMinMaxFields(config);
 
         // dummy group for orphans (entities without groups)
         groups.push(createGroup([]));
 
         batteries.forEach(b => {
             const level = isNaN(Number(b.level)) ? 0 : Number(b.level);
-            const foundIndex = config.findIndex(g => level >= g.min && level <= g.max!);
+            const foundIndex = config.findIndex(g => level >= g.min! && level <= g.max!);
             if (foundIndex == -1) {
                 // batteries without group should always go to the first one
                 groups[0].batteries.push(b);
@@ -50,7 +50,7 @@ export const getRenderedGroups = (config: number | ICollapsingGroups[], batterie
             return;
         }
 
-        if (group.batteries.length == 0 && !group.always_show) {
+        if (group.batteries.length == 0) {
             // skip empty groups
             return;
         }
@@ -61,16 +61,21 @@ export const getRenderedGroups = (config: number | ICollapsingGroups[], batterie
     return renderedViews;
 }
 
-var populateMaxFields = (config: ICollapsingGroups[]): void => config
-    .sort((a, b) => a.min - a.min)
+var populateMinMaxFields = (config: ICollapsingGroups[]): void => config
+    .sort((a, b) => (a.min || 0) - (b.min || 0))
     .forEach((g, i) => {
+        if (g.min == undefined) {
+            g.min = 0;
+        }
+
         if (g.max != undefined && g.max < g.min) {
             log("Collapse group min value should be smaller than max.");
             return;
         }
 
         if (g.max == undefined) {
-            g.max = config[i + 1] ? config[i + 1].min - 1 : 100;
+            // if next group exists and it has min
+            g.max = config[i + 1] && config[i + 1].min ? config[i + 1].min! - 1 : 100;
         }
     });
 
@@ -79,7 +84,6 @@ const createGroup = (batteries: BatteryViewModel[], config?: ICollapsingGroups):
         name: config?.name,
         min: config?.min || 0,
         max: config?.max || 100,
-        always_show: config?.always_show,
         batteries: batteries,
     }
 }
