@@ -11,11 +11,13 @@ assignees: ''
 
 **YAML configuration**
 ```yaml
+
 # paste your card configuration here
+
 ```
 
 **Screenshot**
-Add a screenshot if applicable
+<!-- Add a screenshot if applicable -->
 
 **Version**
-What is the version of the card? (available in HACS and in browser developer console - F12)
+<!-- What is the version of the card? (available in HACS and in browser developer console - Ctrl+Shift+J / F12) -->
