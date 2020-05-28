@@ -200,9 +200,15 @@ class BatteryViewModel {
      * @param entityData Entity state data
      */
     private getLevel(entityData: HassEntity): string {
+        const UnknownLevel = "Unknown";
         let level: string;
+
         if (this.config.attribute) {
-            level = entityData.attributes[this.config.attribute]
+            level = entityData.attributes[this.config.attribute];
+            if (level == undefined) {
+                log(`Attribute "${this.config.attribute}" doesn't exist on "${this.config.entity}" entity`);
+                level = UnknownLevel;
+            }
         }
         else {
             const candidates: string[] = [
@@ -211,7 +217,7 @@ class BatteryViewModel {
                 entityData.state
             ];
 
-            level = candidates.find(n => n !== null && n !== undefined)?.toString() || "Unknown";
+            level = candidates.find(n => n !== null && n !== undefined)?.toString() || UnknownLevel;
         }
 
         // check if we should convert value eg. for binary sensors
