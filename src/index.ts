@@ -6,6 +6,8 @@ import * as views from "./views";
 import styles from "./styles";
 import { ActionFactory } from "./action";
 import { BatteryProvider } from "./battery-provider";
+import { log } from "./utils";
+import { getRenderedGroups } from "./grouping";
 
 /**
  * Card main class.
@@ -122,48 +124,7 @@ class BatteryStateCard extends LitElement {
             return batteries.map(battery => views.battery(battery));
         }
 
-        let batteryGroups: ICollapsingGroups[] = typeof (this.config.collapse) == "number" ? [{ threshold: this.config.collapse }] : this.config.collapse;
-
-        let renderedViews: any[] = [];
-
-        let grouppedBatteries: BatteryViewModel[][] = [];
-
-        let batteryIndex = 0;
-        batteryGroups.forEach((g, groupIndex) => {
-
-            // make sure array is initialized
-            grouppedBatteries[groupIndex] = grouppedBatteries[groupIndex] || [];
-
-            for (let i = batteryIndex; i < batteries.length; i++) {
-                const b = batteries[i];
-                const level = isNaN(Number(b.level)) ? 0 : Number(b.level);
-
-                if (level > g.threshold) {
-                    groupIndex++;
-                    return;
-                }
-
-                grouppedBatteries[groupIndex].push(b);
-            }
-        });
-
-        if (batteryIndex != batteries.length - 1) {
-            // add rest of the batteries to the next group
-            grouppedBatteries.push(batteries.slice(batteryIndex));
-        }
-
-        grouppedBatteries.forEach((g, i) => {
-            const batteryViews = grouppedBatteries[i].map(battery => views.battery(battery));
-            if (i == 0) {
-                // first group not collapsed
-                renderedViews = batteryViews;
-                return;
-            }
-
-            renderedViews.push(views.collapsableWrapper(batteryViews, batteryGroups[i].name))
-        })
-
-        return renderedViews;
+        return getRenderedGroups(this.config.collapse, batteries);
     }
 
     /**
@@ -187,4 +148,3 @@ class BatteryStateCard extends LitElement {
 
 // Registering card
 customElements.define("battery-state-card", <any>BatteryStateCard);
-

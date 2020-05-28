@@ -46,7 +46,7 @@ export const collapsableWrapper = (contents: string[], name?: string) => {
     const elemId = "expander" + Math.random().toString().substr(2);
     return html`
     <input type="checkbox" class="expand" id="${elemId}" />
-    <label for="${elemId}"><div>${name}</div>><div>&lsaquo;</div></label>
+    <label for="${elemId}"><div class="name">${name}</div><div class="chevron">&lsaquo;</div></label>
     <div>${contents}</div>
     `
 };

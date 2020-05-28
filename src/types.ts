@@ -236,6 +236,8 @@ export interface IBatteryStateCardConfig extends IBatteryEntity  {
 
 export interface ICollapsingGroups {
     name?: string;
-    threshold: number;
+    min: number;
+    max?: number;
+    always_show?: boolean
 }
 
