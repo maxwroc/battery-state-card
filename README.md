@@ -1,4 +1,11 @@
+
+
 # Battery State Card
+[![GitHub Release][releases-shield]][releases]
+[![GitHub All Releases][downloads-total-shield]][releases]
+[![hacs_badge][hacs-shield]][hacs]
+[![Community Forum][forum-shield]][forum]
+
 Battery state card for [Home Assistant](https://github.com/home-assistant/home-assistant). It shows battery levels from connected devices (entities).
 
 ## Overview
@@ -82,6 +89,7 @@ Note: Include filters should rely on static entity properties. E.g. you should n
 Operator is an optional property. If operator is not specified it depends on `value` config property:
 * if `value` is not specified the default operator is `exists`
 * if `value` starts and ends with shalsh "`/`" or if it contains wildcard "`*`" the operator is `matches`
+* if `value` property is set but above conditions are not met the operator is "`=`"
 
 | Name | Type |
 |:-----|:-----|
@@ -444,3 +452,13 @@ If you do like the card please star it on [github](https://github.com/maxwroc/ba
 ## License
 
 This project is under the [MIT license](https://github.com/maxwroc/battery-state-card/blob/master/LICENSE).
+
+
+
+[releases]: https://github.com/maxwroc/battery-state-card/releases
+[releases-shield]: https://img.shields.io/github/release/maxwroc/battery-state-card.svg?style=popout
+[downloads-total-shield]: https://img.shields.io/github/downloads/maxwroc/battery-state-card/total
+[forum]: https://community.home-assistant.io/t/lovelace-battery-state-card/191535
+[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=popout
+[hacs-shield]: https://img.shields.io/badge/HACS-Default-orange.svg
+[hacs]: https://hacs.xyz/docs/default_repositories
