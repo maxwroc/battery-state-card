@@ -1,13 +1,10 @@
 import { HomeAssistant } from "./ha-types";
-import { IBatteryStateCardConfig, ICollapsingGroups } from "./types";
-import { LitElement } from "./lit-element";
-import BatteryViewModel from "./battery-vm";
+import { IBatteryStateCardConfig } from "./types";
+import { LitElement, LitHtml } from "./lit-element";
 import * as views from "./views";
 import styles from "./styles";
 import { ActionFactory } from "./action";
 import { BatteryProvider } from "./battery-provider";
-import { log } from "./utils";
-import { getRenderedGroups } from "./grouping";
 
 /**
  * Card main class.
@@ -30,24 +27,9 @@ class BatteryStateCard extends LitElement {
     public simpleView: boolean = false;
 
     /**
-     * Battery objects to track.
-     */
-    public batteries: BatteryViewModel[] = [];
-
-    /**
      * Battery provider for battery view models.
      */
     private batteryProvider: BatteryProvider = <any>null;
-
-    /**
-     * Properties defined here are used by Polymer to detect
-     * changes and update card UI.
-     */
-    static get properties() {
-        return {
-            batteries: Array
-        };
-    }
 
     /**
      * CSS for the card
@@ -81,7 +63,9 @@ class BatteryStateCard extends LitElement {
         this.simpleView = !!this.config.entity;
 
         this.batteryProvider = new BatteryProvider(this.config, this);
-        this.batteries = this.batteryProvider.getBatteries()
+
+        // always render initial state, even though we don't have values yet
+        this.requestUpdate();
     }
 
     /**
@@ -92,39 +76,47 @@ class BatteryStateCard extends LitElement {
         ActionFactory.hass = hass;
 
         // to improve perf we release the task/thread
-        setTimeout(() => this.batteries = this.batteryProvider.getBatteries(hass), 0);
+        setTimeout(() => {
+            const updated = this.batteryProvider.update(hass);
+            if (updated) {
+                // trigger rendering
+                this.requestUpdate();
+            }
+        }, 0);
     }
 
     /**
      * Renders the card. Called when update detected.
      */
     render() {
+
+        const viewData = this.batteryProvider.getBatteries();
+
         // check if we should render it without card container
         if (this.simpleView) {
-            return views.battery(this.batteries[0]);
+            return views.battery(viewData.batteries[0]);
         }
 
-        const batteries = this.batteries.filter(battery => !battery.is_hidden);
+        let renderedViews: LitHtml[] = [];
 
-        // filer cards (entity-filter) can produce empty collection
-        if (batteries.length == 0) {
-            // don't render anything
+        viewData.batteries.forEach(b => !b.is_hidden && renderedViews.push(views.battery(b)));
+
+        viewData.groups.forEach(g => {
+            const renderedBatteries: LitHtml[] = [];
+            g.batteries.forEach(b => !b.is_hidden && renderedBatteries.push(views.battery(b)));
+            if (renderedBatteries.length) {
+                renderedViews.push(views.collapsableWrapper(renderedBatteries, g.name));
+            }
+        });
+
+        if (renderedViews.length == 0) {
             return views.empty();
         }
 
         return views.card(
             this.config.name || this.config.title,
-            this.getBatteryViews(batteries)
+            renderedViews
         );
-    }
-
-    getBatteryViews(batteries: BatteryViewModel[]): any[] {
-        if (!this.config.collapse) {
-            // collapsing is off so we return flat list
-            return batteries.map(battery => views.battery(battery));
-        }
-
-        return getRenderedGroups(this.config.collapse, batteries);
     }
 
     /**
@@ -134,11 +126,16 @@ class BatteryStateCard extends LitElement {
      * the available columns. One is equal 50px.
      */
     getCardSize() {
-        let size = this.batteries.length;
+        let size = this.config.entities?.length || 1;
 
         if (this.config.collapse) {
-            // +1 to account the expand button
-            size = typeof(this.config.collapse) == "number" ? this.config.collapse + 1 : size + 1;
+            if (typeof this.config.collapse == "number") {
+                // +1 to account the expand button
+                return this.config.collapse + 1;
+            }
+            else {
+                return this.config.collapse.length + 1;
+            }
         }
 
         // +1 to account header

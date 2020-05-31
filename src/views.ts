@@ -1,4 +1,4 @@
-import { html } from "./lit-element";
+import { html, LitHtml } from "./lit-element";
 import BatteryViewModel from "./battery-vm";
 import { isNumber } from "./utils";
 
@@ -33,7 +33,7 @@ export const battery = (model: BatteryViewModel) => html`
 </div>
 `;
 
-export const card = (headerText: string | undefined, contents: string[]) => html`
+export const card = (headerText: string | undefined, contents: LitHtml[]) => html`
 <ha-card>
     ${headerText ? header(headerText) : ""}
     <div class="card-content">
@@ -42,7 +42,7 @@ export const card = (headerText: string | undefined, contents: string[]) => html
 </ha-card>
 `;
 
-export const collapsableWrapper = (contents: string[], name?: string) => {
+export const collapsableWrapper = (contents: LitHtml[], name?: string) => {
     const elemId = "expander" + Math.random().toString().substr(2);
     return html`
     <input type="checkbox" class="expand" id="${elemId}" />

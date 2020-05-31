@@ -1,67 +1,84 @@
-import { IBatteryStateCardConfig, ICollapsingGroups } from "./types"
+import { ICollapsingGroupConfig, IBatteryGroupViewData, IBatteriesResultViewData, IHomeAssistantGroupProps, IGroupDataMap } from "./types"
 import BatteryViewModel from "./battery-vm"
 import { log } from "./utils";
-import * as views from "./views";
 
-interface IGroupData extends ICollapsingGroups {
-    max: number;
-    batteries: BatteryViewModel[];
-}
+/**
+ * Returns battery collections to render
+ * @param config Collapsing config
+ * @param batteries Battery view models
+ * @param haGroupData Home assistant group data
+ */
+export const getBatteryCollections = (config: number | ICollapsingGroupConfig[] | undefined, batteries: BatteryViewModel[], haGroupData: IGroupDataMap): IBatteriesResultViewData => {
+    const result: IBatteriesResultViewData = {
+        batteries: [],
+        groups: []
+    };
 
-
-export const getRenderedGroups = (config: number | ICollapsingGroups[], batteries: BatteryViewModel[]): any[] => {
-    const groupConfigs = typeof config == "number" || !config ? [] : config;
-
-    let renderedViews: any[] = [];
-    let groups: IGroupData[] = [];
+    if (!config) {
+        result.batteries = batteries;
+        return result;
+    }
 
     if (typeof config == "number") {
-        groups.push(createGroup(batteries.slice(0, config)));
-        groups.push(createGroup(batteries.slice(config)));
+        result.batteries = batteries.slice(0, config);
+        result.groups.push(createGroup(haGroupData, batteries.slice(config)));
     }
-    else {
-        // make sure that max property is set for every group
+    else {// make sure that max property is set for every group
         populateMinMaxFields(config);
-
-        // dummy group for orphans (entities without groups)
-        groups.push(createGroup([]));
 
         batteries.forEach(b => {
             const level = isNaN(Number(b.level)) ? 0 : Number(b.level);
-            const foundIndex = config.findIndex(g => level >= g.min! && level <= g.max!);
+            const foundIndex = getGroupIndex(config, b, haGroupData);
             if (foundIndex == -1) {
-                // batteries without group should always go to the first one
-                groups[0].batteries.push(b);
+                // batteries without group
+                result.batteries.push(b);
             }
             else {
                 // bumping group index as the first group is for the orphans
-                const groupIndex = foundIndex + 1;
-                groups[groupIndex] = groups[groupIndex] || createGroup([], config[foundIndex]);
-                groups[groupIndex].batteries.push(b);
+                result.groups[foundIndex] = result.groups[foundIndex] || createGroup(haGroupData, [], config[foundIndex]);
+                result.groups[foundIndex].batteries.push(b);
             }
         });
     }
 
-    groups.forEach((group, i) => {
-        const batteryViews = group.batteries.map(battery => views.battery(battery));
-        if (i == 0) {
-            // first group not collapsed
-            renderedViews = batteryViews;
-            return;
+    // update group title
+    result.groups.forEach(g => {
+        if (g.name) {
+            g.name = getGroupTitle(g);
         }
-
-        if (group.batteries.length == 0) {
-            // skip empty groups
-            return;
-        }
-
-        renderedViews.push(views.collapsableWrapper(batteryViews, getGroupTitle(group)))
     });
 
-    return renderedViews;
+    return result;
 }
 
-var populateMinMaxFields = (config: ICollapsingGroups[]): void => config
+/**
+ * Returns group index to which battery should be assigned.
+ * @param config Collapsing groups config
+ * @param battery Batterry view model
+ * @param haGroupData Home assistant group data
+ */
+const getGroupIndex = (config: ICollapsingGroupConfig[], battery: BatteryViewModel, haGroupData: IGroupDataMap): number => {
+    return config.findIndex(group => {
+
+        if (group.group_id && haGroupData[group.group_id]) {
+            return haGroupData[group.group_id].entity_id?.some(id => battery.entity_id == id);
+        }
+
+        if (group.entities) {
+            return group.entities.some(id => battery.entity_id == id);
+        }
+
+        const level = isNaN(Number(battery.level)) ? 0 : Number(battery.level);
+
+        return level >= group.min! && level <= group.max!;
+    });
+}
+
+/**
+ * Sets missing max/min fields.
+ * @param config Collapsing groups config
+ */
+var populateMinMaxFields = (config: ICollapsingGroupConfig[]): void => config
     .sort((a, b) => (a.min || 0) - (b.min || 0))
     .forEach((g, i) => {
         if (g.min == undefined) {
@@ -79,16 +96,36 @@ var populateMinMaxFields = (config: ICollapsingGroups[]): void => config
         }
     });
 
-const createGroup = (batteries: BatteryViewModel[], config?: ICollapsingGroups): IGroupData => {
+/**
+ * Creates and returns group view data object.
+ * @param haGroupData Home assistant group data
+ * @param batteries Batterry view model
+ * @param config Collapsing group config
+ */
+const createGroup = (haGroupData: IGroupDataMap, batteries: BatteryViewModel[] = [], config?: ICollapsingGroupConfig): IBatteryGroupViewData => {
+
+    let name = config?.name;
+    if (!name && config?.group_id) {
+        name = haGroupData[config.group_id].friendly_name;
+    }
+
+    let icon = config?.icon;
+    if (!icon && config?.group_id) {
+        icon = haGroupData[config.group_id].icon;
+    }
+
     return {
-        name: config?.name,
-        min: config?.min || 0,
-        max: config?.max || 100,
+        name: name,
+        icon: icon,
         batteries: batteries,
     }
 }
 
-const getGroupTitle = (group: IGroupData): string => {
+/**
+ * Returns final group name/title. Fills all keywords used in name.
+ * @param group Battery group view data
+ */
+const getGroupTitle = (group: IBatteryGroupViewData): string => {
     let result = group.name || "";
 
     result = result.replace(/\{[a-z]+\}/g, keyword => {
