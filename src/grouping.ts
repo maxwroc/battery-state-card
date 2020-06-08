@@ -60,12 +60,15 @@ export const getBatteryCollections = (config: number | ICollapsingGroupConfig[] 
 const getGroupIndex = (config: ICollapsingGroupConfig[], battery: BatteryViewModel, haGroupData: IGroupDataMap): number => {
     return config.findIndex(group => {
 
-        if (group.group_id && haGroupData[group.group_id]) {
-            return haGroupData[group.group_id].entity_id?.some(id => battery.entity_id == id);
+        if (group.group_id &&
+            haGroupData[group.group_id] &&
+            !haGroupData[group.group_id].entity_id?.some(id => battery.entity_id == id)) {
+
+            return false;
         }
 
-        if (group.entities) {
-            return group.entities.some(id => battery.entity_id == id);
+        if (group.entities && !group.entities.some(id => battery.entity_id == id)) {
+            return false
         }
 
         const level = isNaN(Number(battery.level)) ? 0 : Number(battery.level);
@@ -86,13 +89,12 @@ var populateMinMaxFields = (config: ICollapsingGroupConfig[]): void => config
         }
 
         if (g.max != undefined && g.max < g.min) {
-            log("Collapse group min value should be smaller than max.");
+            log("Collapse group min value should be lower than max.\n" + JSON.stringify(g, null, 2));
             return;
         }
 
         if (g.max == undefined) {
-            // if next group exists and it has min
-            g.max = config[i + 1] && config[i + 1].min ? config[i + 1].min! - 1 : 100;
+            g.max = 100;
         }
     });
 
