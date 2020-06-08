@@ -269,7 +269,8 @@ export class BatteryProvider {
             battery.is_hidden = is_hidden;
         });
 
-        toBeRemoved.forEach(i => this.batteries.splice(i, 1));
+        // we need to reverse otherwise the indexes will be messed up after removing
+        toBeRemoved.reverse().forEach(i => this.batteries.splice(i, 1));
     }
 
     /**
