@@ -12,6 +12,7 @@ on:
     paths: 
       - '**.ts'
       - '**.css'
+      - 'package.json'
   pull_request:
     branches: 
       - master
@@ -19,6 +20,7 @@ on:
     paths: 
       - '**.ts'
       - '**.css'
+      - 'package.json'
 
 jobs:
   build:
