@@ -61,7 +61,7 @@ export const collapsableWrapper = (contents: LitHtml[], model: IBatteryGroupView
         <div class="chevron">&lsaquo;</div>
     </div>
 </label>
-<div>${contents}</div>
+<div style="max-height: ${contents.length * 50}px">${contents}</div>
 `
 };
 
