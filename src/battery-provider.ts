@@ -169,7 +169,7 @@ export class BatteryProvider {
     update(hass: HomeAssistant): boolean {
         let updated = false;
         if (!this.initialized) {
-            // avoiding processing filter.include again
+            // groups and includes should be processed just once
             this.initialized = true;
 
             updated = this.processGroups(hass) || updated;

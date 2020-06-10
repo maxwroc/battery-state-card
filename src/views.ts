@@ -26,7 +26,7 @@ const icon = (icon?: string, color?: string) => icon && html`
 `;
 
 export const battery = (model: BatteryViewModel) => html`
-<div class="battery ${model.classNames}" @click=${model.action}>
+<div class="entity-row ${model.classNames}" @click=${model.action}>
     ${icon(model.icon, model.levelColor)}
     <div class="name truncate">
         ${model.name}
@@ -52,7 +52,7 @@ export const collapsableWrapper = (contents: LitHtml[], model: IBatteryGroupView
     return html`
 <input type="checkbox" class="expand" id="${elemId}" />
 <label for="${elemId}">
-    <div class="expandWrapper">
+    <div class="entity-row expandWrapper">
         ${icon(model.icon, model.iconColor)}
         <div class="name truncate">
             ${model.name}

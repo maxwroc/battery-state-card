@@ -27,7 +27,6 @@ export const getBatteryCollections = (config: number | ICollapsingGroupConfig[] 
         populateMinMaxFields(config);
 
         batteries.forEach(b => {
-            const level = isNaN(Number(b.level)) ? 0 : Number(b.level);
             const foundIndex = getGroupIndex(config, b, haGroupData);
             if (foundIndex == -1) {
                 // batteries without group
@@ -41,7 +40,7 @@ export const getBatteryCollections = (config: number | ICollapsingGroupConfig[] 
         });
     }
 
-    // update group title
+    // update group name and secondary info / replace keywords with values
     result.groups.forEach(g => {
         if (g.name) {
             g.name = getEnrichedText(g.name, g);
@@ -64,10 +63,7 @@ export const getBatteryCollections = (config: number | ICollapsingGroupConfig[] 
 const getGroupIndex = (config: ICollapsingGroupConfig[], battery: BatteryViewModel, haGroupData: IGroupDataMap): number => {
     return config.findIndex(group => {
 
-        if (group.group_id &&
-            haGroupData[group.group_id] &&
-            !haGroupData[group.group_id].entity_id?.some(id => battery.entity_id == id)) {
-
+        if (group.group_id && !haGroupData[group.group_id]?.entity_id?.some(id => battery.entity_id == id)) {
             return false;
         }
 
@@ -85,22 +81,20 @@ const getGroupIndex = (config: ICollapsingGroupConfig[], battery: BatteryViewMod
  * Sets missing max/min fields.
  * @param config Collapsing groups config
  */
-var populateMinMaxFields = (config: ICollapsingGroupConfig[]): void => config
-    .sort((a, b) => (a.min || 0) - (b.min || 0))
-    .forEach((g, i) => {
-        if (g.min == undefined) {
-            g.min = 0;
-        }
+var populateMinMaxFields = (config: ICollapsingGroupConfig[]): void => config.forEach(groupConfig => {
+    if (groupConfig.min == undefined) {
+        groupConfig.min = 0;
+    }
 
-        if (g.max != undefined && g.max < g.min) {
-            log("Collapse group min value should be lower than max.\n" + JSON.stringify(g, null, 2));
-            return;
-        }
+    if (groupConfig.max != undefined && groupConfig.max < groupConfig.min) {
+        log("Collapse group min value should be lower than max.\n" + JSON.stringify(groupConfig, null, 2));
+        return;
+    }
 
-        if (g.max == undefined) {
-            g.max = 100;
-        }
-    });
+    if (groupConfig.max == undefined) {
+        groupConfig.max = 100;
+    }
+});
 
 /**
  * Creates and returns group view data object.

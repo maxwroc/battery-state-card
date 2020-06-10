@@ -7,26 +7,25 @@
     overflow: hidden;
 }
 
-.battery,
-.expandWrapper {
+.entity-row {
     display: flex;
     align-items: center;
     margin: 8px 0;
 }
-.battery:first-child {
+.entity-row:first-child {
     margin-top: 0;
 }
-.battery .name,
-.expandWrapper .name {
+.entity-row:last-child {
+    margin-bottom: 0;
+}
+.entity-row .name {
     flex: 1 0 60px;
     margin: 0 6px;
 }
-.battery .secondary,
-.expandWrapper .secondary {
+.entity-row .secondary {
     color: var(--primary-color);
 }
-.battery .icon,
-.expandWrapper .icon {
+.entity-row .icon {
     flex: 0 0 40px;
     border-radius: 50%;
     text-align: center;
@@ -41,6 +40,7 @@
 .expand + label {
     display: block;
     cursor: pointer;
+    margin-top: 8px;
 }
 .expand + label > .name {
     flex: 1;
