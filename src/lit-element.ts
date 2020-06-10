@@ -7,10 +7,21 @@ declare var LitElement: ILitElement;
  * Maybe in the future LitElement will be globally available but currently only Polymer.Element is there.
  */
 var LitElement = LitElement || Object.getPrototypeOf(customElements.get("home-assistant-main"));
-const { html, css } = LitElement.prototype;
+const { html, css } = LitElement.prototype as { html: LitHtml, css: any };
+
+export type LitHtml = Function;
+type ChangedProperties = { [propertyName: string]: any };
 
 interface ILitElement extends Node {
-    new(): ILitElement
+    new(): ILitElement;
+    requestUpdate(): Promise<void>;
+    requestUpdate(propertyName: string, oldValue: any): Promise<void>;
+    shouldUpdate(changedProperties: ChangedProperties): boolean;
+    update(changedProperties: ChangedProperties): void;
+    firstUpdated(changedProperties: ChangedProperties): void;
+    updated(changedProperties: ChangedProperties): void;
+    updateComplete(): Promise<boolean>;
+    render(): LitHtml;
 }
 
 export {

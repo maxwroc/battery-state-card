@@ -23,8 +23,8 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 | entities | list([Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities
 | title | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
-| collapse | number |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
-| filter | [FilterGroups](#filter-groups) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
+| collapse | number \| [Group](#group-object) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
+| filter | [Filters](#filters) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
 | bulk_rename | list([Convert](#convert)) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
 
 +[common options](#common-options) (if specified they will be apllied to all entities)
@@ -67,7 +67,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 Note: the exact color is taken from CSS variable and it depends on your current template.
 
 
-### Filter groups
+### Filters
 | Name | Type | Default | Description |
 |:-----|:-----|:-----|:-----|
 | include | list([Filter](#filter-object)) |  | Filters for auto adding entities
@@ -135,6 +135,15 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | name | string | **(required)** | Name of the attribute
 | value | string |  | Value of the attribute
 
+### Group object
+
+| Name | Type | Default | Since | Description |
+|:-----|:-----|:-----|:-----|:-----|
+| name | string |  | v1.4.0 | Name of the group. Keywords available: `{min}`, `{max}`, `{count}`, `{range}`
+| secondary_info | string |  | v1.4.0 | Secondary info text, shown in the second line. Same keywords available as in `name`
+| icon | string |  | v1.4.0 | Group icon
+| min | number |  | v1.4.0 | Minimal battery level. Batteries below that level won't be assigned to this group.
+| max | number |  | v1.4.0 | Maximal battery level. Batteries above that level won't be assigned to this group.
 ## Examples
 
 You can use this component as a card or as an entity (e.g. in `entities card`);
@@ -280,6 +289,40 @@ You can setup as well colors only for lower battery levels and leave the default
     - sensor.bedroomtemp_battery_level
     - sensor.bedroom_balcony_battery_level
     - sensor.bedroom_switch_battery_level
+```
+### Battery groups
+
+Battery groups allow you to group together set of batteries/entities based on couple conditions. You can use HA group entities to tell which entities should go to the group, or you can set min/max battery levels, or specify explicit list of entities which should be assigned to particular group.
+
+Note: If you have battery groups defined in Home Assistant you can use their IDs instead of single entity ID (in `entities` collection).
+
+![image](https://user-images.githubusercontent.com/8268674/84313600-aa42c700-ab5e-11ea-829e-394b292f3cbe.png)
+
+```yaml
+type: 'custom:battery-state-card'
+title: Battery state card
+sort_by_level: asc
+collapse:
+  - name: 'Door sensors (min: {min}%, count: {count})' # special keywords in group name
+    secondary_info: 'Battery levels {range}%' # special keywords in group secondary info
+    icon: 'mdi:door'
+    entities: # explicit list of entities
+      - sensor.bedroom_balcony_battery_level
+      - sensor.main_door_battery_level
+      - sensor.living_room_balcony_battery_level
+  - group_id: group.motion_sensors_batteries # using HA group
+    secondary_info: No icon # Secondary info text
+    icon: null # removing default icon for this group (from HA group definition)
+  - group_id: group.temp_sensors_batteries
+    min: 99 # all entities below that level should show up ungroupped
+    icon: 'mdi:thermometer' # override for HA group icon
+entities:
+  # if you need to specify some properties for any entity in the group
+  - entity: sensor.bedroom_balcony_battery_level
+    name: "Bedroom balkony door"
+    multiplier: 10
+  # entities from below HA group won't be grouped as there is no corresponding collapsed group
+  - group.switches_batteries
 ```
 
 ### Non-numeric state values

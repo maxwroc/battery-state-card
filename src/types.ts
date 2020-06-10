@@ -1,3 +1,4 @@
+import BatteryViewModel from "./battery-vm";
 
 /**
  * Color threshold
@@ -226,11 +227,45 @@ export interface IBatteryStateCardConfig extends IBatteryEntity  {
     /**
      * Collapse after given number of entities
      */
-    collapse?: number;
+    collapse?: number | ICollapsingGroupConfig[];
 
     /**
      * Filters for auto adding or removing entities
      */
     filter?: { [key in FilterGroups]: IFilter[] };
+}
+
+export interface IHomeAssistantGroupProps {
+    entity_id: string[];
+    friendly_name?: string;
+    icon?: string;
+}
+
+export interface IGroupDataMap {
+    [group_id: string]: IHomeAssistantGroupProps
+}
+
+export interface ICollapsingGroupConfig {
+    name?: string;
+    secondary_info?: string;
+    group_id?: string;
+    entities?: string[];
+    icon?: string;
+    min?: number;
+    max?: number;
+}
+
+export interface IBatteryGroupViewData {
+    name?: string;
+    secondary_info?: string;
+    icon?: string;
+    iconColor?: string;
+    batteries: BatteryViewModel[]
+}
+
+
+export interface IBatteriesResultViewData {
+    batteries: BatteryViewModel[];
+    groups: IBatteryGroupViewData[];
 }
 

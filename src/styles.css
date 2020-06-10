@@ -7,26 +7,30 @@
     overflow: hidden;
 }
 
-.battery {
+.entity-row {
     display: flex;
     align-items: center;
     margin: 8px 0;
 }
-.battery:first-child {
+.entity-row:first-child {
     margin-top: 0;
 }
-.battery .name {
-    flex: 1 0 60px;
-    margin: 0 5px 0 16px;
+.entity-row:last-child {
+    margin-bottom: 0;
 }
-.battery .secondary {
+.entity-row .name {
+    flex: 1 0 60px;
+    margin: 0 6px;
+}
+.entity-row .secondary {
     color: var(--primary-color);
 }
-.battery .icon {
+.entity-row .icon {
     flex: 0 0 40px;
     border-radius: 50%;
     text-align: center;
     line-height: 40px;
+    margin-right: 10px;
 }
 
 
@@ -35,22 +39,27 @@
 }
 .expand + label {
     display: block;
-    text-align: right;
     cursor: pointer;
+    margin-top: 8px;
 }
-.expand + label > div {
-    display: inline-block;
+.expand + label > .name {
+    flex: 1;
+    padding: 0 15px;
+}
+.expand + label div.chevron {
     transform: rotate(-90deg);
     font-size: 26px;
-    height: 29px;
-    width: 29px;
-    text-align: center;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-.expand + label > div,
+.expand + label .chevron,
 .expand + label + div {
-    transition: 0.5s ease-in-out;
+    transition: all 0.5s ease;
 }
-.expand:checked + label > div {
+.expand:checked + label .chevron {
     transform: rotate(-90deg) scaleX(-1);
 }
 .expand + label + div {
