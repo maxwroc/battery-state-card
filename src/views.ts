@@ -44,11 +44,12 @@ export const card = (headerText: string | undefined, contents: string[]) => html
 
 export const collapsableWrapper = (contents: string[], collapseAfter: number) => {
     const elemId = "expander" + Math.random().toString().substr(2);
+    const remainingElemsCount = contents.length - collapseAfter;
     return html`
     ${contents.slice(0, collapseAfter)}
     <input type="checkbox" class="expand" id="${elemId}" />
     <label for="${elemId}"><div>&lsaquo;</div></label>
-    <div>${contents.slice(collapseAfter)}</div>
+    <div style="max-height: ${remainingElemsCount * 50}px">${contents.slice(collapseAfter)}</div>
     `
 };
 
