@@ -230,6 +230,10 @@ export class BatteryProvider {
 
         // remove groups to add them later
         entities = entities.filter(e => {
+            if (!e.entity) {
+                throw new Error("Invalid configuration - missing property 'entity' on:\n" + JSON.stringify(e));
+            }
+
             if (e.entity.startsWith("group.")) {
                 this.groupsToResolve.push(e.entity);
                 return false;
@@ -237,6 +241,27 @@ export class BatteryProvider {
 
             return true;
         });
+
+        // processing groups and entities from collapse property
+        // this way user doesn't need to put same IDs twice in the configuration
+        if (this.config.collapse && Array.isArray(this.config.collapse)) {
+            this.config.collapse.forEach(group => {
+                if (group.group_id) {
+                    // check if it's not there already
+                    if (this.groupsToResolve.indexOf(group.group_id) == -1) {
+                        this.groupsToResolve.push(group.group_id);
+                    }
+                }
+                else if (group.entities) {
+                    group.entities.forEach(entity_id => {
+                        // check if it's not there already
+                        if (!entities.some(e => e.entity == entity_id)) {
+                            entities.push({ entity: entity_id });
+                        }
+                    });
+                }
+            });
+        }
 
         this.batteries = entities.map(entity => this.createBattery(entity));
     }

@@ -247,6 +247,7 @@ export interface IGroupDataMap {
 
 export interface ICollapsingGroupConfig {
     name?: string;
+    secondary_info?: string;
     group_id?: string;
     entities?: string[];
     icon?: string;
@@ -256,7 +257,9 @@ export interface ICollapsingGroupConfig {
 
 export interface IBatteryGroupViewData {
     name?: string;
+    secondary_info?: string;
     icon?: string;
+    iconColor?: string;
     batteries: BatteryViewModel[]
 }
 

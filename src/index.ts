@@ -105,7 +105,7 @@ class BatteryStateCard extends LitElement {
             const renderedBatteries: LitHtml[] = [];
             g.batteries.forEach(b => !b.is_hidden && renderedBatteries.push(views.battery(b)));
             if (renderedBatteries.length) {
-                renderedViews.push(views.collapsableWrapper(renderedBatteries, g.name));
+                renderedViews.push(views.collapsableWrapper(renderedBatteries, g));
             }
         });
 

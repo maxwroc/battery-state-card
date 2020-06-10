@@ -44,7 +44,11 @@ export const getBatteryCollections = (config: number | ICollapsingGroupConfig[] 
     // update group title
     result.groups.forEach(g => {
         if (g.name) {
-            g.name = getGroupTitle(g);
+            g.name = getEnrichedText(g.name, g);
+        }
+
+        if (g.secondary_info) {
+            g.secondary_info = getEnrichedText(g.secondary_info, g);
         }
     });
 
@@ -106,13 +110,17 @@ var populateMinMaxFields = (config: ICollapsingGroupConfig[]): void => config
  */
 const createGroup = (haGroupData: IGroupDataMap, batteries: BatteryViewModel[] = [], config?: ICollapsingGroupConfig): IBatteryGroupViewData => {
 
+    if (config?.group_id && !haGroupData[config.group_id]) {
+        throw new Error("Group not found: " + config.group_id);
+    }
+
     let name = config?.name;
     if (!name && config?.group_id) {
         name = haGroupData[config.group_id].friendly_name;
     }
 
     let icon = config?.icon;
-    if (!icon && config?.group_id) {
+    if (icon === undefined && config?.group_id) {
         icon = haGroupData[config.group_id].icon;
     }
 
@@ -120,17 +128,17 @@ const createGroup = (haGroupData: IGroupDataMap, batteries: BatteryViewModel[] =
         name: name,
         icon: icon,
         batteries: batteries,
+        secondary_info: config?.secondary_info
     }
 }
 
 /**
- * Returns final group name/title. Fills all keywords used in name.
+ * Replaces all keywords, used in the text, with values
+ * @param text Text to process
  * @param group Battery group view data
  */
-const getGroupTitle = (group: IBatteryGroupViewData): string => {
-    let result = group.name || "";
-
-    result = result.replace(/\{[a-z]+\}/g, keyword => {
+const getEnrichedText = (text: string, group: IBatteryGroupViewData): string => {
+    text = text.replace(/\{[a-z]+\}/g, keyword => {
         switch (keyword) {
             case "{min}":
                 return group.batteries.reduce((agg, b) => agg > Number(b.level) ? Number(b.level) : agg, 100).toString();
@@ -138,10 +146,14 @@ const getGroupTitle = (group: IBatteryGroupViewData): string => {
                 return group.batteries.reduce((agg, b) => agg < Number(b.level) ? Number(b.level) : agg, 0).toString();
             case "{count}":
                 return group.batteries.length.toString();
+            case "{range}":
+                const min = group.batteries.reduce((agg, b) => agg > Number(b.level) ? Number(b.level) : agg, 100).toString();
+                const max = group.batteries.reduce((agg, b) => agg < Number(b.level) ? Number(b.level) : agg, 0).toString();
+                return min == max ? min : min + "-" + max;
             default:
                 return keyword;
         }
     });
 
-    return result;
+    return text;
 }
