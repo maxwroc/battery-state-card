@@ -23,7 +23,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 | entities | list([Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
 | title | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
-| collapse | number \| [Group](#group-object) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
+| collapse | number \| list([Group](#group-object)) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view)). Or list of entity/battery groups ([example](#battery-groups))
 | filter | [Filters](#filters) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
 | bulk_rename | list([Convert](#convert)) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
 | style | string |  | v1.4.0 | Extra CSS code to change/adjust the appearance ([example](#extra-styles))
