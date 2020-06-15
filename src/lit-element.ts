@@ -12,7 +12,7 @@ const { html, css } = LitElement.prototype as { html: LitHtml, css: any };
 export type LitHtml = Function;
 type ChangedProperties = { [propertyName: string]: any };
 
-interface ILitElement extends Node {
+interface ILitElement extends HTMLElement {
     new(): ILitElement;
     requestUpdate(): Promise<void>;
     requestUpdate(propertyName: string, oldValue: any): Promise<void>;

@@ -5,6 +5,7 @@ import * as views from "./views";
 import styles from "./styles";
 import { ActionFactory } from "./action";
 import { BatteryProvider } from "./battery-provider";
+import { processStyles } from "./utils";
 
 /**
  * Card main class.
@@ -19,17 +20,22 @@ class BatteryStateCard extends LitElement {
     /**
      * Card configuration.
      */
-    public config: IBatteryStateCardConfig = <any>{};
+    private config: IBatteryStateCardConfig = <any>{};
 
     /**
      * Whether we should render it as an entity - not a card.
      */
-    public simpleView: boolean = false;
+    private simpleView: boolean = false;
 
     /**
      * Battery provider for battery view models.
      */
     private batteryProvider: BatteryProvider = <any>null;
+
+    /**
+     * Custom styles comming from config.
+     */
+    private cssStyles: string = "";
 
     /**
      * CSS for the card
@@ -118,8 +124,29 @@ class BatteryStateCard extends LitElement {
 
         return views.card(
             this.config.name || this.config.title,
-            renderedViews
+            renderedViews,
         );
+    }
+
+    /**
+     * Called just after the update is finished (including rendering)
+     */
+    updated() {
+        if (!this.config?.style || this.cssStyles == this.config.style) {
+            return;
+        }
+
+        this.cssStyles = this.config.style;
+
+        let styleElem = this.shadowRoot!.querySelector("style");
+        if (!styleElem) {
+            styleElem = document.createElement("style");
+            styleElem.type = 'text/css'
+            this.shadowRoot!.appendChild(styleElem);
+        }
+
+        // prefixing all selectors
+        styleElem.innerHTML = processStyles("ha-card", this.cssStyles);
     }
 
     /**

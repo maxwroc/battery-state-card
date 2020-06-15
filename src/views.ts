@@ -26,7 +26,7 @@ const icon = (icon?: string, color?: string) => icon && html`
 `;
 
 export const battery = (model: BatteryViewModel) => html`
-<div class="entity-row ${model.classNames}" @click=${model.action}>
+<div class="entity-row entity-spacing battery ${model.classNames}" @click=${model.action}>
     ${icon(model.icon, model.levelColor)}
     <div class="name truncate">
         ${model.name}
@@ -38,30 +38,32 @@ export const battery = (model: BatteryViewModel) => html`
 </div>
 `;
 
-export const card = (headerText: string | undefined, contents: LitHtml[]) => html`
+export const card = (headerText: string | undefined, contents: LitHtml[]) => {
+    return html`
 <ha-card>
     ${headerText ? header(headerText) : ""}
     <div class="card-content">
         ${contents}
     </div>
 </ha-card>
-`;
+`
+};
 
 export const collapsableWrapper = (contents: LitHtml[], model: IBatteryGroupViewData) => {
     const elemId = "expander" + Math.random().toString().substr(2);
     return html`
-<input type="checkbox" class="expand" id="${elemId}" />
-<label for="${elemId}">
-    <div class="entity-row expandWrapper">
+<div class="expandWrapper entity-spacing">
+    <input type="checkbox" class="expand" id="${elemId}" />
+    <label class="entity-row" for="${elemId}">
         ${icon(model.icon, model.iconColor)}
         <div class="name truncate">
             ${model.name}
             ${secondaryInfo(model.secondary_info)}
         </div>
         <div class="chevron">&lsaquo;</div>
-    </div>
-</label>
-<div style="max-height: ${contents.length * 50}px">${contents}</div>
+    </label>
+    <div style="max-height: ${contents.length * 50}px">${contents}</div>
+</div>
 `
 };
 

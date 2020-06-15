@@ -7,19 +7,22 @@
     overflow: hidden;
 }
 
+.entity-spacing {
+    margin: 8px 0;
+}
+.entity-spacing:first-child {
+    margin-top: 0;
+}
+.entity-spacing:last-child {
+    margin-bottom: 0;
+}
+
 .entity-row {
     display: flex;
     align-items: center;
-    margin: 8px 0;
-}
-.entity-row:first-child {
-    margin-top: 0;
-}
-.entity-row:last-child {
-    margin-bottom: 0;
 }
 .entity-row .name {
-    flex: 1 0 60px;
+    flex: 1;
     margin: 0 6px;
 }
 .entity-row .secondary {
@@ -38,13 +41,10 @@
     display: none;
 }
 .expand + label {
-    display: block;
     cursor: pointer;
-    margin-top: 8px;
 }
 .expand + label > .name {
     flex: 1;
-    padding: 0 15px;
 }
 .expand + label div.chevron {
     transform: rotate(-90deg);

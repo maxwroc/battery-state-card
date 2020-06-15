@@ -233,6 +233,11 @@ export interface IBatteryStateCardConfig extends IBatteryEntity  {
      * Filters for auto adding or removing entities
      */
     filter?: { [key in FilterGroups]: IFilter[] };
+
+    /**
+     * CSS code for the card
+     */
+    style: string;
 }
 
 export interface IHomeAssistantGroupProps {
