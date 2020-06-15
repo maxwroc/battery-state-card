@@ -1,8 +1,9 @@
 import BatteryViewModel from "./battery-vm";
-import { IBatteryStateCardConfig, IFilter, FilterOperator, IBatteryEntity } from "./types";
+import { IBatteryStateCardConfig, IFilter, FilterOperator, IBatteryEntity, IHomeAssistantGroupProps, IBatteriesResultViewData, IGroupDataMap } from "./types";
 import { HassEntity, HomeAssistant } from "./ha-types";
 import { log } from "./utils";
 import { ActionFactory } from "./action";
+import { getBatteryCollections } from "./grouping";
 
 /**
  * Properties which should be copied over to individual entities from the card
@@ -140,6 +141,16 @@ export class BatteryProvider {
     private batteries: BatteryViewModel[] = [];
 
     /**
+     * Groups to be resolved on HA state update.
+     */
+    private groupsToResolve: string[] = [];
+
+    /**
+     * Collection of groups and their properties taken from HA
+     */
+    private groupsData: IGroupDataMap = {};
+
+    /**
      * Whether include filters were processed already.
      */
     private initialized: boolean = false;
@@ -155,25 +166,32 @@ export class BatteryProvider {
         this.processExplicitEntities();
     }
 
+    update(hass: HomeAssistant): boolean {
+        let updated = false;
+        if (!this.initialized) {
+            // groups and includes should be processed just once
+            this.initialized = true;
+
+            updated = this.processGroups(hass) || updated;
+
+            updated = this.processIncludes(hass) || updated;
+        }
+
+        updated = this.updateBatteries(hass) || updated;
+
+        if (updated) {
+            this.processExcludes(hass);
+        }
+
+        return updated;
+    }
+
     /**
      * Return batteries
      * @param hass Home Assistant instance
      */
-    getBatteries(hass?: HomeAssistant): BatteryViewModel[] {
-
-        if (hass) {
-            if (!this.initialized) {
-                this.processIncludes(hass);
-            }
-
-            const updated = this.updateBatteries(hass);
-
-            if (updated) {
-                this.processExcludes(hass);
-            }
-        }
-
-        return this.batteries;
+    getBatteries(): IBatteriesResultViewData {
+        return getBatteryCollections(this.config.collapse, this.batteries, this.groupsData);
     }
 
     /**
@@ -210,6 +228,41 @@ export class BatteryProvider {
                 return entity;
             });
 
+        // remove groups to add them later
+        entities = entities.filter(e => {
+            if (!e.entity) {
+                throw new Error("Invalid configuration - missing property 'entity' on:\n" + JSON.stringify(e));
+            }
+
+            if (e.entity.startsWith("group.")) {
+                this.groupsToResolve.push(e.entity);
+                return false;
+            }
+
+            return true;
+        });
+
+        // processing groups and entities from collapse property
+        // this way user doesn't need to put same IDs twice in the configuration
+        if (this.config.collapse && Array.isArray(this.config.collapse)) {
+            this.config.collapse.forEach(group => {
+                if (group.group_id) {
+                    // check if it's not there already
+                    if (this.groupsToResolve.indexOf(group.group_id) == -1) {
+                        this.groupsToResolve.push(group.group_id);
+                    }
+                }
+                else if (group.entities) {
+                    group.entities.forEach(entity_id => {
+                        // check if it's not there already
+                        if (!entities.some(e => e.entity == entity_id)) {
+                            entities.push({ entity: entity_id });
+                        }
+                    });
+                }
+            });
+        }
+
         this.batteries = entities.map(entity => this.createBattery(entity));
     }
 
@@ -217,12 +270,11 @@ export class BatteryProvider {
      * Adds batteries based on filter.include config.
      * @param hass Home Assistant instance
      */
-    private processIncludes(hass: HomeAssistant) {
-        // avoiding processing filter.include again
-        this.initialized = true;
+    private processIncludes(hass: HomeAssistant): boolean {
 
+        let updated = false;
         if (!this.include) {
-            return;
+            return updated;
         }
 
         Object.keys(hass.states).forEach(entity_id => {
@@ -231,9 +283,51 @@ export class BatteryProvider {
                 // check if battery is not added already (via explicit entities)
                 !this.batteries.some(b => b.entity_id == entity_id)) {
 
+                updated = true;
                 this.batteries.push(this.createBattery({ entity: entity_id }));
             }
         });
+
+        return updated;
+    }
+
+    /**
+     * Adds batteries from group entities (if they were on the list)
+     * @param hass Home Assistant instance
+     */
+    private processGroups(hass: HomeAssistant): boolean {
+
+        let updated = false;
+
+        this.groupsToResolve.forEach(group_id => {
+            const groupEntity = hass.states[group_id];
+            if (!groupEntity) {
+                log(`Group "${group_id}" not found`);
+                return;
+            }
+
+            const groupData = groupEntity.attributes as IHomeAssistantGroupProps;
+            if (!Array.isArray(groupData.entity_id)) {
+                log(`Entities not found in "${group_id}"`);
+                return;
+            }
+
+            groupData.entity_id.forEach(entity_id => {
+                // check if battery is on the list already
+                if (this.batteries.some(b => b.entity_id == entity_id)) {
+                    return;
+                }
+
+                updated = true;
+                this.batteries.push(this.createBattery({ entity: entity_id }));
+            });
+
+            this.groupsData[group_id] = groupData;
+        });
+
+        this.groupsToResolve = [];
+
+        return updated;
     }
 
     /**

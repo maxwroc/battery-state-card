@@ -1,7 +1,7 @@
 import { HomeAssistant } from "./ha-types";
 
 console.info(
-    "%c BATTERY-STATE-CARD %c 1.3.7",
+    "%c BATTERY-STATE-CARD %c 1.4.0",
     "color: white; background: forestgreen; font-weight: 700;",
     "color: forestgreen; background: white; font-weight: 700;",
 );
@@ -98,6 +98,7 @@ export const getRelativeTime = (hass: HomeAssistant, rawDate: string): string =>
 
     time = Math.round((Date.now() - time) / 1000); // convert to seconds diff
 
+    // https://github.com/yosilevy/home-assistant-polymer/blob/master/src/translations/en.json
     let relativeTime = "";
     if (time < 60) {
         relativeTime = hass.localize("ui.components.relative_time.duration.second", "count", time);
@@ -113,3 +114,10 @@ export const getRelativeTime = (hass: HomeAssistant, rawDate: string): string =>
 
     return hass.localize("ui.components.relative_time.past", "time", relativeTime);
 }
+
+/**
+ * Prefixes all css selectors with given value.
+ * @param containerCssPath Prefix to be added
+ * @param styles Styles to process
+ */
+export const processStyles = (containerCssPath: string, styles: string) => styles.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, match => `${containerCssPath} ${match}`);

@@ -167,7 +167,10 @@ class BatteryViewModel {
     }
 
     get classNames(): string {
-        return this.action ? "clickable" : "";
+        const classNames = [];
+        this.action && classNames.push("clickable");
+        !isNumber(this.level) && classNames.push("non-numeric-state");
+        return classNames.join(" ");
     }
 
     /**
@@ -186,7 +189,7 @@ class BatteryViewModel {
 
         this.name = this.config.name || entityData.attributes.friendly_name
 
-        this.level = this.getLevel(entityData);
+        this.level = this.getLevel(entityData, hass);
 
         // must be called after getting battery level
         this.charging = this.getChargingState(hass);
@@ -199,8 +202,8 @@ class BatteryViewModel {
      * Gets battery level
      * @param entityData Entity state data
      */
-    private getLevel(entityData: HassEntity): string {
-        const UnknownLevel = "Unknown";
+    private getLevel(entityData: HassEntity, hass: HomeAssistant): string {
+        const UnknownLevel = hass.localize("state.default.unknown");
         let level: string;
 
         if (this.config.attribute) {
