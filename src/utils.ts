@@ -98,6 +98,7 @@ export const getRelativeTime = (hass: HomeAssistant, rawDate: string): string =>
 
     time = Math.round((Date.now() - time) / 1000); // convert to seconds diff
 
+    // https://github.com/yosilevy/home-assistant-polymer/blob/master/src/translations/en.json
     let relativeTime = "";
     if (time < 60) {
         relativeTime = hass.localize("ui.components.relative_time.duration.second", "count", time);
