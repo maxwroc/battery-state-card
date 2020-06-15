@@ -20,12 +20,13 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-card` |
-| entities | list([Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities
+| entities | list([Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
 | title | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 | collapse | number \| [Group](#group-object) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view))
 | filter | [Filters](#filters) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
 | bulk_rename | list([Convert](#convert)) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
+| style | string |  | v1.4.0 | Extra CSS code to change/adjust the appearance ([example](#extra-styles))
 
 +[common options](#common-options) (if specified they will be apllied to all entities)
 
@@ -450,6 +451,54 @@ If you add entities automatically you cannot specify properties for individual e
     - entity: sensor.jacks_motorola
       name: "Jack's phone"
       secondary_info: "Battery state" # Static text
+```
+
+### Extra styles
+
+You can add CSS code which can change the appearance of the card.
+
+Note: HTML code (including CSS class names) can change in next releases so your custom styles may require adjustments after card update.
+
+![image](https://user-images.githubusercontent.com/8268674/84653185-db2b4f00-af04-11ea-97a9-07f0dbb0800e.png)
+
+```yaml
+- title: Glance view with custom CSS
+  type: 'custom:battery-state-card'
+  entities:
+    - group.all_battery_sensors
+  sort_by_level: asc
+  style: |
+    .card-content {
+      display: grid;
+      grid-template-columns: auto auto auto auto
+    }
+    .entity-row.entity-spacing {
+      margin: 8px 0;
+    }
+    .entity-row {
+      display: flex;
+      flex-direction: column;
+    }
+    .entity-row .name {
+      order: 1;
+      overflow: hidden;
+      width: 80px;
+      font-size: 12px
+    }
+    .entity-row.non-numeric-state .state {
+      display: none;
+    }
+    .entity-row:not(.non-numeric-state) .state {
+      position: absolute;
+      text-shadow: 1px 1px black;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      overflow: hidden;
+    }
 ```
 
 ## Installation

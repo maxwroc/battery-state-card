@@ -113,3 +113,10 @@ export const getRelativeTime = (hass: HomeAssistant, rawDate: string): string =>
 
     return hass.localize("ui.components.relative_time.past", "time", relativeTime);
 }
+
+/**
+ * Prefixes all css selectors with given value.
+ * @param containerCssPath Prefix to be added
+ * @param styles Styles to process
+ */
+export const processStyles = (containerCssPath: string, styles: string) => styles.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, match => `${containerCssPath} ${match}`);

@@ -167,7 +167,10 @@ class BatteryViewModel {
     }
 
     get classNames(): string {
-        return this.action ? "clickable" : "";
+        const classNames = [];
+        this.action && classNames.push("clickable");
+        !isNumber(this.level) && classNames.push("non-numeric-state");
+        return classNames.join(" ");
     }
 
     /**
