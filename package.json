@@ -33,7 +33,7 @@
     "rollup-plugin-terser": "^6.1.0",
     "tslib": "^2.0.0",
     "typescript": "^3.9.5",
-    "adm-zip": "^0.4.14"
+    "adm-zip": "^0.4.16"
   },
   "dependencies": {}
 }
