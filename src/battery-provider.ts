@@ -99,7 +99,7 @@ class Filter {
 
         let operator = this.config.operator;
         if (!operator) {
-            if (val === undefined) {
+            if (this.config.value === undefined) {
                 operator = "exists";
             }
             else {
