@@ -124,7 +124,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| entity_id | string |  | v1.1.0 | Other entity id where chargign state can be found
+| entity_id | string |  | v1.1.0 | Other entity id where charging state can be found
 | attribute | list([Attribute](#attribute-object)) |  | v1.2.0 | List of attribute name-values indicating charging in progress
 | state | list(any) |  | v1.1.0 | List of values indicating charging in progress
 | icon | string |  | v1.1.0 | Icon to show when charging is in progress
