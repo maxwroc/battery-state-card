@@ -284,6 +284,10 @@ class BatteryViewModel {
                     entityWithChargingState.attributes[exisitngAttrib.name] == exisitngAttrib.value :
                     true;
             }
+            else {
+                // if there is no attribute indicating charging it means the charging state is false
+                return false;
+            }
         }
 
         const statesIndicatingCharging = safeGetArray(chargingConfig.state);
