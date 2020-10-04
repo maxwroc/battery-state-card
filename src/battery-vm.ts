@@ -23,6 +23,11 @@ class BatteryViewModel {
     private colorPattern = /^#[A-Fa-f0-9]{6}$/;
 
     /**
+     * Some sensor may produce string value like "45%". This regex is meant to parse such values.
+     */
+    private stringValuePattern = /\b([0-9]{1,3})\s?%/;
+
+    /**
      * @param config Battery entity
      */
     constructor(private config: IBatteryEntity, public action: IAction | null) {
@@ -126,7 +131,7 @@ class BatteryViewModel {
             return this.config.charging_state.color;
         }
 
-        if (isNaN(level)) {
+        if (isNaN(level) || level > 100 || level < 0) {
             return defaultColor;
         }
 
@@ -151,7 +156,7 @@ class BatteryViewModel {
             return this.config.charging_state.icon;
         }
 
-        if (isNaN(level)) {
+        if (isNaN(level) || level > 100 || level < 0) {
             return "mdi:battery-unknown";
         }
 
@@ -231,6 +236,13 @@ class BatteryViewModel {
             }
             else {
                 level = convertedVal.to.toString();
+            }
+        }
+
+        if (!isNumber(level)) {
+            const match = this.stringValuePattern.exec(level);
+            if (match != null) {
+                level = match[1];
             }
         }
 

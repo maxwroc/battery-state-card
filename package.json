@@ -15,7 +15,8 @@
     "build:release:es5": "rollup --release --target=es5 -c",
     "prerelease": "node build/prebuild.js",
     "release": "npm run build:release",
-    "watch": "rollup -c --watch"
+    "watch": "rollup -c --watch",
+    "test": "npm run build && copy dist\\battery-state-card.js ..\\lovelace-card-tester\\docs\\cards"
   },
   "keywords": [
     "battery",
