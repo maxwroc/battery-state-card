@@ -155,13 +155,13 @@ Card view is useful when you want to have cleaner config (you don't need to dupl
 ![image](https://user-images.githubusercontent.com/8268674/79760617-3c291300-8318-11ea-8b97-006e3d537568.png)
 
 ```yaml
-- type: custom:battery-state-card
-  title: "Battery levels"
-  entities:
-    - sensor.bathroom_motion_battery_level
-    - sensor.bedroom_balcony_battery_level
-    - entity: sensor.bedroom_motion_battery_level
-      name: "Bedroom motion sensor"
+type: custom:battery-state-card
+title: "Battery levels"
+entities:
+  - sensor.bathroom_motion_battery_level
+  - sensor.bedroom_balcony_battery_level
+  - entity: sensor.bedroom_motion_battery_level
+    name: "Bedroom motion sensor"
 ```
 
 ### Entity view
@@ -170,16 +170,16 @@ Entity view is useful when you want to add battery status next to other sensors 
 ![image](https://user-images.githubusercontent.com/8268674/79758073-cff8e000-8314-11ea-94e0-2059460ec4ea.png)
 
 ```yaml
-- type: entities
-  title: Other
-  show_header_toggle: false
-  entities:
-    - sensor.energy_rpi_monthly
-    - sensor.home_assistant_v2_db
-    - sensor.hassio_online
-    - sensor.last_boot
-    - type: custom:battery-state-card
-      entity: sensor.temp_outside_battery_numeric
+type: entities
+title: Other
+show_header_toggle: false
+entities:
+  - sensor.energy_rpi_monthly
+  - sensor.home_assistant_v2_db
+  - sensor.hassio_online
+  - sensor.last_boot
+  - type: custom:battery-state-card
+    entity: sensor.temp_outside_battery_numeric
 ```
 
 ### Custom colors
@@ -189,28 +189,28 @@ Entity view is useful when you want to add battery status next to other sensors 
 ![image](https://user-images.githubusercontent.com/8268674/79862088-6e487c80-83cd-11ea-8a84-4eecc3601ae2.png)
 
 ```yaml
-- type: custom:battery-state-card
-  title: "Custom color thresholds"
-  thresholds:
-    - value: 35 # applied to all values below/equal
-      color: "#8fffe1"
-    - value: 45 # applied to all values below/equal
-      color: "#8fbbff"
-    - value: 60 # applied to all values below/equal
-      color: "#978fff"
-    - value: 100 # applied to all values below/equal
-      color: "#fe8fff"
-  entities:
-    - entity: sensor.bathroom_motion_battery_level
-      name: "Bathroom motion sensor"
-    - entity: sensor.bedroom_balcony_battery_level
-      name: "Bedroom balkony door sensor"
-    - entity: sensor.bedroom_motion_battery_level
-      name: "Bedroom motion sensor"
-    - entity: sensor.bedroom_switch_battery_level
-      name: "Bedroom Aqara switch"
-    - entity: sensor.bedroomtemp_battery_level
-      name: "Bedroom temp. sensor"
+type: custom:battery-state-card
+title: "Custom color thresholds"
+thresholds:
+  - value: 35 # applied to all values below/equal
+    color: "#8fffe1"
+  - value: 45 # applied to all values below/equal
+    color: "#8fbbff"
+  - value: 60 # applied to all values below/equal
+    color: "#978fff"
+  - value: 100 # applied to all values below/equal
+    color: "#fe8fff"
+entities:
+  - entity: sensor.bathroom_motion_battery_level
+    name: "Bathroom motion sensor"
+  - entity: sensor.bedroom_balcony_battery_level
+    name: "Bedroom balkony door sensor"
+  - entity: sensor.bedroom_motion_battery_level
+    name: "Bedroom motion sensor"
+  - entity: sensor.bedroom_switch_battery_level
+    name: "Bedroom Aqara switch"
+  - entity: sensor.bedroomtemp_battery_level
+    name: "Bedroom temp. sensor"
 ```
 
 #### Gradient colors
@@ -218,23 +218,23 @@ Entity view is useful when you want to add battery status next to other sensors 
 ![image](https://user-images.githubusercontent.com/8268674/79856685-8ec00900-83c4-11ea-82bf-b3df6385850f.png)
 
 ```yaml
-- type: custom:battery-state-card
-  title: "Color gradient"
-  color_gradient:
-    - "#ff0000" # red
-    - "#ffff00" # yellow
-    - "#00ff00" # green
-  entities:
-    - entity: sensor.bathroom_motion_battery_level
-      name: "Bathroom motion sensor"
-    - entity: sensor.bedroom_balcony_battery_level
-      name: "Bedroom balkony door sensor"
-    - entity: sensor.bedroom_motion_battery_level
-      name: "Bedroom motion sensor"
-    - entity: sensor.bedroom_switch_battery_level
-      name: "Bedroom Aqara switch"
-    - entity: sensor.bedroomtemp_battery_level
-      name: "Bedroom temp. sensor"
+type: custom:battery-state-card
+title: "Color gradient"
+color_gradient:
+  - "#ff0000" # red
+  - "#ffff00" # yellow
+  - "#00ff00" # green
+entities:
+  - entity: sensor.bathroom_motion_battery_level
+    name: "Bathroom motion sensor"
+  - entity: sensor.bedroom_balcony_battery_level
+    name: "Bedroom balkony door sensor"
+  - entity: sensor.bedroom_motion_battery_level
+    name: "Bedroom motion sensor"
+  - entity: sensor.bedroom_switch_battery_level
+    name: "Bedroom Aqara switch"
+  - entity: sensor.bedroomtemp_battery_level
+    name: "Bedroom temp. sensor"
 ```
 
 #### Disabling colors
@@ -244,15 +244,15 @@ When you put empty array in `color_thresholds` property you can disable colors.
 ![image](https://user-images.githubusercontent.com/8268674/79975932-aa461500-8493-11ea-9947-f4513863ae53.png)
 
 ```yaml
-- type: custom:battery-state-card
-  title: "No color"
-  color_thresholds: []
-  entities:
-    - sensor.bedroom_motion_battery_level
-    - sensor.bathroom_motion_battery_level
-    - sensor.bedroomtemp_battery_level
-    - sensor.bedroom_balcony_battery_level
-    - sensor.bedroom_switch_battery_level
+type: custom:battery-state-card
+title: "No color"
+color_thresholds: []
+entities:
+  - sensor.bedroom_motion_battery_level
+  - sensor.bathroom_motion_battery_level
+  - sensor.bedroomtemp_battery_level
+  - sensor.bedroom_balcony_battery_level
+  - sensor.bedroom_switch_battery_level
 ```
 
 You can setup as well colors only for lower battery levels and leave the default one for the rest.
@@ -260,19 +260,19 @@ You can setup as well colors only for lower battery levels and leave the default
 ![image](https://user-images.githubusercontent.com/8268674/79977247-d793c280-8495-11ea-82f1-78f48ad4fc5b.png)
 
 ```yaml
-- type: custom:battery-state-card
-  title: "No color - selective"
-  color_thresholds:
-    - value: 20
-      color: "red"
-    - value: 60
-      color: "yellow"
-  entities:
-    - sensor.bedroom_motion_battery_level
-    - sensor.bathroom_motion_battery_level
-    - sensor.bedroomtemp_battery_level
-    - sensor.bedroom_balcony_battery_level
-    - sensor.bedroom_switch_battery_level
+type: custom:battery-state-card
+title: "No color - selective"
+color_thresholds:
+  - value: 20
+    color: "red"
+  - value: 60
+    color: "yellow"
+entities:
+  - sensor.bedroom_motion_battery_level
+  - sensor.bathroom_motion_battery_level
+  - sensor.bedroomtemp_battery_level
+  - sensor.bedroom_balcony_battery_level
+  - sensor.bedroom_switch_battery_level
 ```
 
 ### Sorted list and collapsed view
@@ -280,16 +280,16 @@ You can setup as well colors only for lower battery levels and leave the default
 ![ezgif com-resize](https://user-images.githubusercontent.com/8268674/80119122-31bd8200-8581-11ea-9221-aee943d0b1a0.gif)
 
 ```yaml
-- type: custom:battery-state-card
-  title: "Sorted list and collapsed view"
-  sort_by_level: "asc"
-  collapse: 4
-  entities:
-    - sensor.bedroom_motion_battery_level
-    - sensor.bathroom_motion_battery_level
-    - sensor.bedroomtemp_battery_level
-    - sensor.bedroom_balcony_battery_level
-    - sensor.bedroom_switch_battery_level
+type: custom:battery-state-card
+title: "Sorted list and collapsed view"
+sort_by_level: "asc"
+collapse: 4
+entities:
+  - sensor.bedroom_motion_battery_level
+  - sensor.bathroom_motion_battery_level
+  - sensor.bedroomtemp_battery_level
+  - sensor.bedroom_balcony_battery_level
+  - sensor.bedroom_switch_battery_level
 ```
 ### Battery groups
 
@@ -331,24 +331,24 @@ entities:
 If your sensor doesn't produce numeric values you can use `state_map` property and provie mappings from one value to the other.
 
 ```yaml
-- type: custom:battery-state-card
-  title: "String values - state map"
-  entities:
-    - entity: binary_sensor.battery_state
-      name: "Binary sensor state"
-      state_map:
-        - from: "on"
-          to: 100
-        - from: "off"
-          to: 25
-    - entity: sensor.bedroom_motion
-      name: "Sensor string attribute"
-      attribute: "replace_battery"
-      state_map:
-        - from: false
-          to: 100
-        - from: true
-          to: 25
+type: custom:battery-state-card
+title: "String values - state map"
+entities:
+  - entity: binary_sensor.battery_state
+    name: "Binary sensor state"
+    state_map:
+      - from: "on"
+        to: 100
+      - from: "off"
+        to: 25
+  - entity: sensor.bedroom_motion
+    name: "Sensor string attribute"
+    attribute: "replace_battery"
+    state_map:
+      - from: false
+        to: 100
+      - from: true
+        to: 25
 ```
 
 ### Charging state indicators
@@ -358,43 +358,43 @@ If your device provides charging state you can configure it in the following way
 ![image](https://user-images.githubusercontent.com/8268674/80610521-5e661380-8a31-11ea-9c71-75e11c2ec009.png)
 
 ```yaml
-- type: custom:battery-state-card
-  title: "Charging indicators"
-  entities:
-    - entity: sensor.device_battery_numeric
-      charging_state: # uses other entity state value
-        entity_id: binary_sensor.device_charging
-        state: "on"
-    - entity: sensor.mi_roborock
-      charging_state: # uses sensor.mi_roborock state value
-        state: "charging"
-        icon: "mdi:flash"
-        color: "yellow"
-    - entity: sensor.samsung
-      charging_state: # uses is_charging attribute on sensor.samsung entity
-        attribute:
-          name: "is_charging"
-          value: "yes"
+type: custom:battery-state-card
+title: "Charging indicators"
+entities:
+  - entity: sensor.device_battery_numeric
+    charging_state: # uses other entity state value
+      entity_id: binary_sensor.device_charging
+      state: "on"
+  - entity: sensor.mi_roborock
+    charging_state: # uses sensor.mi_roborock state value
+      state: "charging"
+      icon: "mdi:flash"
+      color: "yellow"
+  - entity: sensor.samsung
+    charging_state: # uses is_charging attribute on sensor.samsung entity
+      attribute:
+        name: "is_charging"
+        value: "yes"
 ```
 
 Card-level charging state configuration
 
 ```yaml
-- type: custom:battery-state-card
-  title: "Charging indicators"
-  charging_state:
-    attribute: # whenever one of below attributes is matching
-      - name: "Battery State"
-        value: "Charging"
-      - name: "is_charging"
-        value: true
-    state: # or if entity state matches one of the following
-      - "charging"
-      - "Charging"
-  entities:
-    - sensor.device_battery_numeric
-    - sensor.mi_roborock
-    - sensor.samsung
+type: custom:battery-state-card
+title: "Charging indicators"
+charging_state:
+  attribute: # whenever one of below attributes is matching
+    - name: "Battery State"
+      value: "Charging"
+    - name: "is_charging"
+      value: true
+  state: # or if entity state matches one of the following
+    - "charging"
+    - "Charging"
+entities:
+  - sensor.device_battery_numeric
+  - sensor.mi_roborock
+  - sensor.samsung
 ```
 
 ### Entity filtering and bulk renaming
@@ -405,29 +405,29 @@ If you add entities automatically you cannot specify properties for individual e
 ![filters](https://user-images.githubusercontent.com/8268674/82096304-97240f00-96f8-11ea-9376-a9878f56ce94.png)
 
 ```yaml
-- type: 'custom:battery-state-card'
-  title: Filters
-  sort_by_level: "asc"
-  bulk_rename:
-    - from: "Battery Level" # simple string replace (note: "to" is not required if you want to remove string)
-      to: "sensor"
-    - from: "/\\s(temperature|temp)\\s/" # regular expression
-      to: " temp. "
-  entities:
-    # entities requiring additional properties can be added explicitly
-    - entity: sensor.temp_outside_battery_numeric
-      multiplier: 10
-      name: "Outside temp. sensor"
-  filter:
-    include: # filters for auto-adding
-      - name: entity_id # entities which id ends with "_battery_level"
-        value: "*_battery_level"
-      - name: attributes.device_class # and entities which device_class attribute equals "battery"
-        value: battery
-    exclude: # filters for removing
-      - name: state # exclude entities above 99% of battery level
-        value: 99
-        operator: ">"
+type: 'custom:battery-state-card'
+title: Filters
+sort_by_level: "asc"
+bulk_rename:
+  - from: "Battery Level" # simple string replace (note: "to" is not required if you want to remove string)
+    to: "sensor"
+  - from: "/\\s(temperature|temp)\\s/" # regular expression
+    to: " temp. "
+entities:
+  # entities requiring additional properties can be added explicitly
+  - entity: sensor.temp_outside_battery_numeric
+    multiplier: 10
+    name: "Outside temp. sensor"
+filter:
+  include: # filters for auto-adding
+    - name: entity_id # entities which id ends with "_battery_level"
+      value: "*_battery_level"
+    - name: attributes.device_class # and entities which device_class attribute equals "battery"
+      value: battery
+  exclude: # filters for removing
+    - name: state # exclude entities above 99% of battery level
+      value: 99
+      operator: ">"
 ```
 
 ### Secondary info
@@ -435,22 +435,22 @@ If you add entities automatically you cannot specify properties for individual e
 ![image](https://user-images.githubusercontent.com/8268674/80970635-63510b80-8e13-11ea-8a9a-6bc8d873092b.png)
 
 ```yaml
-- type: custom:battery-state-card
-  name: Secondary info
-  secondary_info: last_updated
-  entities:
-    - entity: sensor.bedroom_motion_battery_level
-      name: "Bedroom motion sensor"
-    - entity: sensor.mi_robrock
-      secondary_info: charging # only appears when charging is detected
-      charging_state:
-        attribute:
-          name: "is_charging"
-          value: true
-        secondary_info_text: "Charging in progress" # override for "Charging" text
-    - entity: sensor.jacks_motorola
-      name: "Jack's phone"
-      secondary_info: "Battery state" # Static text
+type: custom:battery-state-card
+name: Secondary info
+secondary_info: last_updated # applied to all entities which don't have the override
+entities:
+  - entity: sensor.bedroom_motion_battery_level
+    name: "Bedroom motion sensor"
+  - entity: sensor.mi_robrock
+    secondary_info: charging # only appears when charging is detected
+    charging_state:
+      attribute:
+        name: "is_charging"
+        value: true
+      secondary_info_text: "Charging in progress" # override for "Charging" text
+  - entity: sensor.jacks_motorola
+    name: "Jack's phone"
+    secondary_info: "Motorola" # Static text
 ```
 
 ### Extra styles
@@ -462,43 +462,43 @@ Note: HTML code (including CSS class names) can change in next releases so your 
 ![image](https://user-images.githubusercontent.com/8268674/84653185-db2b4f00-af04-11ea-97a9-07f0dbb0800e.png)
 
 ```yaml
-- title: Glance view with custom CSS
-  type: 'custom:battery-state-card'
-  entities:
-    - group.all_battery_sensors
-  sort_by_level: asc
-  style: |
-    .card-content {
-      display: grid;
-      grid-template-columns: auto auto auto auto
-    }
-    .entity-row.entity-spacing {
-      margin: 8px 0;
-    }
-    .entity-row {
-      display: flex;
-      flex-direction: column;
-    }
-    .entity-row .name {
-      order: 1;
-      overflow: hidden;
-      width: 80px;
-      font-size: 12px
-    }
-    .entity-row.non-numeric-state .state {
-      display: none;
-    }
-    .entity-row:not(.non-numeric-state) .state {
-      position: absolute;
-      text-shadow: 1px 1px black;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 12px;
-      overflow: hidden;
-    }
+title: Glance view with custom CSS
+type: 'custom:battery-state-card'
+entities:
+  - group.all_battery_sensors
+sort_by_level: asc
+style: |
+  .card-content {
+    display: grid;
+    grid-template-columns: auto auto auto auto
+  }
+  .entity-row.entity-spacing {
+    margin: 8px 0;
+  }
+  .entity-row {
+    display: flex;
+    flex-direction: column;
+  }
+  .entity-row .name {
+    order: 1;
+    overflow: hidden;
+    width: 80px;
+    font-size: 12px
+  }
+  .entity-row.non-numeric-state .state {
+    display: none;
+  }
+  .entity-row:not(.non-numeric-state) .state {
+    position: absolute;
+    text-shadow: 1px 1px black;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    overflow: hidden;
+  }
 ```
 
 ## Installation
