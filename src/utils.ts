@@ -131,11 +131,12 @@ export const throttledCall = function <T extends Function>(func: T, throttleMs: 
     let timeoutHook: any;
     return (<any>((...args: []) => {
         if (timeoutHook) {
+            // cancel previous call
             clearTimeout(timeoutHook);
             timeoutHook = null;
         }
 
-        // schedule new update
+        // schedule new call
         timeoutHook = setTimeout(() => func.apply(null, args), 100);
     })) as T
 }
