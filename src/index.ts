@@ -5,7 +5,7 @@ import * as views from "./views";
 import styles from "./styles";
 import { ActionFactory } from "./action";
 import { BatteryProvider } from "./battery-provider";
-import { processStyles } from "./utils";
+import { processStyles, throttledCall } from "./utils";
 
 /**
  * Card main class.
@@ -36,6 +36,13 @@ class BatteryStateCard extends LitElement {
      * Custom styles comming from config.
      */
     private cssStyles: string = "";
+
+    /**
+     * Triggers rendering in a safe way
+     *
+     * @description Overtriggering UI update can cause rendering issues (see #111)
+     */
+    private triggerRender = throttledCall(() => this.requestUpdate(), 100);
 
     /**
      * CSS for the card
@@ -73,8 +80,8 @@ class BatteryStateCard extends LitElement {
 
         this.batteryProvider = new BatteryProvider(this.config, this);
 
-        // always render initial state, even though we don't have values yet
-        this.requestUpdate();
+        // rendering in case we won't get state update
+        this.triggerRender();
     }
 
     /**
@@ -84,14 +91,10 @@ class BatteryStateCard extends LitElement {
 
         ActionFactory.hass = hass;
 
-        // to improve perf we release the task/thread
-        setTimeout(() => {
-            const updated = this.batteryProvider.update(hass);
-            if (updated) {
-                // trigger rendering
-                this.requestUpdate();
-            }
-        }, 0);
+        const updated = this.batteryProvider.update(hass);
+        if (updated) {
+            this.triggerRender();
+        }
     }
 
     /**
