@@ -37,16 +37,13 @@
 }
 
 
-.expand {
-    display: none;
-}
-.expand + label {
+.expandWrapper > .toggler {
     cursor: pointer;
 }
-.expand + label > .name {
+.expandWrapper > .toggler > .name {
     flex: 1;
 }
-.expand + label div.chevron {
+.expandWrapper > .toggler div.chevron {
     transform: rotate(-90deg);
     font-size: 26px;
     height: 40px;
@@ -55,16 +52,16 @@
     justify-content: center;
     align-items: center;
 }
-.expand + label .chevron,
-.expand + label + div {
+.expandWrapper > .toggler .chevron,
+.expandWrapper > .toggler + div {
     transition: all 0.5s ease;
 }
-.expand:checked + label .chevron {
+.expandWrapper > .toggler.expanded .chevron {
     transform: rotate(-90deg) scaleX(-1);
 }
-.expand + label + div {
+.expandWrapper > .toggler + div {
     overflow: hidden;
 }
-.expand:not(:checked) + label + div {
+.expandWrapper > .toggler:not(.expanded) + div {
     max-height: 0 !important;
 }
