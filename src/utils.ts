@@ -121,3 +121,22 @@ export const getRelativeTime = (hass: HomeAssistant, rawDate: string): string =>
  * @param styles Styles to process
  */
 export const processStyles = (containerCssPath: string, styles: string) => styles.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, match => `${containerCssPath} ${match}`);
+
+/**
+ * Throttles given function calls. In given throttle time always the last arriving call is executed.
+ * @param func Function to call
+ * @param throttleMs Number of ms to wait before calling
+ */
+export const throttledCall = function <T extends Function>(func: T, throttleMs: number): T {
+    let timeoutHook: any;
+    return (<any>((...args: []) => {
+        if (timeoutHook) {
+            // cancel previous call
+            clearTimeout(timeoutHook);
+            timeoutHook = null;
+        }
+
+        // schedule new call
+        timeoutHook = setTimeout(() => func.apply(null, args), 100);
+    })) as T
+}
