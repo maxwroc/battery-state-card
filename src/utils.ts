@@ -131,7 +131,6 @@ export const throttledCall = function <T extends Function>(func: T, throttleMs: 
     let timeoutHook: any;
     return (<any>((...args: []) => {
         if (timeoutHook) {
-            // cancelling previously scheduled update
             clearTimeout(timeoutHook);
             timeoutHook = null;
         }
