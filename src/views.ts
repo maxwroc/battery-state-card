@@ -53,15 +53,14 @@ export const collapsableWrapper = (contents: LitHtml[], model: IBatteryGroupView
     const elemId = "expander" + Math.random().toString().substr(2);
     return html`
 <div class="expandWrapper entity-spacing">
-    <input type="checkbox" class="expand" id="${elemId}" />
-    <label class="entity-row" for="${elemId}">
+    <div class="entity-row toggler" @click=${(e: MouseEvent) => (<HTMLElement>e.currentTarget).classList.toggle("expanded")}>
         ${icon(model.icon, model.iconColor)}
         <div class="name truncate">
             ${model.name}
             ${secondaryInfo(model.secondary_info)}
         </div>
         <div class="chevron">&lsaquo;</div>
-    </label>
+    </div>
     <div style="max-height: ${contents.length * 50}px">${contents}</div>
 </div>
 `
