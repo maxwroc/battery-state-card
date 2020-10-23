@@ -1,5 +1,5 @@
 {
-    "name": "Battery State Card",
+    "name": "Battery State Card / Entity Row",
     "content_in_root": false,
     "filename": "battery-state-card.js",
     "render_readme": true
