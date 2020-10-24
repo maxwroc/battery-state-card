@@ -453,6 +453,48 @@ entities:
     secondary_info: "Motorola" # Static text
 ```
 
+### Tap actions
+
+![image](https://user-images.githubusercontent.com/8268674/97094268-62bf6200-164b-11eb-8d7d-344f9842f85e.png)
+
+```yaml
+type: 'custom:battery-state-card'name: Click
+color_gradient:
+  - '#ff0000'
+  - '#0000ff'
+  - '#00ff00'
+entities:
+  - entity: sensor.bedroom_motion_battery_level
+    name: More info
+    tap_action: more-info
+    value_override: 100
+  - entity: sensor.bathroom_motion_battery_level
+    name: Navigation path
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/1
+    value_override: 0
+  - entity: sensor.bedroomtemp_battery_level
+    name: Call service - Pushover
+    tap_action:
+      action: call-service
+      service: notify.pushover
+      service_data:
+        message: Call service works
+        title: Some title
+    value_override: 60
+  - entity: sensor.bedroom_balcony_battery_level
+    name: Url
+    tap_action:
+      action: url
+      url_path: 'http://reddit.com'
+    value_override: 20
+  - entity: sensor.bedroom_switch_battery_level
+    name: No action
+    value_override: 80
+
+```
+
 ### Extra styles
 
 You can add CSS code which can change the appearance of the card.
