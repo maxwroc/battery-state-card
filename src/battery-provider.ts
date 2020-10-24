@@ -1,7 +1,7 @@
 import BatteryViewModel from "./battery-vm";
 import { IBatteryStateCardConfig, IFilter, FilterOperator, IBatteryEntity, IHomeAssistantGroupProps, IBatteriesResultViewData, IGroupDataMap } from "./types";
 import { HassEntity, HomeAssistant } from "./ha-types";
-import { log } from "./utils";
+import { log, safeGetConfigObject } from "./utils";
 import { ActionFactory } from "./action";
 import { getBatteryCollections } from "./grouping";
 
@@ -207,7 +207,7 @@ export class BatteryProvider {
             entity,
             ActionFactory.getAction({
                 card: this.cardNode,
-                config: entity.tap_action || this.config.tap_action || <any>null,
+                config: safeGetConfigObject(entity.tap_action || this.config.tap_action || <any>null, "action"),
                 entity: entity
             })
         );
