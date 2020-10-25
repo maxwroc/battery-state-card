@@ -1,5 +1,6 @@
 import typescript from '@rollup/plugin-typescript';
 import resolve from '@rollup/plugin-node-resolve';
+import minifyHTML from 'rollup-plugin-minify-html-literals';
 import { terser } from 'rollup-plugin-terser';
 import pkg from './package.json';
 
@@ -8,7 +9,8 @@ export default function (args) {
   let targetFileName = pkg.main;
 
   const plugins = [
-    resolve()
+    resolve(),
+    minifyHTML(),
   ];
 
   const target = args.target ? args.target.toUpperCase() : null;
