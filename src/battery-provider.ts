@@ -33,7 +33,7 @@ const operatorHandlers: { [key in FilterOperator]: (val: string | number | undef
             // create regexp after removing slashes
             exp = new RegExp(pattern.substr(1, pattern.length - 2));
         } else if (pattern.indexOf("*") != -1) {
-            exp = new RegExp(pattern.replace(/\*/g, ".*"));
+            exp = new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
         }
 
         return exp ? exp.test(val.toString()) : val === pattern;
