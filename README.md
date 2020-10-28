@@ -588,7 +588,7 @@ If you do like the card please star it on [github](https://github.com/maxwroc/ba
 This project is under the [MIT license](https://github.com/maxwroc/battery-state-card/blob/master/LICENSE).
 
 ## My other HA related repos
-[github-flexi-card](https://github.com/maxwroc/github-flexi-card) | [homeassistant-config](https://github.com/maxwroc/homeassistant)
+[github-flexi-card](https://github.com/maxwroc/github-flexi-card) | [homeassistant-config](https://github.com/maxwroc/homeassistant) | [lovelace-card-boilerplate](https://github.com/maxwroc/lovelace-card-boilerplate)
 
 
 [releases]: https://github.com/maxwroc/battery-state-card/releases
