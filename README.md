@@ -34,7 +34,8 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | entity | string | **(required)** | v0.9.0 | Entity ID
-| name | string | | v0.9.0 | Entity name override
+| name | string |  | v0.9.0 | Entity name override
+| icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one)
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
 
