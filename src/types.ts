@@ -155,6 +155,11 @@ export interface IBatteryEntity {
     name?: string;
 
     /**
+     * Icon override
+     */
+    icon?: string;
+
+    /**
      * Attribute name to extract batterly level from
      */
     attribute?: string;
