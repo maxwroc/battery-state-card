@@ -10,6 +10,8 @@ import { getBatteryCollections } from "./grouping";
  */
 const entititesGlobalProps = [ "tap_action", "state_map", "charging_state", "secondary_info", "color_thresholds", "color_gradient", "bulk_rename", "icon" ];
 
+const regExpPattern = /\/([^/]+)\/([igmsuy]*)/;
+
 /**
  * Functions to check if filter condition is met
  */
@@ -29,9 +31,10 @@ const operatorHandlers: { [key in FilterOperator]: (val: string | number | undef
         pattern = pattern.toString();
 
         let exp: RegExp | undefined;
-        if (pattern[0] == "/" && pattern[pattern.length - 1] == "/") {
+        const regexpMatch = pattern.match(regExpPattern);
+        if (regexpMatch) {
             // create regexp after removing slashes
-            exp = new RegExp(pattern.substr(1, pattern.length - 2));
+            exp = new RegExp(regexpMatch[1], regexpMatch[2]);
         } else if (pattern.indexOf("*") != -1) {
             exp = new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
         }
