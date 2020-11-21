@@ -150,14 +150,14 @@ class BatteryViewModel {
      */
     get icon(): string {
 
-        if (this.config.icon) {
-            return this.config.icon;
-        }
-
         const level = Number(this._level);
 
         if (this.charging && this.config.charging_state?.icon) {
             return this.config.charging_state.icon;
+        }
+
+        if (this.config.icon) {
+            return this.config.icon;
         }
 
         if (isNaN(level) || level > 100 || level < 0) {
