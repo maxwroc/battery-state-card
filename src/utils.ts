@@ -129,7 +129,7 @@ export const getRelativeTime = (hass: HomeAssistant, rawDate: string): string =>
     } else if (time < 60 * 60 * 24 * 7) {
         relativeTime = hass.localize("ui.components.relative_time.past_duration.day", "count", Math.round(time / (60 * 60 * 24)));
     } else {
-        relativeTime = hass.localize("ui.components.relative_time.past_duration.weeks", "count", Math.round(time / (60 * 60 * 24 * 7)));
+        relativeTime = hass.localize("ui.components.relative_time.past_duration.week", "count", Math.round(time / (60 * 60 * 24 * 7)));
     }
 
     return relativeTime;
