@@ -121,18 +121,18 @@ export const getRelativeTime = (hass: HomeAssistant, rawDate: string): string =>
     // https://github.com/yosilevy/home-assistant-polymer/blob/master/src/translations/en.json
     let relativeTime = "";
     if (time < 60) {
-        relativeTime = hass.localize("ui.components.relative_time.duration.second", "count", time);
+        relativeTime = hass.localize("ui.components.relative_time.past_duration.second", "count", time);
     } else if (time < 60 * 60) {
-        relativeTime = hass.localize("ui.components.relative_time.duration.minute", "count", Math.round(time / 60));
+        relativeTime = hass.localize("ui.components.relative_time.past_duration.minute", "count", Math.round(time / 60));
     } else if (time < 60 * 60 * 24) {
-        relativeTime = hass.localize("ui.components.relative_time.duration.hour", "count", Math.round(time / (60 * 60)));
+        relativeTime = hass.localize("ui.components.relative_time.past_duration.hour", "count", Math.round(time / (60 * 60)));
     } else if (time < 60 * 60 * 24 * 7) {
-        relativeTime = hass.localize("ui.components.relative_time.duration.day", "count", Math.round(time / (60 * 60 * 24)));
+        relativeTime = hass.localize("ui.components.relative_time.past_duration.day", "count", Math.round(time / (60 * 60 * 24)));
     } else {
-        relativeTime = hass.localize("ui.components.relative_time.duration.week", "count", Math.round(time / (60 * 60 * 24 * 7)));
+        relativeTime = hass.localize("ui.components.relative_time.past_duration.week", "count", Math.round(time / (60 * 60 * 24 * 7)));
     }
 
-    return hass.localize("ui.components.relative_time.past", "time", relativeTime);
+    return relativeTime;
 }
 
 /**
