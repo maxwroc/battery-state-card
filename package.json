@@ -35,7 +35,7 @@
     "rollup-plugin-minify-html-literals": "^1.2.5",
     "tslib": "^2.0.3",
     "typescript": "^4.1.2",
-    "adm-zip": "^0.5.0"
+    "adm-zip": "^0.5.1"
   },
   "dependencies": {}
 }
