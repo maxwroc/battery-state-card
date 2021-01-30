@@ -234,9 +234,11 @@ class BatteryViewModel {
 
         // check if we should convert value eg. for binary sensors
         if (this.config.state_map) {
-            const convertedVal = this.config.state_map.find(s => s.from == level);
-            if (convertedVal == undefined) {
-                log(`Missing option for '${level}' in 'state_map'`);
+            const convertedVal = this.config.state_map.find(s => s.from === level);
+            if (convertedVal === undefined) {
+                if (!isNumber(level)) {
+                    log(`Missing option for '${level}' in 'state_map'`);
+                }
             }
             else {
                 level = convertedVal.to.toString();
