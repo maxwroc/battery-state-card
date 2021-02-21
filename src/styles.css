@@ -26,7 +26,7 @@
     margin: 0 6px;
 }
 .entity-row .secondary {
-    color: var(--primary-color);
+    color: var(--secondary-text-color);
 }
 .entity-row .icon {
     flex: 0 0 40px;
