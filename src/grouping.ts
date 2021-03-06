@@ -20,8 +20,9 @@ export const getBatteryCollections = (config: number | ICollapsingGroupConfig[] 
     }
 
     if (typeof config == "number") {
-        result.batteries = batteries.slice(0, config);
-        result.groups.push(createGroup(haGroupData, batteries.slice(config)));
+        let visibleBatteries = batteries.filter(b => !b.is_hidden);
+        result.batteries = visibleBatteries.slice(0, config);
+        result.groups.push(createGroup(haGroupData, visibleBatteries.slice(config)));
     }
     else {// make sure that max property is set for every group
         populateMinMaxFields(config);
