@@ -1,0 +1,42 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: rollup
+    versions:
+    - 2.38.3
+    - 2.38.4
+    - 2.38.5
+    - 2.39.1
+    - 2.40.0
+    - 2.41.0
+    - 2.41.1
+    - 2.41.2
+    - 2.41.3
+    - 2.41.4
+    - 2.41.5
+    - 2.42.0
+    - 2.42.2
+    - 2.42.3
+    - 2.43.1
+    - 2.45.0
+    - 2.45.1
+  - dependency-name: adm-zip
+    versions:
+    - 0.5.4
+  - dependency-name: typescript
+    versions:
+    - 4.1.4
+    - 4.1.5
+    - 4.2.2
+  - dependency-name: "@rollup/plugin-typescript"
+    versions:
+    - 8.1.1
+    - 8.2.0
+  - dependency-name: "@rollup/plugin-node-resolve"
+    versions:
+    - 11.2.0
