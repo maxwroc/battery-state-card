@@ -192,7 +192,7 @@ entities:
 ```yaml
 type: custom:battery-state-card
 title: "Custom color thresholds"
-thresholds:
+color_thresholds:
   - value: 35 # applied to all values below/equal
     color: "#8fffe1"
   - value: 45 # applied to all values below/equal
