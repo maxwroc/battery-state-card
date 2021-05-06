@@ -42,6 +42,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
  +[common options](#common-options) (if specified they will override the card-level ones)
 
 ### Common options
+These options can be specified both per-entity and at the top level (affecting all entities).
 
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
