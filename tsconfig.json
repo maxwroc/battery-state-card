@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "moduleResolution": "node",
         "rootDir": "src",
         "target": "ES6",
         "alwaysStrict": true,

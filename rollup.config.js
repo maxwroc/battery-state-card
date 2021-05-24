@@ -41,12 +41,10 @@ export default function (args) {
   }
 
   return {
-    external: ['lit-element'],
+    external: [],
     input: 'src/index.ts',
     output: {
-      globals: {
-        'lit-element': "LitElement"
-      },
+      globals: {},
       file: targetFileName,
       format: 'iife',
       sourcemap: true,

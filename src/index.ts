@@ -1,6 +1,6 @@
+import { LitElement, TemplateResult } from "lit-element";
 import { HomeAssistant } from "./ha-types";
 import { IBatteryStateCardConfig } from "./types";
-import { LitElement, LitHtml } from "./lit-element";
 import * as views from "./views";
 import styles from "./styles";
 import { ActionFactory } from "./action";
@@ -109,12 +109,12 @@ class BatteryStateCard extends LitElement {
             return views.battery(viewData.batteries[0]);
         }
 
-        let renderedViews: LitHtml[] = [];
+        let renderedViews: TemplateResult[] = [];
 
         viewData.batteries.forEach(b => !b.is_hidden && renderedViews.push(views.battery(b)));
 
         viewData.groups.forEach(g => {
-            const renderedBatteries: LitHtml[] = [];
+            const renderedBatteries: TemplateResult[] = [];
             g.batteries.forEach(b => !b.is_hidden && renderedBatteries.push(views.battery(b)));
             if (renderedBatteries.length) {
                 renderedViews.push(views.collapsableWrapper(renderedBatteries, g));
