@@ -1,7 +1,7 @@
 import { HomeAssistant } from "./ha-types";
 
 console.info(
-    "%c BATTERY-STATE-CARD %c 1.6.4",
+    "%c BATTERY-STATE-CARD %c 1.6.5",
     "color: white; background: forestgreen; font-weight: 700;",
     "color: forestgreen; background: white; font-weight: 700;",
 );

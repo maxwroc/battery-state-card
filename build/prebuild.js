@@ -15,7 +15,7 @@ const minimizeCss =  content => {
 const compileCss = async () => {
     const cssCode = await readFile("src/styles.css");
 
-    return await writeFile("src/styles.ts", 'import { css } from "./lit-element"; const styles = css`' + minimizeCss(cssCode) + '`; export default styles;');
+    return await writeFile("src/styles.ts", 'import { css } from "lit-element"; const styles = css`' + minimizeCss(cssCode) + '`; export default styles;');
 };
 
 // Updates version printed in console window
