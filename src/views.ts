@@ -2,6 +2,7 @@ import { html, LitHtml } from "./lit-element";
 import BatteryViewModel from "./battery-vm";
 import { isNumber } from "./utils";
 import { IBatteryGroupViewData } from "./types";
+import { HomeAssistant } from "./ha-types";
 
 
 const header = (text: string) => html`
@@ -14,6 +15,12 @@ const header = (text: string) => html`
 
 const secondaryInfo = (text?: string) => text && html`
 <div class="secondary">${text}</div>
+`;
+
+const secondaryInfoTime = (hass: HomeAssistant, time?: Date) => time && html`
+<div class="secondary">
+    <ha-relative-time .hass="${hass}" .datetime="${time}"></ha-relative-time>
+</div>
 `;
 
 const icon = (icon?: string, color?: string) => icon && html`
@@ -30,7 +37,7 @@ export const battery = (model: BatteryViewModel) => html`
     ${icon(model.icon, model.levelColor)}
     <div class="name truncate">
         ${model.name}
-        ${secondaryInfo(model.secondary_info)}
+        ${typeof(model.secondary_info) == "string" ? secondaryInfo(model.secondary_info) : secondaryInfoTime(model.hass, model.secondary_info)}
     </div>
     <div class="state">
         ${model.level}${isNumber(model.level) ? html`&nbsp;%` : ""}
