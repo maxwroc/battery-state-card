@@ -1,5 +1,5 @@
 import { IBatteryEntity } from "./types";
-import { log, getColorInterpolationForPercentage, isNumber, safeGetArray, getRelativeTime } from "./utils";
+import { log, getColorInterpolationForPercentage, isNumber, safeGetArray } from "./utils";
 import { IAction } from "./action";
 import { HomeAssistant, HassEntity } from "./ha-types";
 
@@ -14,7 +14,7 @@ class BatteryViewModel {
 
     private _charging: boolean = false;
 
-    private _secondary_info: string = <any>null;
+    private _secondary_info: string | Date = <any>null;
 
     private _is_hidden: boolean = false;
 
@@ -26,6 +26,11 @@ class BatteryViewModel {
      * Some sensor may produce string value like "45%". This regex is meant to parse such values.
      */
     private stringValuePattern = /\b([0-9]{1,3})\s?%/;
+
+    /**
+     * Home Assistant state instance
+     */
+    public hass: HomeAssistant;
 
     /**
      * @param config Battery entity
@@ -110,11 +115,11 @@ class BatteryViewModel {
         this._is_hidden = val;
     }
 
-    get secondary_info(): string {
+    get secondary_info(): string | Date {
         return this._secondary_info;
     }
 
-    set secondary_info(val: string) {
+    set secondary_info(val: string | Date) {
         this.updated = this.updated || this._secondary_info != val;
         this._secondary_info = val;
     }
@@ -187,6 +192,8 @@ class BatteryViewModel {
      * @param entityData HA entity data
      */
     public update(hass: HomeAssistant) {
+        this.hass = hass;
+        
         const entityData = hass.states[this.config.entity];
 
         if (!entityData) {
@@ -318,7 +325,7 @@ class BatteryViewModel {
      * @param hass Home Assistant instance
      * @param entityData Entity state data
      */
-    private setSecondaryInfo(hass: HomeAssistant, entityData: HassEntity): string {
+    private setSecondaryInfo(hass: HomeAssistant, entityData: HassEntity): string | Date {
         if (this.config.secondary_info) {
             if (this.config.secondary_info == "charging") {
                 if (this.charging) {
@@ -329,7 +336,8 @@ class BatteryViewModel {
             }
             else {
                 const val = (<any>entityData)[this.config.secondary_info] || entityData.attributes[this.config.secondary_info] || this.config.secondary_info;
-                return isNaN(Date.parse(val)) ? val : getRelativeTime(hass, val);
+                const dateVal = Date.parse(val);
+                return isNaN(dateVal) ? val : dateVal;
             }
         }
 

@@ -1,6 +1,6 @@
 {
   "name": "battery-state-card",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "Battery State card for Home Assistant",
   "main": "dist/battery-state-card.js",
   "repository": {
@@ -11,8 +11,7 @@
     "prebuild": "node build/prebuild.js",
     "build": "npm run build:debug",
     "build:debug": "rollup -c",
-    "build:release": "rollup --release -c",
-    "build:release:es5": "rollup --release --target=es5 -c",
+    "build:release": "rollup --environment RELEASE -c",
     "prerelease": "node build/prebuild.js",
     "release": "npm run build:release",
     "watch": "rollup -c --watch",
@@ -30,12 +29,13 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@rollup/plugin-typescript": "^8.2.1",
+    "adm-zip": "^0.5.5",
     "rollup": "^2.60.2",
-    "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-minify-html-literals": "^1.2.6",
+    "rollup-plugin-serve": "^1.1.0",
+    "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.2.0",
-    "typescript": "^4.3.5",
-    "adm-zip": "^0.5.5"
+    "typescript": "^4.3.5"
   },
   "dependencies": {}
 }

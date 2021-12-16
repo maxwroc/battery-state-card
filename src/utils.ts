@@ -106,36 +106,6 @@ export const safeGetConfigObject = <T>(value: string | T, propertyName: string):
 }
 
 /**
- * Converts given date to localized string representation of relative time
- * @param hass Home Assistant instance
- * @param rawDate Date string
- */
-export const getRelativeTime = (hass: HomeAssistant, rawDate: string): string => {
-    let time = Date.parse(rawDate);
-    if (isNaN(time)) {
-        return hass.localize("ui.components.relative_time.never");
-    }
-
-    time = Math.round((Date.now() - time) / 1000); // convert to seconds diff
-
-    // https://github.com/yosilevy/home-assistant-polymer/blob/master/src/translations/en.json
-    let relativeTime = "";
-    if (time < 60) {
-        relativeTime = hass.localize("ui.components.relative_time.past_duration.second", "count", time);
-    } else if (time < 60 * 60) {
-        relativeTime = hass.localize("ui.components.relative_time.past_duration.minute", "count", Math.round(time / 60));
-    } else if (time < 60 * 60 * 24) {
-        relativeTime = hass.localize("ui.components.relative_time.past_duration.hour", "count", Math.round(time / (60 * 60)));
-    } else if (time < 60 * 60 * 24 * 7) {
-        relativeTime = hass.localize("ui.components.relative_time.past_duration.day", "count", Math.round(time / (60 * 60 * 24)));
-    } else {
-        relativeTime = hass.localize("ui.components.relative_time.past_duration.week", "count", Math.round(time / (60 * 60 * 24 * 7)));
-    }
-
-    return relativeTime;
-}
-
-/**
  * Prefixes all css selectors with given value.
  * @param containerCssPath Prefix to be added
  * @param styles Styles to process
