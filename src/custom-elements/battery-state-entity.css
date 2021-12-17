@@ -1,0 +1,31 @@
+:host {
+    display: flex;
+    align-items: center;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.truncate {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.name {
+    flex: 1;
+    margin: 0 6px;
+}
+
+.secondary {
+    color: var(--secondary-text-color);
+}
+
+.icon {
+    flex: 0 0 40px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 40px;
+    margin-right: 10px;
+}

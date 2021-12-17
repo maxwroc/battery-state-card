@@ -1,11 +1,12 @@
 import { HomeAssistant } from "./ha-types";
 import { IBatteryStateCardConfig } from "./types";
-import { LitElement, LitHtml } from "./lit-element";
 import * as views from "./views";
-import styles from "./styles";
 import { ActionFactory } from "./action";
 import { BatteryProvider } from "./battery-provider";
 import { processStyles, throttledCall } from "./utils";
+import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
+import { LitElement } from "lit";
+import styles from "./styles.css";
 
 /**
  * Card main class.
@@ -109,12 +110,12 @@ class BatteryStateCard extends LitElement {
             return views.battery(viewData.batteries[0]);
         }
 
-        let renderedViews: LitHtml[] = [];
+        let renderedViews: any[] = [];
 
         viewData.batteries.forEach(b => !b.is_hidden && renderedViews.push(views.battery(b)));
 
         viewData.groups.forEach(g => {
-            const renderedBatteries: LitHtml[] = [];
+            const renderedBatteries: any[] = [];
             g.batteries.forEach(b => !b.is_hidden && renderedBatteries.push(views.battery(b)));
             if (renderedBatteries.length) {
                 renderedViews.push(views.collapsableWrapper(renderedBatteries, g));
@@ -178,3 +179,5 @@ class BatteryStateCard extends LitElement {
 
 // Registering card
 customElements.define("battery-state-card", <any>BatteryStateCard);
+
+customElements.define("battery-state-entity", BatteryStateEntity);

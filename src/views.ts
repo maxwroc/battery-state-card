@@ -1,4 +1,4 @@
-import { html, LitHtml } from "./lit-element";
+import { html } from "lit";
 import BatteryViewModel from "./battery-vm";
 import { isNumber } from "./utils";
 import { IBatteryGroupViewData } from "./types";
@@ -45,7 +45,7 @@ export const battery = (model: BatteryViewModel) => html`
 </div>
 `;
 
-export const card = (headerText: string | undefined, contents: LitHtml[]) => {
+export const card = (headerText: string | undefined, contents: any[]) => {
     return html`
 <ha-card>
     ${headerText ? header(headerText) : ""}
@@ -56,7 +56,7 @@ export const card = (headerText: string | undefined, contents: LitHtml[]) => {
 `
 };
 
-export const collapsableWrapper = (contents: LitHtml[], model: IBatteryGroupViewData) => {
+export const collapsableWrapper = (contents: any[], model: IBatteryGroupViewData) => {
     const elemId = "expander" + Math.random().toString().substr(2);
     return html`
 <div class="expandWrapper entity-spacing">
