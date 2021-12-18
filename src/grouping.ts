@@ -1,54 +1,63 @@
-import { ICollapsingGroupConfig, IBatteryGroupViewData, IBatteriesResultViewData, IHomeAssistantGroupProps, IGroupDataMap } from "./types"
-import BatteryViewModel from "./battery-vm"
+import { ICollapsingGroupConfig, IGroupDataMap } from "./types"
 import { log } from "./utils";
+import { IBatteryCollection, IBatteryCollectionItem } from "./battery-provider";
+
+export interface IBatteryGroup {
+    title?: string;
+    secondaryInfo?: string;
+    icon?: string;
+    batteryIds: string[];
+}
+
+export interface IBatteryGroupResult {
+    list: string[];
+    groups: IBatteryGroup[];
+}
 
 /**
  * Returns battery collections to render
- * @param config Collapsing config
- * @param batteries Battery view models
- * @param haGroupData Home assistant group data
  */
-export const getBatteryCollections = (config: number | ICollapsingGroupConfig[] | undefined, batteries: BatteryViewModel[], haGroupData: IGroupDataMap): IBatteriesResultViewData => {
-    const result: IBatteriesResultViewData = {
-        batteries: [],
+export const getBatteryGroups = (batteries: IBatteryCollection, sortedIds: string[], config: number | ICollapsingGroupConfig[] | undefined, haGroupData: IGroupDataMap): IBatteryGroupResult => {
+    const result: IBatteryGroupResult = {
+        list: [],
         groups: []
     };
 
     if (!config) {
-        result.batteries = batteries;
+        result.list = sortedIds;
         return result;
     }
 
     if (typeof config == "number") {
-        let visibleBatteries = batteries.filter(b => !b.is_hidden);
-        result.batteries = visibleBatteries.slice(0, config);
+        let visibleBatteries = sortedIds.filter(id => !batteries[id].isHidden);
+        result.list = visibleBatteries.slice(0, config);
         result.groups.push(createGroup(haGroupData, visibleBatteries.slice(config)));
     }
     else {// make sure that max property is set for every group
         populateMinMaxFields(config);
 
-        batteries.forEach(b => {
-            const foundIndex = getGroupIndex(config, b, haGroupData);
+        sortedIds.forEach(id => {
+            const foundIndex = getGroupIndex(config, batteries[id], haGroupData);
             if (foundIndex == -1) {
                 // batteries without group
-                result.batteries.push(b);
+                result.list.push(id);
             }
             else {
                 // bumping group index as the first group is for the orphans
                 result.groups[foundIndex] = result.groups[foundIndex] || createGroup(haGroupData, [], config[foundIndex]);
-                result.groups[foundIndex].batteries.push(b);
+                result.groups[foundIndex].batteryIds.push(id);
             }
         });
     }
 
     // update group name and secondary info / replace keywords with values
     result.groups.forEach(g => {
-        if (g.name) {
-            g.name = getEnrichedText(g.name, g);
+        if (g.title) {
+            g.title = getEnrichedText(g.title, g, batteries);
         }
 
-        if (g.secondary_info) {
-            g.secondary_info = getEnrichedText(g.secondary_info, g);
+        if (g.secondaryInfo) {
+            g.secondaryInfo = getEnrichedText(g.secondaryInfo, g, batteries);
         }
     });
 
@@ -61,18 +70,18 @@ export const getBatteryCollections = (config: number | ICollapsingGroupConfig[] 
  * @param battery Batterry view model
  * @param haGroupData Home assistant group data
  */
-const getGroupIndex = (config: ICollapsingGroupConfig[], battery: BatteryViewModel, haGroupData: IGroupDataMap): number => {
+const getGroupIndex = (config: ICollapsingGroupConfig[], battery: IBatteryCollectionItem, haGroupData: IGroupDataMap): number => {
     return config.findIndex(group => {
 
-        if (group.group_id && !haGroupData[group.group_id]?.entity_id?.some(id => battery.entity_id == id)) {
+        if (group.group_id && !haGroupData[group.group_id]?.entity_id?.some(id => battery.entityId == id)) {
             return false;
         }
 
-        if (group.entities && !group.entities.some(id => battery.entity_id == id)) {
+        if (group.entities && !group.entities.some(id => battery.entityId == id)) {
             return false
         }
 
-        const level = isNaN(Number(battery.level)) ? 0 : Number(battery.level);
+        const level = isNaN(Number(battery.state)) ? 0 : Number(battery.state);
 
         return level >= group.min! && level <= group.max!;
     });
@@ -103,7 +112,7 @@ var populateMinMaxFields = (config: ICollapsingGroupConfig[]): void => config.fo
  * @param batteries Batterry view model
  * @param config Collapsing group config
  */
-const createGroup = (haGroupData: IGroupDataMap, batteries: BatteryViewModel[] = [], config?: ICollapsingGroupConfig): IBatteryGroupViewData => {
+const createGroup = (haGroupData: IGroupDataMap, batteryIds: string[], config?: ICollapsingGroupConfig): IBatteryGroup => {
 
     if (config?.group_id && !haGroupData[config.group_id]) {
         throw new Error("Group not found: " + config.group_id);
@@ -120,10 +129,10 @@ const createGroup = (haGroupData: IGroupDataMap, batteries: BatteryViewModel[] =
     }
 
     return {
-        name: name,
+        title: name,
         icon: icon,
-        batteries: batteries,
-        secondary_info: config?.secondary_info
+        batteryIds: batteryIds,
+        secondaryInfo: config?.secondary_info
     }
 }
 
@@ -132,18 +141,18 @@ const createGroup = (haGroupData: IGroupDataMap, batteries: BatteryViewModel[] =
  * @param text Text to process
  * @param group Battery group view data
  */
-const getEnrichedText = (text: string, group: IBatteryGroupViewData): string => {
+const getEnrichedText = (text: string, group: IBatteryGroup, batteries: IBatteryCollection): string => {
     text = text.replace(/\{[a-z]+\}/g, keyword => {
         switch (keyword) {
             case "{min}":
-                return group.batteries.reduce((agg, b) => agg > Number(b.level) ? Number(b.level) : agg, 100).toString();
+                return group.batteryIds.reduce((agg, id) => agg > Number(batteries[id].state) ? Number(batteries[id].state) : agg, 100).toString();
             case "{max}":
-                return group.batteries.reduce((agg, b) => agg < Number(b.level) ? Number(b.level) : agg, 0).toString();
+                return group.batteryIds.reduce((agg, id) => agg < Number(batteries[id].state) ? Number(batteries[id].state) : agg, 0).toString();
             case "{count}":
-                return group.batteries.length.toString();
+                return group.batteryIds.length.toString();
             case "{range}":
-                const min = group.batteries.reduce((agg, b) => agg > Number(b.level) ? Number(b.level) : agg, 100).toString();
-                const max = group.batteries.reduce((agg, b) => agg < Number(b.level) ? Number(b.level) : agg, 0).toString();
+                const min = group.batteryIds.reduce((agg, id) => agg > Number(batteries[id].state) ? Number(batteries[id].state) : agg, 100).toString();
+                const max = group.batteryIds.reduce((agg, id) => agg < Number(batteries[id].state) ? Number(batteries[id].state) : agg, 0).toString();
                 return min == max ? min : min + "-" + max;
             default:
                 return keyword;

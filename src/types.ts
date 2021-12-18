@@ -210,10 +210,7 @@ export interface IBatteryEntity {
     bulk_rename?: IConvert | IConvert[]
 }
 
-/**
- * Battery card root config
- */
-export interface IBatteryStateCardConfig extends IBatteryEntity  {
+export interface IBatteryCard {
     /**
      * List of entities to show in the card
      */
@@ -238,11 +235,13 @@ export interface IBatteryStateCardConfig extends IBatteryEntity  {
      * Filters for auto adding or removing entities
      */
     filter?: { [key in FilterGroups]: IFilter[] };
+}
 
-    /**
-     * CSS code for the card
-     */
-    style: string;
+/**
+ * Battery card root config
+ */
+export interface IBatteryStateCardConfig extends IBatteryCard, IBatteryEntity  {
+
 }
 
 export interface IHomeAssistantGroupProps {

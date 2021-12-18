@@ -1,9 +1,9 @@
 import BatteryViewModel from "./battery-vm";
-import { IBatteryStateCardConfig, IFilter, FilterOperator, IBatteryEntity, IHomeAssistantGroupProps, IBatteriesResultViewData, IGroupDataMap } from "./types";
+import { IBatteryStateCardConfig, IFilter, FilterOperator, IBatteryEntity, IHomeAssistantGroupProps, IBatteriesResultViewData, IGroupDataMap, IBatteryCard } from "./types";
 import { log, safeGetConfigObject } from "./utils";
 import { ActionFactory } from "./action";
-import { getBatteryCollections } from "./grouping";
 import { HomeAssistant } from "custom-card-helpers";
+import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 
 /**
  * Properties which should be copied over to individual entities from the card
@@ -138,10 +138,7 @@ export class BatteryProvider {
      */
     private exclude: Filter[] | undefined;
 
-    /**
-     * Battery view models.
-     */
-    private batteries: BatteryViewModel[] = [];
+    private batteries: IBatteryCollection = {};
 
     /**
      * Groups to be resolved on HA state update.
@@ -151,14 +148,14 @@ export class BatteryProvider {
     /**
      * Collection of groups and their properties taken from HA
      */
-    private groupsData: IGroupDataMap = {};
+    public groupsData: IGroupDataMap = {};
 
     /**
      * Whether include filters were processed already.
      */
     private initialized: boolean = false;
 
-    constructor(private config: IBatteryStateCardConfig, private cardNode: Node) {
+    constructor(private config: IBatteryCard) {
         this.include = config.filter?.include?.map(f => new Filter(f));
         this.exclude = config.filter?.exclude?.map(f => new Filter(f));
 
@@ -169,60 +166,54 @@ export class BatteryProvider {
         this.processExplicitEntities();
     }
 
-    update(hass: HomeAssistant): boolean {
-        let updated = false;
+    async update(hass: HomeAssistant): Promise<void> {
         if (!this.initialized) {
             // groups and includes should be processed just once
             this.initialized = true;
-
-            updated = this.processGroups(hass) || updated;
-
-            updated = this.processIncludes(hass) || updated;
+            this.processGroupEntities(hass);
+            this.processIncludes(hass);
         }
 
-        updated = this.updateBatteries(hass) || updated;
+        this.processExcludes(hass);
 
-        if (updated) {
-            this.processExcludes(hass);
-        }
+        const updateComplete = Object.keys(this.batteries).map(id => {
+            const battery = this.batteries[id];
+            battery.hass = hass;
+            return battery.cardUpdated;
+        });
 
-        return updated;
+        await Promise.all(updateComplete);
     }
 
     /**
      * Return batteries
      * @param hass Home Assistant instance
      */
-    getBatteries(): IBatteriesResultViewData {
-        return getBatteryCollections(this.config.collapse, this.batteries, this.groupsData);
+    getBatteries(): IBatteryCollection {
+        return this.batteries;
     }
 
     /**
      * Creates and returns new Battery View Model
      */
-    private createBattery(entity: IBatteryEntity) {
+    private createBattery(entityConfig: IBatteryEntity): IBatteryCollectionItem {
         // assing card-level values if they were not defined on entity-level
         entititesGlobalProps
-            .filter(p => (<any>entity)[p] == undefined)
-            .forEach(p => (<any>entity)[p] = (<any>this.config)[p]);
+            .filter(p => (<any>entityConfig)[p] == undefined)
+            .forEach(p => (<any>entityConfig)[p] = (<any>this.config)[p]);
 
-        return new BatteryViewModel(
-            entity,
-            ActionFactory.getAction({
-                card: this.cardNode,
-                config: safeGetConfigObject(entity.tap_action || this.config.tap_action || <any>null, "action"),
-                entity: entity
-            })
-        );
+        const battery = <IBatteryCollectionItem>new BatteryStateEntity();
+        battery.entityId = entityConfig.entity
+        battery.setConfig(entityConfig);
+
+        return battery;
     }
 
     /**
      * Adds batteries based on entities from config.
      */
     private processExplicitEntities() {
-        let entities = this.config.entity
-            ? [this.config]
-            : (this.config.entities || []).map((entity: string | IBatteryEntity) => {
+        let entities = (this.config.entities || []).map((entity: string | IBatteryEntity) => {
                 // check if it is just the id string
                 if (typeof (entity) === "string") {
                     entity = <IBatteryEntity>{ entity: entity };
@@ -266,42 +257,36 @@ export class BatteryProvider {
             });
         }
 
-        this.batteries = entities.map(entity => this.createBattery(entity));
+        entities.forEach(entityConf => {
+            this.batteries[entityConf.entity] = this.createBattery(entityConf);
+        });
     }
 
     /**
      * Adds batteries based on filter.include config.
      * @param hass Home Assistant instance
      */
-    private processIncludes(hass: HomeAssistant): boolean {
-
-        let updated = false;
+    private processIncludes(hass: HomeAssistant): void {
         if (!this.include) {
-            return updated;
+            return;
         }
 
-        Object.keys(hass.states).forEach(entity_id => {
+        Object.keys(hass.states).forEach(entityId => {
             // check if entity matches filter conditions
-            if (this.include?.some(filter => filter.isValid(hass.states[entity_id])) &&
+            if (this.include?.some(filter => filter.isValid(hass.states[entityId])) &&
                 // check if battery is not added already (via explicit entities)
-                !this.batteries.some(b => b.entity_id == entity_id)) {
+                !this.batteries[entityId]) {
 
-                updated = true;
-                this.batteries.push(this.createBattery({ entity: entity_id }));
+                this.batteries[entityId] = this.createBattery({ entity: entityId });
             }
         });
-
-        return updated;
     }
 
     /**
      * Adds batteries from group entities (if they were on the list)
      * @param hass Home Assistant instance
      */
-    private processGroups(hass: HomeAssistant): boolean {
-
-        let updated = false;
-
+    private processGroupEntities(hass: HomeAssistant): void {
         this.groupsToResolve.forEach(group_id => {
             const groupEntity = hass.states[group_id];
             if (!groupEntity) {
@@ -317,20 +302,17 @@ export class BatteryProvider {
 
             groupData.entity_id.forEach(entity_id => {
                 // check if battery is on the list already
-                if (this.batteries.some(b => b.entity_id == entity_id)) {
+                if (this.batteries[entity_id]) {
                     return;
                 }
-
-                updated = true;
-                this.batteries.push(this.createBattery({ entity: entity_id }));
+                
+                this.batteries[entity_id] = this.createBattery({ entity: entity_id });
             });
 
             this.groupsData[group_id] = groupData;
         });
 
         this.groupsToResolve = [];
-
-        return updated;
     }
 
     /**
@@ -343,76 +325,43 @@ export class BatteryProvider {
         }
 
         const filters = this.exclude;
-        const toBeRemoved: number[] = [];
+        const toBeRemoved: string[] = [];
 
-        this.batteries.forEach((battery, index) => {
-            let is_hidden = false;
+
+
+        Object.keys(this.batteries).forEach((entityId) => {
+            const battery = this.batteries[entityId];
+            let isHidden = false;
             for (let filter of filters) {
                 // passing HA entity state together with VM battery level as the source of this value can vary
-                if (filter.isValid(hass.states[battery.entity_id], battery.level)) {
+                if (filter.isValid(hass.states[entityId], battery.state)) {
                     if (filter.is_permanent) {
                         // permanent filters have conditions based on static values so we can safely
-                        // remove such battery to avoid updating it unnecessarily
-                        toBeRemoved.push(index);
+                        // remove such battery to avoid updating them unnecessarily
+                        toBeRemoved.push(entityId);
+                        // no need to process further
+                        break;
                     }
                     else {
-                        is_hidden = true;
+                        isHidden = true;
                     }
                 }
             }
 
             // we keep the view model to keep updating it
             // it might be shown/not-hidden next time
-            battery.is_hidden = is_hidden;
+            battery.isHidden = isHidden;
         });
 
-        // we need to reverse otherwise the indexes will be messed up after removing
-        toBeRemoved.reverse().forEach(i => this.batteries.splice(i, 1));
+        toBeRemoved.forEach(entityId => delete this.batteries[entityId]);
     }
+}
 
-    /**
-     * Updates battery view models based on HA states.
-     * @param hass Home Assistant instance
-     */
-    private updateBatteries(hass: HomeAssistant): boolean {
-        let updated = false;
+export interface IBatteryCollection {
+    [key: string]: IBatteryCollectionItem
+}
 
-        this.batteries.forEach((battery, index) => {
-            battery.update(hass);
-            updated = updated || battery.updated;
-        });
-
-        if (updated) {
-            switch (this.config.sort_by_level) {
-                case "asc":
-                    this.batteries.sort((a, b) => this.sort(a.level, b.level));
-                    break;
-                case "desc":
-                    this.batteries.sort((a, b) => this.sort(b.level, a.level));
-                    break;
-                default:
-                    if (this.config.sort_by_level) {
-                        log("Unknown sort option. Allowed values: 'asc', 'desc'");
-                    }
-            }
-
-            // trigger the UI update
-            this.batteries = [...this.batteries];
-        }
-
-        return updated;
-    }
-
-    /**
-     * Sorting function for battery levels which can have "Unknown" state.
-     * @param a First value
-     * @param b Second value
-     */
-    private sort(a: string, b: string): number {
-        let aNum = Number(a);
-        let bNum = Number(b);
-        aNum = isNaN(aNum) ? -1 : aNum;
-        bNum = isNaN(bNum) ? -1 : bNum;
-        return aNum - bNum;
-    }
+export interface IBatteryCollectionItem extends BatteryStateEntity {
+    entityId?: string;
+    isHidden?: boolean;
 }

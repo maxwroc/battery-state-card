@@ -13,7 +13,7 @@ const secondaryInfoTime = (hass: HomeAssistant | undefined, time?: Date) => time
 </div>
 `;
 
-const icon = (icon?: string, color?: string) => icon && html`
+export const icon = (icon?: string, color?: string) => icon && html`
 <div class="icon">
     <ha-icon
         style="color: ${color}"
