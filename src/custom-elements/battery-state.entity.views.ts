@@ -3,7 +3,7 @@ import { html } from "lit";
 import { isNumber } from "../utils";
 import { BatteryStateEntity } from "./battery-state-entity";
 
-const secondaryInfo = (text?: string) => text && html`
+export const secondaryInfo = (text?: string) => text && html`
 <div class="secondary">${text}</div>
 `;
 

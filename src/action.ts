@@ -1,5 +1,5 @@
+import { HomeAssistant } from "custom-card-helpers";
 import { IActionConfig, IBatteryEntity, SupportedActions } from "./types"
-import { HomeAssistant } from "./ha-types"
 import { log } from "./utils";
 
 export interface IAction {

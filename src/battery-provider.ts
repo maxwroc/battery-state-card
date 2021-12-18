@@ -1,9 +1,9 @@
 import BatteryViewModel from "./battery-vm";
 import { IBatteryStateCardConfig, IFilter, FilterOperator, IBatteryEntity, IHomeAssistantGroupProps, IBatteriesResultViewData, IGroupDataMap } from "./types";
-import { HassEntity, HomeAssistant } from "./ha-types";
 import { log, safeGetConfigObject } from "./utils";
 import { ActionFactory } from "./action";
 import { getBatteryCollections } from "./grouping";
+import { HomeAssistant } from "custom-card-helpers";
 
 /**
  * Properties which should be copied over to individual entities from the card
@@ -67,7 +67,7 @@ class Filter {
      * @param entity Hass entity
      * @param state State override - battery state/level
      */
-    isValid(entity: HassEntity, state?: string): boolean {
+    isValid(entity: any, state?: string): boolean {
         const val = this.getValue(entity, state);
         return this.meetsExpectations(val);
     }
@@ -77,7 +77,7 @@ class Filter {
      * @param entity Hass entity
      * @param state State override - battery state/level
      */
-    private getValue(entity: HassEntity, state?: string): string | undefined {
+    private getValue(entity: any, state?: string): string | undefined {
         if (!this.config.name) {
             log("Missing filter 'name' property");
             return;

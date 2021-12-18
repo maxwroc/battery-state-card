@@ -1,7 +1,7 @@
 import { IBatteryEntity } from "./types";
 import { log, getColorInterpolationForPercentage, isNumber, safeGetArray } from "./utils";
 import { IAction } from "./action";
-import { HomeAssistant, HassEntity } from "./ha-types";
+import { HomeAssistant } from "custom-card-helpers";
 
 /**
  * Battery view model.
@@ -203,7 +203,7 @@ class BatteryViewModel {
 
         this.updated = false;
 
-        this.name = this.config.name || entityData.attributes.friendly_name
+        this.name = this.config.name || entityData.attributes.friendly_name!
 
         this.level = this.getLevel(entityData, hass);
 
@@ -218,7 +218,7 @@ class BatteryViewModel {
      * Gets battery level
      * @param entityData Entity state data
      */
-    private getLevel(entityData: HassEntity, hass: HomeAssistant): string {
+    private getLevel(entityData: any, hass: HomeAssistant): string {
         const UnknownLevel = hass.localize("state.default.unknown");
         let level: string;
 
@@ -325,7 +325,7 @@ class BatteryViewModel {
      * @param hass Home Assistant instance
      * @param entityData Entity state data
      */
-    private setSecondaryInfo(hass: HomeAssistant, entityData: HassEntity): string | Date {
+    private setSecondaryInfo(hass: HomeAssistant, entityData: any): string | Date {
         if (this.config.secondary_info) {
             if (this.config.secondary_info == "charging") {
                 if (this.charging) {

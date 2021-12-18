@@ -2,7 +2,7 @@ import { html } from "lit";
 import BatteryViewModel from "./battery-vm";
 import { isNumber } from "./utils";
 import { IBatteryGroupViewData } from "./types";
-import { HomeAssistant } from "./ha-types";
+import { HomeAssistant } from "custom-card-helpers";
 
 
 const header = (text: string) => html`

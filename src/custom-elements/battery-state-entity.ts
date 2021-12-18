@@ -6,6 +6,7 @@ import { getColorInterpolationForPercentage, isNumber, log, safeGetArray } from 
 import { IAction } from "../action";
 import { batteryHtml } from "./battery-state.entity.views";
 import styles from "./battery-state-entity.css";
+import { LovelaceCard } from "./lovelace-card";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
@@ -17,11 +18,7 @@ const stringValuePattern = /\b([0-9]{1,3})\s?%/;
  */
 const colorPattern = /^#[A-Fa-f0-9]{6}$/;
 
-export class BatteryStateEntity extends LitElement {
-
-    private config: IBatteryEntity;
-
-    private _hass?: HomeAssistant;
+export class BatteryStateEntity extends LovelaceCard<IBatteryEntity> {
 
     @property({ attribute: false })
     public name: string;
@@ -44,32 +41,18 @@ export class BatteryStateEntity extends LitElement {
     public static get styles() {
         return css(<any>[styles]);
     }
+    
+    internalUpdate(): void {
+        this.name = getName(this.config, this.hass);
+        this.state = getLevel(this.config, this.hass);
 
-    public set hass(hass: HomeAssistant | undefined) {
-        this._hass = hass;
-        this.batteryUpdate();
-    }
-
-    public get hass(): HomeAssistant | undefined {
-        return this._hass;
-    }
-
-    setConfig(config: IBatteryEntity) {
-        this.config = config;
-        this.batteryUpdate();
+        const isCharging = getChargingState(this.config, this.state, this.hass);
+        this.icon = getIcon(this.config, Number(this.state), isCharging);
+        this.iconColor = getIconColor(this.config, this.state, isCharging);
     }
 
     render() {
         return batteryHtml(this);
-    }
-
-    private batteryUpdate() {
-        this.name = getName(this.config, this.hass);
-        this.state = getLevel(this.config, this._hass);
-
-        const isCharging = getChargingState(this.config, this.state, this._hass);
-        this.icon = getIcon(this.config, Number(this.state), isCharging);
-        this.iconColor = getIconColor(this.config, this.state, isCharging);
     }
 }
 

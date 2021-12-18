@@ -1,4 +1,4 @@
-import { HomeAssistant } from "./ha-types";
+import { HomeAssistant } from "custom-card-helpers";
 import { IBatteryStateCardConfig } from "./types";
 import * as views from "./views";
 import { ActionFactory } from "./action";
@@ -7,11 +7,12 @@ import { processStyles, throttledCall } from "./utils";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 import { LitElement } from "lit";
 import styles from "./styles.css";
+import { BatteryStateCard } from "./custom-elements/battery-state-card";
 
 /**
  * Card main class.
  */
-class BatteryStateCard extends LitElement {
+class BatteryStateCard2 extends LitElement {
 
     /**
      * Raw config used to check if there were changes.
@@ -178,6 +179,6 @@ class BatteryStateCard extends LitElement {
 }
 
 // Registering card
-customElements.define("battery-state-card", <any>BatteryStateCard);
+customElements.define("battery-state-card", BatteryStateCard);
 
 customElements.define("battery-state-entity", BatteryStateEntity);
