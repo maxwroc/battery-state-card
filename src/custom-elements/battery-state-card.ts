@@ -1,14 +1,12 @@
 import { css, CSSResult, TemplateResult } from "lit"
 import { IBatteryCard } from "../types";
 import { LovelaceCard } from "./lovelace-card";
-import styles from "./battery-state-card.css"
 import { property } from "lit/decorators.js";
-import { BatteryStateEntity } from "./battery-state-entity";
 import { cardHtml } from "./battery-state-card.views";
-import { HomeAssistant } from "custom-card-helpers";
 import { BatteryProvider, IBatteryCollection, IBatteryCollectionItem } from "../battery-provider";
-import { battery } from "../views";
 import { getBatteryGroups, IBatteryGroup } from "../grouping";
+import sharedStyles from "./shared.css"
+import cardStyles from "./battery-state-card.css"
 
 
 export class BatteryStateCard extends LovelaceCard<IBatteryCard> {
@@ -30,7 +28,7 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCard> {
     public batteries: IBatteryCollection = {};
 
     static get styles(): CSSResult {
-        return css(<any>[styles]);
+        return css(<any>[sharedStyles + cardStyles]);
     }
 
     async internalUpdate(configUpdated: boolean, hassUpdated: boolean) {

@@ -1,3 +1,42 @@
-:host .entity {
+.entity-spacing {
     margin: 8px 0;
+}
+
+.entity-spacing:first-child {
+    margin-top: 0;
+}
+
+.entity-spacing:last-child {
+    margin-bottom: 0;
+}
+
+.expandWrapper > .toggler {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.expandWrapper > .toggler > .name {
+    flex: 1;
+}
+.expandWrapper > .toggler div.chevron {
+    transform: rotate(-90deg);
+    font-size: 26px;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.expandWrapper > .toggler .chevron,
+.expandWrapper > .toggler + div {
+    transition: all 0.5s ease;
+}
+.expandWrapper > .toggler.expanded .chevron {
+    transform: rotate(-90deg) scaleX(-1);
+}
+.expandWrapper > .toggler + div {
+    overflow: hidden;
+}
+.expandWrapper > .toggler:not(.expanded) + div {
+    max-height: 0 !important;
 }

@@ -5,8 +5,9 @@ import { IBatteryEntity } from "../types";
 import { getColorInterpolationForPercentage, isNumber, log, safeGetArray } from "../utils";
 import { IAction } from "../action";
 import { batteryHtml } from "./battery-state.entity.views";
-import styles from "./battery-state-entity.css";
 import { LovelaceCard } from "./lovelace-card";
+import sharedStyles from "./shared.css"
+import entityStyles from "./battery-state-entity.css";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
@@ -36,10 +37,10 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntity> {
     public iconColor: string;
 
     @property({ attribute: false })
-    public action: IAction
+    public action: IAction;
 
     public static get styles() {
-        return css(<any>[styles]);
+        return css(<any>[sharedStyles + entityStyles]);
     }
     
     internalUpdate(): void {

@@ -18,7 +18,7 @@ export const collapsableWrapper = (model: IBatteryGroup, batteries: IBatteryColl
     const elemId = "expander" + Math.random().toString().substr(2);
     return html`
 <div class="expandWrapper entity-spacing">
-    <div class="entity-row toggler" @click=${(e: MouseEvent) => (<HTMLElement>e.currentTarget).classList.toggle("expanded")}>
+    <div class="toggler" @click=${(e: MouseEvent) => (<HTMLElement>e.currentTarget).classList.toggle("expanded")}>
         ${icon(model.icon, undefined)}
         <div class="name truncate">
             ${model.title}
@@ -45,7 +45,7 @@ export const cardHtml = (model: BatteryStateCard) => html`
 `;
 
 const batteryWrapper = (battery: BatteryStateEntity) => html`
-<div class="entity">
+<div class="entity-spacing">
     ${battery}
 </div>
 `;
