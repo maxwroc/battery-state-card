@@ -4,6 +4,7 @@ import cssImports from 'rollup-plugin-import-css';
 import minifyHTML from 'rollup-plugin-minify-html-literals';
 import serve from 'rollup-plugin-serve';
 import { terser } from 'rollup-plugin-terser';
+import versionInjector from 'rollup-plugin-version-injector';
 import pkg from './package.json';
 
 
@@ -13,6 +14,9 @@ const plugins = [
   resolve(),
   minifyHTML(),
   cssImports(),
+  versionInjector({
+    injectInComments: false,
+  })
 ];
 
 if (process.env.ROLLUP_WATCH) {
