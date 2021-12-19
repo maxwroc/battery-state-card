@@ -44,24 +44,24 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
 
         this.batteries = this.batteryProvider.getBatteries();
 
-        const indexes = getIdsOfSortedBatteries(this.config, this.batteries);
+        const indexes = getIdsOfSortedBatteries(this.config, this.batteries)
+            // we don't want to have any batteries which are hidden
+            .filter(id => !this.batteries[id].isHidden);
 
         const groupingResult = getBatteryGroups(this.batteries, indexes, this.config.collapse, this.batteryProvider.groupsData);
 
-
-        console.log("Update");
-        
+        // we want to avoid render triggering
         if (JSON.stringify(groupingResult.list) != JSON.stringify(this.list)) {
             this.list = groupingResult.list;
         }
 
+        // we want to avoid render triggering
         if (JSON.stringify(groupingResult.groups) != JSON.stringify(this.groups)) {
              this.groups = groupingResult.groups;
         }
     }
 
     render(): TemplateResult<1> {
-        console.log("Render");
         return cardHtml(this);
     }
 
