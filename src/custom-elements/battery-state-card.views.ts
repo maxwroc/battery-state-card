@@ -3,7 +3,7 @@ import { IBatteryCollection } from "../battery-provider";
 import { IBatteryGroup } from "../grouping";
 import { BatteryStateCard } from "./battery-state-card";
 import { BatteryStateEntity } from "./battery-state-entity";
-import { icon, secondaryInfo } from "./battery-state.entity.views";
+import { icon, secondaryInfo } from "./battery-state-entity.views";
 
 const header = (text: string | undefined) => text && html`
 <div class="card-header">

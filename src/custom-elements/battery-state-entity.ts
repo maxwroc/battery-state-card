@@ -4,7 +4,7 @@ import { HomeAssistant } from "custom-card-helpers"
 import { IBatteryEntity } from "../types";
 import { getColorInterpolationForPercentage, isNumber, log, safeGetArray } from "../utils";
 import { IAction } from "../action";
-import { batteryHtml } from "./battery-state.entity.views";
+import { batteryHtml } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
 import entityStyles from "./battery-state-entity.css";
