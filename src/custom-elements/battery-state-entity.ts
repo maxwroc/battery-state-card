@@ -2,11 +2,11 @@ import { css } from "lit";
 import { property } from "lit/decorators.js"
 import { HomeAssistant } from "custom-card-helpers"
 import { getColorInterpolationForPercentage, isNumber, log, safeGetArray } from "../utils";
-import { IAction } from "../action";
 import { batteryHtml } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
 import entityStyles from "./battery-state-entity.css";
+import { handleAction } from "../action";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
@@ -36,7 +36,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     public iconColor: string;
 
     @property({ attribute: false })
-    public action: IAction;
+    public action: IAction | undefined;
 
     public static get styles() {
         return css(<any>[sharedStyles + entityStyles]);
@@ -50,11 +50,47 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, isCharging);
         this.icon = getIcon(this.config, Number(this.state), isCharging);
         this.iconColor = getIconColor(this.config, this.state, isCharging);
+    }
 
+    connectedCallback() {
+        super.connectedCallback();
+        // enable action if configured
+        this.setupAction(true);
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        // disabling action if exists
+        this.setupAction(false);
     }
 
     render() {
         return batteryHtml(this);
+    }
+
+    private setupAction(enable: boolean = true) {
+        if (enable) {
+            if (this.config.tap_action && !this.action) {
+                this.action = evt => {
+                    evt.stopPropagation();
+                    handleAction({
+                        card: this,
+                        config: this.config.tap_action!,
+                        entityId: this.config.entity,
+                    }, this.hass!);
+                }
+    
+                this.addEventListener("click", this.action);
+                this.classList.add("clickable");
+            }
+        }
+        else {
+            if (this.action) {
+                this.classList.remove("clickable");
+                this.removeEventListener("click", this.action);
+                this.action = undefined;
+            }
+        }
     }
 }
 
@@ -274,7 +310,3 @@ const isColorGradientValid = (color_gradient: string[]) => {
 
     return true;
 }
-
-
-
-

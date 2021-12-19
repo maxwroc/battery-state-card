@@ -1,25 +1,15 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { log } from "./utils";
 
-export interface IAction {
-    (evt: Event): void
-}
+const nameToFuncMap: { [key in SupportedActions]: (data: IActionData, hass: HomeAssistant) => void } = {
 
-interface IActionData {
-    config: IActionConfig
-    card: Node;
-    entity: IBatteryEntityConfig
-}
-
-const nameToFuncMap: { [key in SupportedActions]: (data: IActionData) => void } = {
-
-    "more-info": (data: IActionData) => {
+    "more-info": (data) => {
         const evt = <any>new Event('hass-more-info', { composed: true });
-        evt.detail = { entityId: data.entity.entity };
+        evt.detail = { entityId: data.entityId };
         data.card.dispatchEvent(evt);
     },
 
-    "navigate": (data: IActionData) => {
+    "navigate": (data) => {
         if (!data.config.navigation_path) {
             log("Missing 'navigation_path' for 'navigate' tap action");
             return;
@@ -31,7 +21,7 @@ const nameToFuncMap: { [key in SupportedActions]: (data: IActionData) => void } 
         window.dispatchEvent(evt);
     },
 
-    "call-service": (data: IActionData) => {
+    "call-service": (data, hass) => {
         if (!data.config.service) {
             log("Missing 'service' for 'call-service' tap action");
             return;
@@ -39,7 +29,7 @@ const nameToFuncMap: { [key in SupportedActions]: (data: IActionData) => void } 
 
         const [domain, service] = data.config.service.split(".", 2);
         const serviceData = { ...data.config.service_data };
-        ActionFactory.hass.callService(domain, service, serviceData);
+        hass.callService(domain, service, serviceData);
     },
 
     "url": data => {
@@ -52,37 +42,15 @@ const nameToFuncMap: { [key in SupportedActions]: (data: IActionData) => void } 
     }
 }
 
-/**
- * Helper class for creating actions - tap/click handlers.
- */
-export class ActionFactory {
-
-    /**
-     * Home assistant object.
-     *
-     * Updated whenever HA sets it on main card object.
-     */
-    static hass: HomeAssistant;
-
-    /**
-     * Returns action for given action data.
-     *
-     * @param data Action data object
-     */
-    static getAction(data: IActionData): IAction | null {
-        if (!data.config || data.config.action == <any>"none") {
-            return null;
-        }
-
-        return evt => {
-            evt.stopPropagation();
-
-            if (!(data.config.action in nameToFuncMap)) {
-                log("Unknown tap action type: " + data.config.action);
-                return;
-            }
-
-            nameToFuncMap[data.config.action](data);
-        }
+export const handleAction = (data: IActionData, hass: HomeAssistant): void => {
+    if (!data.config || data.config.action == <any>"none") {
+        return;
     }
+
+    if (!(data.config.action in nameToFuncMap)) {
+        log("Unknown tap action type: " + data.config.action);
+        return;
+    }
+
+    nameToFuncMap[data.config.action](data, hass);
 }

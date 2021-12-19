@@ -264,4 +264,12 @@ interface ICollapsingGroupConfig {
     max?: number;
 }
 
+interface IAction {
+    (evt: Event): void
+}
 
+interface IActionData {
+    config: IActionConfig
+    card: Node;
+    entityId: string
+}

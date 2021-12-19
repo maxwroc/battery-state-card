@@ -48,15 +48,20 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
 
         const groupingResult = getBatteryGroups(this.batteries, indexes, this.config.collapse, this.batteryProvider.groupsData);
 
-        this.list = groupingResult.list;
-        this.groups = groupingResult.groups;
 
-        // if (JSON.stringify(groups) != JSON.stringify(this.groups)) {
-        //     this.groups = groups;
-        // }
+        console.log("Update");
+        
+        if (JSON.stringify(groupingResult.list) != JSON.stringify(this.list)) {
+            this.list = groupingResult.list;
+        }
+
+        if (JSON.stringify(groupingResult.groups) != JSON.stringify(this.groups)) {
+             this.groups = groupingResult.groups;
+        }
     }
 
     render(): TemplateResult<1> {
+        console.log("Render");
         return cardHtml(this);
     }
 

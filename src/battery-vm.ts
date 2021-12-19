@@ -1,5 +1,4 @@
 import { log, getColorInterpolationForPercentage, isNumber, safeGetArray } from "./utils";
-import { IAction } from "./action";
 import { HomeAssistant } from "custom-card-helpers";
 
 /**
