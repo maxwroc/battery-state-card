@@ -1,0 +1,51 @@
+name: Release Drafter
+
+on:
+  push:
+    # branches to consider in the event; optional, defaults to all
+    branches:
+      - master
+  # pull_request event is required only for autolabeler
+  # pull_request:
+  #   # Only following types are handled by the action, but one can default to all as well
+  #   types: [opened, reopened, synchronize]
+
+jobs:
+  update_release_draft:
+    runs-on: ubuntu-latest
+    steps:
+
+      # build files
+      - name: Checkout files
+        uses: actions/checkout@v2
+      - name: NodeJS setup
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+      - name: Installing dependencies
+        run: npm ci
+      - name: Build dev
+        run: npm run build
+      - name: Build release (minimized)
+        run: npm run release
+
+      # create release draft
+      - name: Create release draft
+        id: create_release
+        uses: release-drafter/release-drafter@v5
+        # (Optional) specify config name to use, relative to .github/. Default: release-drafter.yml
+        with:
+           config-name: release-config.yml
+           disable-autolabeler: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # upload release assets
+      - name: Upload release assets
+        run: |
+          find ./dist -type f -exec gh release upload --clobber ${{ env.VERSION }} {} +
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.create_release.outputs.tag_name }}
+          FILES: ./dist/*
