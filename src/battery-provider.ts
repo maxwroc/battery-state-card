@@ -1,7 +1,4 @@
-import BatteryViewModel from "./battery-vm";
-import { IBatteryStateCardConfig, IFilter, FilterOperator, IBatteryEntity, IHomeAssistantGroupProps, IBatteriesResultViewData, IGroupDataMap, IBatteryCard } from "./types";
-import { log, safeGetConfigObject } from "./utils";
-import { ActionFactory } from "./action";
+import { log } from "./utils";
 import { HomeAssistant } from "custom-card-helpers";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 
@@ -155,7 +152,7 @@ export class BatteryProvider {
      */
     private initialized: boolean = false;
 
-    constructor(private config: IBatteryCard) {
+    constructor(private config: IBatteryCardConfig) {
         this.include = config.filter?.include?.map(f => new Filter(f));
         this.exclude = config.filter?.exclude?.map(f => new Filter(f));
 
@@ -196,7 +193,7 @@ export class BatteryProvider {
     /**
      * Creates and returns new Battery View Model
      */
-    private createBattery(entityConfig: IBatteryEntity): IBatteryCollectionItem {
+    private createBattery(entityConfig: IBatteryEntityConfig): IBatteryCollectionItem {
         // assing card-level values if they were not defined on entity-level
         entititesGlobalProps
             .filter(p => (<any>entityConfig)[p] == undefined)
@@ -213,10 +210,10 @@ export class BatteryProvider {
      * Adds batteries based on entities from config.
      */
     private processExplicitEntities() {
-        let entities = (this.config.entities || []).map((entity: string | IBatteryEntity) => {
+        let entities = (this.config.entities || []).map((entity: string | IBatteryEntityConfig) => {
                 // check if it is just the id string
                 if (typeof (entity) === "string") {
-                    entity = <IBatteryEntity>{ entity: entity };
+                    entity = <IBatteryEntityConfig>{ entity: entity };
                 }
 
                 return entity;

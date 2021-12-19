@@ -1,7 +1,6 @@
-import { css, LitElement } from "lit";
+import { css } from "lit";
 import { property } from "lit/decorators.js"
 import { HomeAssistant } from "custom-card-helpers"
-import { IBatteryEntity } from "../types";
 import { getColorInterpolationForPercentage, isNumber, log, safeGetArray } from "../utils";
 import { IAction } from "../action";
 import { batteryHtml } from "./battery-state-entity.views";
@@ -19,7 +18,7 @@ const stringValuePattern = /\b([0-9]{1,3})\s?%/;
  */
 const colorPattern = /^#[A-Fa-f0-9]{6}$/;
 
-export class BatteryStateEntity extends LovelaceCard<IBatteryEntity> {
+export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
 
     @property({ attribute: false })
     public name: string;
@@ -59,7 +58,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntity> {
     }
 }
 
-const getName = (config: IBatteryEntity, hass: HomeAssistant | undefined): string => {
+const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined): string => {
     if (config.name) {
         return config.name;
     }
@@ -84,7 +83,7 @@ const getName = (config: IBatteryEntity, hass: HomeAssistant | undefined): strin
     return name;
 }
 
-const getSecondaryInfo = (config: IBatteryEntity, hass: HomeAssistant | undefined, isCharging: boolean): string | Date => {
+const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, isCharging: boolean): string | Date => {
     if (config.secondary_info) {
         if (config.secondary_info == "charging") {
             if (isCharging) {
@@ -109,7 +108,7 @@ const getSecondaryInfo = (config: IBatteryEntity, hass: HomeAssistant | undefine
     return <any>null;
 }
 
-const getLevel = (config: IBatteryEntity, hass?: HomeAssistant): string => {
+const getLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): string => {
     const UnknownLevel = hass?.localize("state.default.unknown") || "Unknown";
     let level: string;
 
@@ -172,7 +171,7 @@ const getLevel = (config: IBatteryEntity, hass?: HomeAssistant): string => {
     return level;
 }
 
-const getIcon = (config: IBatteryEntity, level: number, isCharging: boolean): string => {
+const getIcon = (config: IBatteryEntityConfig, level: number, isCharging: boolean): string => {
     if (isCharging && config.charging_state?.icon) {
         return config.charging_state.icon;
     }
@@ -196,7 +195,7 @@ const getIcon = (config: IBatteryEntity, level: number, isCharging: boolean): st
     }
 }
 
-const getIconColor = (config: IBatteryEntity, state: string, isCharging: boolean): string => {
+const getIconColor = (config: IBatteryEntityConfig, state: string, isCharging: boolean): string => {
 
     const defaultColor = "inherit";
     const level = Number(state);
@@ -220,7 +219,7 @@ const getIconColor = (config: IBatteryEntity, state: string, isCharging: boolean
 }
 
 
-const getChargingState = (config: IBatteryEntity, state: string, hass?: HomeAssistant): boolean => {
+const getChargingState = (config: IBatteryEntityConfig, state: string, hass?: HomeAssistant): boolean => {
     const chargingConfig = config.charging_state;
     if (!chargingConfig || !hass) {
         return false;

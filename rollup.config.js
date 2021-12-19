@@ -16,6 +16,7 @@ const plugins = [
   cssImports(),
   versionInjector({
     injectInComments: false,
+    logLevel: 'warn',
   })
 ];
 

@@ -1,5 +1,4 @@
 import { css, CSSResult, TemplateResult } from "lit"
-import { IBatteryCard } from "../types";
 import { LovelaceCard } from "./lovelace-card";
 import { property } from "lit/decorators.js";
 import { cardHtml } from "./battery-state-card.views";
@@ -9,7 +8,7 @@ import sharedStyles from "./shared.css"
 import cardStyles from "./battery-state-card.css"
 
 
-export class BatteryStateCard extends LovelaceCard<IBatteryCard> {
+export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
 
     @property({attribute: false})
     public header: string | undefined;
@@ -85,7 +84,7 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCard> {
     }
 }
 
-const getIdsOfSortedBatteries = (config: IBatteryCard, batteries: IBatteryCollection): string[] => {
+const getIdsOfSortedBatteries = (config: IBatteryCardConfig, batteries: IBatteryCollection): string[] => {
     let batteriesToSort = Object.keys(batteries).map(entityId => batteries[entityId]);
     switch (config.sort_by_level) {
         case "asc": 

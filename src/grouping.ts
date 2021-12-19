@@ -1,4 +1,3 @@
-import { ICollapsingGroupConfig, IGroupDataMap } from "./types"
 import { log } from "./utils";
 import { IBatteryCollection, IBatteryCollectionItem } from "./battery-provider";
 

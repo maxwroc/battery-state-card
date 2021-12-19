@@ -1,5 +1,4 @@
 import { HomeAssistant } from "custom-card-helpers";
-import { IActionConfig, IBatteryEntity, SupportedActions } from "./types"
 import { log } from "./utils";
 
 export interface IAction {
@@ -9,7 +8,7 @@ export interface IAction {
 interface IActionData {
     config: IActionConfig
     card: Node;
-    entity: IBatteryEntity
+    entity: IBatteryEntityConfig
 }
 
 const nameToFuncMap: { [key in SupportedActions]: (data: IActionData) => void } = {

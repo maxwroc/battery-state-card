@@ -1,4 +1,3 @@
-import { IBatteryEntity } from "./types";
 import { log, getColorInterpolationForPercentage, isNumber, safeGetArray } from "./utils";
 import { IAction } from "./action";
 import { HomeAssistant } from "custom-card-helpers";
@@ -35,7 +34,7 @@ class BatteryViewModel {
     /**
      * @param config Battery entity
      */
-    constructor(private config: IBatteryEntity, public action: IAction | null) {
+    constructor(private config: IBatteryEntityConfig, public action: IAction | null) {
         this._name = config.name || config.entity;
     }
 
