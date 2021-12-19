@@ -8,24 +8,42 @@ import sharedStyles from "./shared.css"
 import cardStyles from "./battery-state-card.css"
 
 
+/**
+ * Battery Card element
+ */
 export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
 
+    /**
+     * Card title
+     */
     @property({attribute: false})
     public header: string | undefined;
 
+    /**
+     * List of entity IDs to render (without group)
+     */
     @property({attribute:false})
     public list: string[] = [];
 
+    /**
+     * List of groups (containing list of entity IDs to render)
+     */
     @property({attribute: false})
     public groups: IBatteryGroup[] = [];
 
+    /**
+     * Battery elements generator class
+     */
     private batteryProvider: BatteryProvider;
 
     /**
-     * Not sorted nor groupped batteries
+     * Battery elements (all known, not sorted nor grouped)
      */
     public batteries: IBatteryCollection = {};
 
+    /**
+     * Card CSS styles
+     */
     static get styles(): CSSResult {
         return css(<any>[sharedStyles + cardStyles]);
     }
@@ -70,6 +88,10 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
      *
      * Home Assistant uses this to automatically distribute all cards over
      * the available columns. One is equal 50px.
+     * 
+     * Unfortunatelly this func is called only once when layout is being 
+     * rendered thus in case of dynamic number of entities (based on filters) 
+     * we cannot provide any reasonable estimation.
      */
      getCardSize() {
         let size = this.config.entities?.length || 1;
@@ -89,6 +111,12 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
     }
 }
 
+/**
+ * Sorts batteries by given criterias and returns their IDs
+ * @param config Card configuration
+ * @param batteries List of all known battery elements
+ * @returns List of battery IDs (batteries sorted by given criterias)
+ */
 const getIdsOfSortedBatteries = (config: IBatteryCardConfig, batteries: IBatteryCollection): string[] => {
     let batteriesToSort = Object.keys(batteries).map(entityId => batteries[entityId]);
     switch (config.sort_by_level) {
@@ -103,6 +131,12 @@ const getIdsOfSortedBatteries = (config: IBatteryCardConfig, batteries: IBattery
     return batteriesToSort.map(b => b.entityId!);
 } 
 
+/**
+ * Battery state comparer
+ * @param a Battery A
+ * @param b Battery B
+ * @returns Comparison result
+ */
 const compareBatteries = (a: string, b: string): number => {
     let aNum = Number(a);
     let bNum = Number(b);

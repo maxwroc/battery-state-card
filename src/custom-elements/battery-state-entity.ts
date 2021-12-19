@@ -14,37 +14,61 @@ import { handleAction } from "../action";
 const stringValuePattern = /\b([0-9]{1,3})\s?%/;
 
 /**
- * Valid HTML color pattern
+ * HTML color pattern
  */
-const colorPattern = /^#[A-Fa-f0-9]{6}$/;
+const htmlColorPattern = /^#[A-Fa-f0-9]{6}$/;
 
+/**
+ * Battery entity element
+ */
 export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
 
+    /**
+     * Name
+     */
     @property({ attribute: false })
     public name: string;
 
+    /**
+     * Secondary information displayed undreneath the name
+     */
     @property({ attribute: false })
     public secondaryInfo: string | Date;
 
+    /**
+     * Entity state / battery level
+     */
     @property({ attribute: false })
     public state: string;
 
+    /**
+     * Entity icon
+     */
     @property({ attribute: false })
     public icon: string;
 
+    /**
+     * Entity icon color
+     */
     @property({ attribute: false })
     public iconColor: string;
 
+    /**
+     * Tap action
+     */
     @property({ attribute: false })
     public action: IAction | undefined;
 
+    /**
+     * Entity CSS styles
+     */
     public static get styles() {
         return css(<any>[sharedStyles + entityStyles]);
     }
     
     internalUpdate(): void {
         this.name = getName(this.config, this.hass);
-        this.state = getLevel(this.config, this.hass);
+        this.state = getBatteryLevel(this.config, this.hass);
 
         const isCharging = getChargingState(this.config, this.state, this.hass);
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, isCharging);
@@ -68,6 +92,10 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         return batteryHtml(this);
     }
 
+    /**
+     * Adding or removing action
+     * @param enable Whether to enable/add the tap action
+     */
     private setupAction(enable: boolean = true) {
         if (enable) {
             if (this.config.tap_action && !this.action) {
@@ -94,6 +122,12 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     }
 }
 
+/**
+ * Battery name getter
+ * @param config Entity config
+ * @param hass HomeAssistant state object
+ * @returns Battery name
+ */
 const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined): string => {
     if (config.name) {
         return config.name;
@@ -119,6 +153,13 @@ const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined):
     return name;
 }
 
+/**
+ * Gets secondary info text
+ * @param config Entity config
+ * @param hass HomeAssistant state object
+ * @param isCharging Whther battery is in charging mode
+ * @returns Secondary info text
+ */
 const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, isCharging: boolean): string | Date => {
     if (config.secondary_info) {
         if (config.secondary_info == "charging") {
@@ -144,7 +185,13 @@ const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant | un
     return <any>null;
 }
 
-const getLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): string => {
+/**
+ * Getts battery level/state
+ * @param config Entity config
+ * @param hass HomeAssistant state object
+ * @returns Battery level
+ */
+const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): string => {
     const UnknownLevel = hass?.localize("state.default.unknown") || "Unknown";
     let level: string;
 
@@ -207,6 +254,13 @@ const getLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): string =>
     return level;
 }
 
+/**
+ * Gets MDI icon class
+ * @param config Entity config
+ * @param level Battery level/state
+ * @param isCharging Whether battery is in chargin mode
+ * @returns Mdi icon string
+ */
 const getIcon = (config: IBatteryEntityConfig, level: number, isCharging: boolean): string => {
     if (isCharging && config.charging_state?.icon) {
         return config.charging_state.icon;
@@ -231,10 +285,17 @@ const getIcon = (config: IBatteryEntityConfig, level: number, isCharging: boolea
     }
 }
 
-const getIconColor = (config: IBatteryEntityConfig, state: string, isCharging: boolean): string => {
+/**
+ * Gets icon color
+ * @param config Entity config
+ * @param batteryLevel Battery level/state
+ * @param isCharging Whether battery is in chargin mode
+ * @returns Icon color
+ */
+const getIconColor = (config: IBatteryEntityConfig, batteryLevel: string, isCharging: boolean): string => {
 
     const defaultColor = "inherit";
-    const level = Number(state);
+    const level = Number(batteryLevel);
 
     if (isCharging && config.charging_state?.color) {
         return config.charging_state.color;
@@ -254,7 +315,13 @@ const getIconColor = (config: IBatteryEntityConfig, state: string, isCharging: b
     return thresholds.find(th => level <= th.value)?.color || defaultColor;
 }
 
-
+/**
+ * Gets flag indicating charging mode
+ * @param config Entity config
+ * @param state Battery level/state
+ * @param hass HomeAssistant state object
+ * @returns Whether battery is in chargin mode
+ */
 const getChargingState = (config: IBatteryEntityConfig, state: string, hass?: HomeAssistant): boolean => {
     const chargingConfig = config.charging_state;
     if (!chargingConfig || !hass) {
@@ -295,6 +362,11 @@ const getChargingState = (config: IBatteryEntityConfig, state: string, hass?: Ho
     return statesIndicatingCharging.length == 0 ? !!state : statesIndicatingCharging.some(s => s == state);
 }
 
+/**
+ * Tests whether given color gradient elements are valid
+ * @param color_gradient Color gradient steps
+ * @returns Whether the given collection is valid
+ */
 const isColorGradientValid = (color_gradient: string[]) => {
     if (color_gradient.length < 2) {
         log("Value for 'color_gradient' should be an array with at least 2 colors.");
@@ -302,7 +374,7 @@ const isColorGradientValid = (color_gradient: string[]) => {
     }
 
     for (const color of color_gradient) {
-        if (!colorPattern.test(color)) {
+        if (!htmlColorPattern.test(color)) {
             log("Color '${color}' is not valid. Please provide valid HTML hex color in #XXXXXX format.");
             return false;
         }
