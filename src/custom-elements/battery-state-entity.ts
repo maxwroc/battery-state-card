@@ -48,8 +48,10 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntity> {
         this.state = getLevel(this.config, this.hass);
 
         const isCharging = getChargingState(this.config, this.state, this.hass);
+        this.secondaryInfo = getSecondaryInfo(this.config, this.hass, isCharging);
         this.icon = getIcon(this.config, Number(this.state), isCharging);
         this.iconColor = getIconColor(this.config, this.state, isCharging);
+
     }
 
     render() {
@@ -80,6 +82,31 @@ const getName = (config: IBatteryEntity, hass: HomeAssistant | undefined): strin
     });
 
     return name;
+}
+
+const getSecondaryInfo = (config: IBatteryEntity, hass: HomeAssistant | undefined, isCharging: boolean): string | Date => {
+    if (config.secondary_info) {
+        if (config.secondary_info == "charging") {
+            if (isCharging) {
+                return config.charging_state?.secondary_info_text || "Charging"; // todo: think about i18n
+            }
+
+            return <any>null;
+        }
+        else {
+            let val = config.secondary_info;
+
+            const entityData = hass?.states[config.entity];
+            if (entityData) {
+                val = (<any>entityData)[config.secondary_info] || entityData?.attributes[config.secondary_info] || config.secondary_info
+            }
+
+            const dateVal = Date.parse(val);
+            return isNaN(dateVal) ? val : new Date(dateVal);
+        }
+    }
+
+    return <any>null;
 }
 
 const getLevel = (config: IBatteryEntity, hass?: HomeAssistant): string => {
