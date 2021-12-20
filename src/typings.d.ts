@@ -229,7 +229,7 @@ interface IBatteryCardConfig {
     /**
      * Collapse after given number of entities
      */
-    collapse?: number | ICollapsingGroupConfig[];
+    collapse?: number | IGroupConfig[];
 
     /**
      * Filters for auto adding or removing entities
@@ -254,12 +254,13 @@ interface IGroupDataMap {
     [group_id: string]: IHomeAssistantGroupProps
 }
 
-interface ICollapsingGroupConfig {
+interface IGroupConfig {
     name?: string;
     secondary_info?: string;
     group_id?: string;
     entities?: string[];
     icon?: string;
+    icon_color?: string;
     min?: number;
     max?: number;
 }

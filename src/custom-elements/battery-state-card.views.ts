@@ -19,7 +19,7 @@ export const collapsableWrapper = (model: IBatteryGroup, batteries: IBatteryColl
     return html`
 <div class="expandWrapper entity-spacing">
     <div class="toggler" @click=${(e: MouseEvent) => (<HTMLElement>e.currentTarget).classList.toggle("expanded")}>
-        ${icon(model.icon, undefined)}
+        ${icon(model.icon, model.iconColor)}
         <div class="name truncate">
             ${model.title}
             ${secondaryInfo(model.secondaryInfo)}

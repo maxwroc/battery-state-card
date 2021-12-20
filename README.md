@@ -151,7 +151,8 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 |:-----|:-----|:-----|:-----|:-----|
 | name | string |  | v1.4.0 | Name of the group. Keywords available: `{min}`, `{max}`, `{count}`, `{range}`
 | secondary_info | string |  | v1.4.0 | Secondary info text, shown in the second line. Same keywords available as in `name`
-| icon | string |  | v1.4.0 | Group icon
+| icon | string |  | v1.4.0 | Group icon. It can be a static icon available in HA or dynamic one taken from one of the group items (`first`, `last`)
+| icon_color | string |  | v2.0.0 | Group icon color. It can be a static HTML (e.g. `#ff0000`) or dynamic (`first` or `last`) color value based on the battery colors in the group.
 | min | number |  | v1.4.0 | Minimal battery level. Batteries below that level won't be assigned to this group.
 | max | number |  | v1.4.0 | Maximal battery level. Batteries above that level won't be assigned to this group.
 ## Examples

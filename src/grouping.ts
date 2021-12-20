@@ -1,10 +1,12 @@
 import { log } from "./utils";
 import { IBatteryCollection, IBatteryCollectionItem } from "./battery-provider";
+import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 
 export interface IBatteryGroup {
     title?: string;
     secondaryInfo?: string;
     icon?: string;
+    iconColor?: string;
     batteryIds: string[];
 }
 
@@ -16,7 +18,7 @@ export interface IBatteryGroupResult {
 /**
  * Returns battery collections to render
  */
-export const getBatteryGroups = (batteries: IBatteryCollection, sortedIds: string[], config: number | ICollapsingGroupConfig[] | undefined, haGroupData: IGroupDataMap): IBatteryGroupResult => {
+export const getBatteryGroups = (batteries: IBatteryCollection, sortedIds: string[], config: number | IGroupConfig[] | undefined, haGroupData: IGroupDataMap): IBatteryGroupResult => {
     const result: IBatteryGroupResult = {
         list: [],
         groups: []
@@ -48,7 +50,7 @@ export const getBatteryGroups = (batteries: IBatteryCollection, sortedIds: strin
         });
     }
 
-    // update group name and secondary info / replace keywords with values
+    // do the post processing for dynamic values which depend on the group items
     result.groups.forEach(g => {
         if (g.title) {
             g.title = getEnrichedText(g.title, g, batteries);
@@ -57,6 +59,9 @@ export const getBatteryGroups = (batteries: IBatteryCollection, sortedIds: strin
         if (g.secondaryInfo) {
             g.secondaryInfo = getEnrichedText(g.secondaryInfo, g, batteries);
         }
+
+        g.icon = getIcon(g.icon, g.batteryIds, batteries);
+        g.iconColor = getIconColor(g.iconColor, g.batteryIds, batteries);
     });
 
     return result;
@@ -68,7 +73,7 @@ export const getBatteryGroups = (batteries: IBatteryCollection, sortedIds: strin
  * @param battery Batterry view model
  * @param haGroupData Home assistant group data
  */
-const getGroupIndex = (config: ICollapsingGroupConfig[], battery: IBatteryCollectionItem, haGroupData: IGroupDataMap): number => {
+const getGroupIndex = (config: IGroupConfig[], battery: IBatteryCollectionItem, haGroupData: IGroupDataMap): number => {
     return config.findIndex(group => {
 
         if (group.group_id && !haGroupData[group.group_id]?.entity_id?.some(id => battery.entityId == id)) {
@@ -89,7 +94,7 @@ const getGroupIndex = (config: ICollapsingGroupConfig[], battery: IBatteryCollec
  * Sets missing max/min fields.
  * @param config Collapsing groups config
  */
-var populateMinMaxFields = (config: ICollapsingGroupConfig[]): void => config.forEach(groupConfig => {
+var populateMinMaxFields = (config: IGroupConfig[]): void => config.forEach(groupConfig => {
     if (groupConfig.min == undefined) {
         groupConfig.min = 0;
     }
@@ -110,7 +115,7 @@ var populateMinMaxFields = (config: ICollapsingGroupConfig[]): void => config.fo
  * @param batteries Batterry view model
  * @param config Collapsing group config
  */
-const createGroup = (haGroupData: IGroupDataMap, batteryIds: string[], config?: ICollapsingGroupConfig): IBatteryGroup => {
+const createGroup = (haGroupData: IGroupDataMap, batteryIds: string[], config?: IGroupConfig): IBatteryGroup => {
 
     if (config?.group_id && !haGroupData[config.group_id]) {
         throw new Error("Group not found: " + config.group_id);
@@ -129,6 +134,7 @@ const createGroup = (haGroupData: IGroupDataMap, batteryIds: string[], config?: 
     return {
         title: name,
         icon: icon,
+        iconColor: config?.icon_color,
         batteryIds: batteryIds,
         secondaryInfo: config?.secondary_info
     }
@@ -158,4 +164,52 @@ const getEnrichedText = (text: string, group: IBatteryGroup, batteries: IBattery
     });
 
     return text;
+}
+
+const getIcon = (icon: string | undefined, batteryIdsInGroup: string[], batteries: IBatteryCollection): string | undefined => {
+    switch (icon) {
+        case "first":
+            if (batteryIdsInGroup.length > 0) {
+                icon = batteries[batteryIdsInGroup[0]].icon;
+            }
+            else {
+                icon = undefined;
+            }
+            break;
+        case "last":
+            if (batteryIdsInGroup.length > 0) {
+                const lastIndex = batteryIdsInGroup.length - 1;
+                icon = batteries[batteryIdsInGroup[lastIndex]].icon;
+            }
+            else {
+                icon = undefined;
+            }
+            break;
+    }
+
+    return icon;
+}
+
+const getIconColor = (iconColor: string | undefined, batteryIdsInGroup: string[], batteries: IBatteryCollection): string | undefined => {
+    switch (iconColor) {
+        case "first":
+            if (batteryIdsInGroup.length > 0) {
+                iconColor = batteries[batteryIdsInGroup[0]].iconColor;
+            }
+            else {
+                iconColor = undefined;
+            }
+            break;
+        case "last":
+            if (batteryIdsInGroup.length > 0) {
+                const lastIndex = batteryIdsInGroup.length - 1;
+                iconColor = batteries[batteryIdsInGroup[lastIndex]].iconColor;
+            }
+            else {
+                iconColor = undefined;
+            }
+            break;
+    }
+
+    return iconColor;
 }
