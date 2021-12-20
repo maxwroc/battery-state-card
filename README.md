@@ -41,7 +41,7 @@ If you want to update the card to v2 you need to be aware of few breaking change
 | type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-card` |
 | entity | string | **(required)** | v0.9.0 | Entity ID
 | name | string |  | v0.9.0 | Entity name override
-| icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one)
+| icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one). You can provide entity attribute name which contains icon class (e.g. `attribute.battery_icon` - it has to be prefixed with "attribute.")
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
 
