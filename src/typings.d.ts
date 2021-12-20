@@ -1,9 +1,9 @@
-import BatteryViewModel from "./battery-vm";
+declare module "*.css";
 
 /**
  * Color threshold
  */
-interface IColorThreshold {
+ interface IColorThreshold {
     /**
      * Value/threshold below which color should be applied
      */
@@ -18,12 +18,12 @@ interface IColorThreshold {
 /**
  * Supported action names
  */
-export type SupportedActions = "more-info" | "call-service" | "navigate" | "url";
+type SupportedActions = "more-info" | "call-service" | "navigate" | "url";
 
 /**
  * Action configuration (tapping/clicking)
  */
-export interface IActionConfig {
+interface IActionConfig {
     /**
      * Action to be performed
      */
@@ -120,12 +120,12 @@ type FilterGroups = "exclude" | "include";
 /**
  * Supprted filter operators
  */
-export type FilterOperator = "exists" | "=" | ">" | "<" | ">=" | "<=" | "contains" | "matches";
+type FilterOperator = "exists" | "=" | ">" | "<" | ">=" | "<=" | "contains" | "matches";
 
 /**
  * Filter object
  */
-export interface IFilter {
+interface IFilter {
     /**
      * Name of the entity property or attribute (attributes has to be prefixed with "attributes.")
      */
@@ -142,7 +142,7 @@ export interface IFilter {
     value: string | number;
 }
 
-export interface IBatteryEntity {
+interface IBatteryEntityConfig {
 
     /**
      * Entity ID
@@ -210,14 +210,11 @@ export interface IBatteryEntity {
     bulk_rename?: IConvert | IConvert[]
 }
 
-/**
- * Battery card root config
- */
-export interface IBatteryStateCardConfig extends IBatteryEntity  {
+interface IBatteryCardConfig {
     /**
      * List of entities to show in the card
      */
-    entities: IBatteryEntity[];
+    entities: IBatteryEntityConfig[];
 
     /**
      * Title of the card (header text)
@@ -232,50 +229,48 @@ export interface IBatteryStateCardConfig extends IBatteryEntity  {
     /**
      * Collapse after given number of entities
      */
-    collapse?: number | ICollapsingGroupConfig[];
+    collapse?: number | IGroupConfig[];
 
     /**
      * Filters for auto adding or removing entities
      */
     filter?: { [key in FilterGroups]: IFilter[] };
-
-    /**
-     * CSS code for the card
-     */
-    style: string;
 }
 
-export interface IHomeAssistantGroupProps {
+/**
+ * Battery card root config
+ */
+interface IBatteryStateCardConfig extends IBatteryCardConfig, IBatteryEntityConfig  {
+
+}
+
+interface IHomeAssistantGroupProps {
     entity_id: string[];
     friendly_name?: string;
     icon?: string;
 }
 
-export interface IGroupDataMap {
+interface IGroupDataMap {
     [group_id: string]: IHomeAssistantGroupProps
 }
 
-export interface ICollapsingGroupConfig {
+interface IGroupConfig {
     name?: string;
     secondary_info?: string;
     group_id?: string;
     entities?: string[];
     icon?: string;
+    icon_color?: string;
     min?: number;
     max?: number;
 }
 
-export interface IBatteryGroupViewData {
-    name?: string;
-    secondary_info?: string;
-    icon?: string;
-    iconColor?: string;
-    batteries: BatteryViewModel[]
+interface IAction {
+    (evt: Event): void
 }
 
-
-export interface IBatteriesResultViewData {
-    batteries: BatteryViewModel[];
-    groups: IBatteryGroupViewData[];
+interface IActionData {
+    config: IActionConfig
+    card: Node;
+    entityId: string
 }
-

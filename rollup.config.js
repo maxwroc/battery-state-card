@@ -1,8 +1,10 @@
 import typescript from '@rollup/plugin-typescript';
 import resolve from '@rollup/plugin-node-resolve';
+import cssImports from 'rollup-plugin-import-css';
 import minifyHTML from 'rollup-plugin-minify-html-literals';
 import serve from 'rollup-plugin-serve';
 import { terser } from 'rollup-plugin-terser';
+import versionInjector from 'rollup-plugin-version-injector';
 import pkg from './package.json';
 
 
@@ -11,6 +13,11 @@ let targetFileName = pkg.main;
 const plugins = [
   resolve(),
   minifyHTML(),
+  cssImports(),
+  versionInjector({
+    injectInComments: false,
+    logLevel: 'warn',
+  })
 ];
 
 if (process.env.ROLLUP_WATCH) {
@@ -45,12 +52,10 @@ if (process.env.RELEASE) {
 }
 
 export default {
-  external: ['lit-element'],
+  external: [],
   input: 'src/index.ts',
   output: {
-    globals: {
-      'lit-element': "LitElement"
-    },
+    globals: {},
     file: targetFileName,
     format: 'iife',
     sourcemap: true,

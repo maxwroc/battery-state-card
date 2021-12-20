@@ -14,28 +14,34 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 ![image](https://user-images.githubusercontent.com/8268674/80753326-fabd1280-8b24-11ea-8f90-4c934793f231.png)
 
+## Update to 2.X.X
+
+If you want to update the card to v2 you need to be aware of few breaking changes:
+* When you want to use it as entity (e.g. in `entities` card) you need to use differnt type: `custom:battery-state-entity` instead of `custom:battery-state-card`.
+* Custom styles are not supported any more
+
 ## Config
 
 ### Card config
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-card` |
+| type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-entity` |
 | entities | list([Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
 | title | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
 | collapse | number \| list([Group](#group-object)) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view)). Or list of entity/battery groups ([example](#battery-groups))
 | filter | [Filters](#filters) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
 | bulk_rename | list([Convert](#convert)) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
-| style | string |  | v1.4.0 | Extra CSS code to change/adjust the appearance ([example](#extra-styles))
 
 +[common options](#common-options) (if specified they will be apllied to all entities)
 
 ### Entity object
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
+| type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-card` |
 | entity | string | **(required)** | v0.9.0 | Entity ID
 | name | string |  | v0.9.0 | Entity name override
-| icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one)
+| icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one). You can provide entity attribute name which contains icon class (e.g. `attribute.battery_icon` - it has to be prefixed with "attribute.")
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
 
@@ -145,7 +151,8 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 |:-----|:-----|:-----|:-----|:-----|
 | name | string |  | v1.4.0 | Name of the group. Keywords available: `{min}`, `{max}`, `{count}`, `{range}`
 | secondary_info | string |  | v1.4.0 | Secondary info text, shown in the second line. Same keywords available as in `name`
-| icon | string |  | v1.4.0 | Group icon
+| icon | string |  | v1.4.0 | Group icon. It can be a static icon available in HA or dynamic one taken from one of the group items (`first`, `last`)
+| icon_color | string |  | v2.0.0 | Group icon color. It can be a static HTML (e.g. `#ff0000`) or dynamic (`first` or `last`) color value based on the battery colors in the group.
 | min | number |  | v1.4.0 | Minimal battery level. Batteries below that level won't be assigned to this group.
 | max | number |  | v1.4.0 | Maximal battery level. Batteries above that level won't be assigned to this group.
 ## Examples
@@ -172,6 +179,8 @@ Entity view is useful when you want to add battery status next to other sensors 
 
 ![image](https://user-images.githubusercontent.com/8268674/79758073-cff8e000-8314-11ea-94e0-2059460ec4ea.png)
 
+Note: there is a different `type` used.
+
 ```yaml
 type: entities
 title: Other
@@ -181,7 +190,7 @@ entities:
   - sensor.home_assistant_v2_db
   - sensor.hassio_online
   - sensor.last_boot
-  - type: custom:battery-state-card
+  - type: custom:battery-state-entity
     entity: sensor.temp_outside_battery_numeric
 ```
 
@@ -498,54 +507,6 @@ entities:
 
 ```
 
-### Extra styles
-
-You can add CSS code which can change the appearance of the card.
-
-Note: HTML code (including CSS class names) can change in next releases so your custom styles may require adjustments after card update.
-
-![image](https://user-images.githubusercontent.com/8268674/84653185-db2b4f00-af04-11ea-97a9-07f0dbb0800e.png)
-
-```yaml
-title: Glance view with custom CSS
-type: 'custom:battery-state-card'
-entities:
-  - group.all_battery_sensors
-sort_by_level: asc
-style: |
-  .card-content {
-    display: grid;
-    grid-template-columns: auto auto auto auto
-  }
-  .entity-row.entity-spacing {
-    margin: 8px 0;
-  }
-  .entity-row {
-    display: flex;
-    flex-direction: column;
-  }
-  .entity-row .name {
-    order: 1;
-    overflow: hidden;
-    width: 80px;
-    font-size: 12px
-  }
-  .entity-row.non-numeric-state .state {
-    display: none;
-  }
-  .entity-row:not(.non-numeric-state) .state {
-    position: absolute;
-    text-shadow: 1px 1px black;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 12px;
-    overflow: hidden;
-  }
-```
-
 ## Installation
 
 Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following to your lovelace configuration
@@ -575,12 +536,6 @@ npm run watch
 ```
 
 Note: there is "undocumented" `value_override` property on the [entity object](#entity-object) which you can use for testing.
-
-### Sending pull request
-
-When you send PR please remember to base your branch on:
-* `master` for bug-fixes
-* `vNext` for new features
 
 ## Do you like the card?
 

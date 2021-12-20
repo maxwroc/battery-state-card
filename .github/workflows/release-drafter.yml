@@ -25,9 +25,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Installing dependencies
         run: npm ci
-      - name: Build dev
-        run: npm run build
-      - name: Build release (minimized)
+      - name: Build release
         run: npm run release
 
       # create release draft

@@ -1,7 +1,5 @@
-import { HomeAssistant } from "./ha-types";
-
 console.info(
-    "%c BATTERY-STATE-CARD %c 1.6.4",
+    "%c BATTERY-STATE-CARD %c [VI]{version}[/VI]",
     "color: white; background: forestgreen; font-weight: 700;",
     "color: forestgreen; background: white; font-weight: 700;",
 );
@@ -84,33 +82,6 @@ export const safeGetArray = <T>(val: T | T[] | undefined): T[] => {
 
     return val ? [val] : [];
 };
-
-/**
- * Converts string to object with given property or returns the object if it is not a string
- * @param value Value from the config
- * @param propertyName Property name of the expected config object to which value will be assigned
- */
-export const safeGetConfigObject = <T>(value: string | T, propertyName: string): T => {
-
-    switch (typeof value) {
-        case "string":
-            const result = <any>{};
-            result[propertyName] = value;
-            return result;
-        case "object":
-            // make a copy as the original one is immutable
-            return { ...value };
-    }
-
-    return value;
-}
-
-/**
- * Prefixes all css selectors with given value.
- * @param containerCssPath Prefix to be added
- * @param styles Styles to process
- */
-export const processStyles = (containerCssPath: string, styles: string) => styles.replace(/([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g, match => `${containerCssPath} ${match}`);
 
 /**
  * Throttles given function calls. In given throttle time always the last arriving call is executed.

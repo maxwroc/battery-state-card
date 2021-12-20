@@ -15,6 +15,8 @@ categories:
       - 'chore'
       - 'documentation'
       - 'miscellaneous'
+exclude-labels:
+  - 'dependencies'
 change-template: '- $TITLE #$NUMBER (@$AUTHOR)'
 change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
 version-resolver:
