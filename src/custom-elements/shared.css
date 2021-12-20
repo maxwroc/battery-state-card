@@ -24,4 +24,5 @@
     text-align: center;
     line-height: 40px;
     margin-right: 10px;
+    color: var(--paper-item-icon-color)
 }
