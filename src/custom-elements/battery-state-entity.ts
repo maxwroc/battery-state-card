@@ -364,16 +364,16 @@ const getChargingState = (config: IBatteryEntityConfig, state: string, hass?: Ho
 
 /**
  * Tests whether given color gradient elements are valid
- * @param color_gradient Color gradient steps
+ * @param gradientColors Gradient color steps
  * @returns Whether the given collection is valid
  */
-const isColorGradientValid = (color_gradient: string[]) => {
-    if (color_gradient.length < 2) {
+const isColorGradientValid = (gradientColors: string[]) => {
+    if (gradientColors.length < 2) {
         log("Value for 'color_gradient' should be an array with at least 2 colors.");
         return;
     }
 
-    for (const color of color_gradient) {
+    for (const color of gradientColors) {
         if (!htmlColorPattern.test(color)) {
             log("Color '${color}' is not valid. Please provide valid HTML hex color in #XXXXXX format.");
             return false;
