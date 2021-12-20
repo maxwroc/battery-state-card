@@ -576,12 +576,6 @@ npm run watch
 
 Note: there is "undocumented" `value_override` property on the [entity object](#entity-object) which you can use for testing.
 
-### Sending pull request
-
-When you send PR please remember to base your branch on:
-* `master` for bug-fixes
-* `vNext` for new features
-
 ## Do you like the card?
 
 If you do like the card please star it on [github](https://github.com/maxwroc/battery-state-card)! This is a great way to give feedback and motivation boost for me to continue working on it. Thanks!
