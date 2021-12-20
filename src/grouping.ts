@@ -31,7 +31,10 @@ export const getBatteryGroups = (batteries: IBatteryCollection, sortedIds: strin
 
     if (typeof config == "number") {
         result.list = sortedIds.slice(0, config);
-        result.groups.push(createGroup(haGroupData, sortedIds.slice(config)));
+        const remainingBatteries = sortedIds.slice(config);
+        if (remainingBatteries.length > 0) {
+            result.groups.push(createGroup(haGroupData, remainingBatteries));
+        }
     }
     else {// make sure that max property is set for every group
         populateMinMaxFields(config);
