@@ -72,7 +72,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
 
         const isCharging = getChargingState(this.config, this.state, this.hass);
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, isCharging);
-        this.icon = getIcon(this.config, Number(this.state), isCharging);
+        this.icon = getIcon(this.config, Number(this.state), isCharging, this.hass);
         this.iconColor = getIconColor(this.config, this.state, isCharging);
     }
 
@@ -259,14 +259,27 @@ const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): st
  * @param config Entity config
  * @param level Battery level/state
  * @param isCharging Whether battery is in chargin mode
+ * @param hass HomeAssistant state object
  * @returns Mdi icon string
  */
-const getIcon = (config: IBatteryEntityConfig, level: number, isCharging: boolean): string => {
+const getIcon = (config: IBatteryEntityConfig, level: number, isCharging: boolean, hass: HomeAssistant | undefined): string => {
     if (isCharging && config.charging_state?.icon) {
         return config.charging_state.icon;
     }
 
     if (config.icon) {
+        const attribPrefix = "attribute.";
+        if (hass && config.icon.startsWith(attribPrefix)) {
+            const attribName = config.icon.substr(attribPrefix.length);
+            const val = hass.states[config.entity].attributes[attribName] as string | undefined;
+            if (!val) {
+                log(`Icon attribute missing in '${config.entity}' entity`, "error");
+                return config.icon;
+            }
+
+            return val;
+        }
+
         return config.icon;
     }
 
