@@ -1,7 +1,7 @@
 import { css } from "lit";
 import { property } from "lit/decorators.js"
 import { HomeAssistant } from "custom-card-helpers"
-import { getColorInterpolationForPercentage, isNumber, log, safeGetArray } from "../utils";
+import { getColorInterpolationForPercentage, isNumber, log, safeGetArray, safeGetConfigObject } from "../utils";
 import { batteryHtml } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
@@ -103,7 +103,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
                     evt.stopPropagation();
                     handleAction({
                         card: this,
-                        config: this.config.tap_action!,
+                        config: safeGetConfigObject(this.config.tap_action!, "action"),
                         entityId: this.config.entity,
                     }, this.hass!);
                 }
