@@ -1,0 +1,31 @@
+name: Release Drafter
+
+on:
+  workflow_dispatch:on:
+  push:
+    # run on every push to master
+    branches:
+      - master
+  pull_request:
+    # only PR for master
+    branches:
+      - master
+
+jobs:
+  continous_integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v2
+      - name: NodeJS setup
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+      - name: Installing dependencies
+        run: npm ci
+      # run on release build as this is the final code user gets
+      - name: Build release
+        run: npm run release
+      - name: Test
+        run: npm run test
