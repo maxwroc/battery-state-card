@@ -1,4 +1,4 @@
-name: Release Drafter
+name: Continous integration
 
 on:
   workflow_dispatch:
