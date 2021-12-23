@@ -27,7 +27,32 @@ export const entityElements = (card: BatteryStateEntity) => {
     return {
         icon: () => card.shadowRoot?.querySelector("ha-icon")?.getAttribute("icon"),
         name: () => card.shadowRoot?.querySelector(".name")?.textContent?.trim(),
+        secondaryInfo: () => card.shadowRoot?.querySelector(".secondary")?.textContent?.trim(),
     }
+}
+
+
+
+export const createEntityElement = async (config: IBatteryEntityConfig, hass: HomeAssistant) => {
+    const myCard = <BatteryStateEntity>document.createElement("battery-state-entity");
+
+    myCard.setConfig(config);
+    myCard.hass = hass;
+
+    document.body.appendChild(myCard);
+
+    await myCard.cardUpdated;
+
+    return myCard;
+}
+
+/**
+ * Removing all existing elements
+ */
+export const testCleanUp = () => {
+    ["battery-state-card", "battery-state-entity"].forEach(cardTagName => Array
+        .from(document.body.getElementsByTagName(cardTagName))
+        .forEach(elem => elem.remove()));
 }
 
 
