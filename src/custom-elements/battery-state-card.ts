@@ -2,7 +2,7 @@ import { css, CSSResult, TemplateResult } from "lit"
 import { LovelaceCard } from "./lovelace-card";
 import { property } from "lit/decorators.js";
 import { cardHtml } from "./battery-state-card.views";
-import { BatteryProvider, IBatteryCollection, IBatteryCollectionItem } from "../battery-provider";
+import { BatteryProvider, IBatteryCollection } from "../battery-provider";
 import { getBatteryGroups, IBatteryGroup } from "../grouping";
 import sharedStyles from "./shared.css"
 import cardStyles from "./battery-state-card.css"
