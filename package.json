@@ -32,7 +32,6 @@
     ],
     "verbose": false,
     "setupFilesAfterEnv": [
-      "<rootDir>/dist/battery-state-card.js"
     ],
     "globals": {
       "ts-jest": {
