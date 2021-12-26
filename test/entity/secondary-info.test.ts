@@ -2,8 +2,7 @@ import { createEntityElement, entityElements, getEntityConfig, getHassMock, test
 
 describe("secondary info", () => {
 
-    test("custom text", (done) => {
+    test("custom text", async () => {
         expect(2).toBe(2);
-        done();
     });
 })
