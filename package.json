@@ -25,11 +25,14 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "runner": "@jest-runner/electron",
+    "testEnvironment": "@jest-runner/electron/environment",
     "testMatch": [
       "**/test/**/*.test.ts"
     ],
     "verbose": false,
     "setupFilesAfterEnv": [
+      "<rootDir>/dist/battery-state-card.js"
     ],
     "globals": {
       "ts-jest": {
@@ -38,6 +41,7 @@
     }
   },
   "devDependencies": {
+    "@jest-runner/electron": "^3.0.1",
     "@rollup/plugin-node-resolve": "^13.1.1",
     "@rollup/plugin-typescript": "^8.3.0",
     "@types/jest": "^27.0.3",
