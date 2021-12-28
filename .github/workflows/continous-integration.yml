@@ -2,10 +2,6 @@ name: Continous integration
 
 on:
   workflow_dispatch:
-  push:
-    # run on every push to master
-    branches:
-      - master
   pull_request:
     # only PR for master
     branches:
@@ -24,8 +20,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Installing dependencies
         run: npm ci
-      # run on release build as this is the final code user gets
-      - name: Build release
+      - name: Build
         run: npm run build
       - name: Test
         run: npm run test
