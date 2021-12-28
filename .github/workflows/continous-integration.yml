@@ -9,7 +9,7 @@ on:
 
 jobs:
   continous_integration:
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout files
         uses: actions/checkout@v2
