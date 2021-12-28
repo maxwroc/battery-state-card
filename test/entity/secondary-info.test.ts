@@ -1,15 +1,10 @@
-import { createEntityElement, entityElements, getEntityConfig, getHassMock, testCleanUp } from "../helpers"
+import { createEntityElement, entityElements, getEntityConfig, getHassMock } from "../helpers";
 
-describe("secondary info", () => {
+test("Secondary info custom text", async () => {
+    const entity = await createEntityElement(
+        getEntityConfig({ secondary_info: "my info text" }), 
+        getHassMock());
+    const accessors = entityElements(entity);
 
-    afterEach(testCleanUp);
-
-    test("custom text", async () => {
-        const entity = await createEntityElement(
-            getEntityConfig({ secondary_info: "my info text" }), 
-            getHassMock());
-        const accessors = entityElements(entity);
-
-        expect(accessors.secondaryInfo()).toBe("my info text");
-    });
-})
+    expect(accessors.secondaryInfo()).toBe("my info text");
+});

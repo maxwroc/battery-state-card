@@ -55,6 +55,7 @@ export const testCleanUp = () => {
         .forEach(elem => elem.remove()));
 }
 
+afterEach(testCleanUp);
 
 interface IEntityAttributes {
     friendly_name?: string;
