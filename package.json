@@ -20,7 +20,7 @@
     "build": "rollup -c",
     "release": "rollup --environment RELEASE -c",
     "watch": "rollup -c --watch",
-    "test": "jest",
+    "test": "jest --runInBand",
     "test+debug": "SET DEBUG_MODE=1&&jest"
   },
   "jest": {
@@ -30,13 +30,13 @@
     "testMatch": [
       "**/test/**/*.test.ts"
     ],
-    "verbose": false,
+    "verbose": true,
     "setupFilesAfterEnv": [
       "<rootDir>/dist/battery-state-card.js"
     ],
     "globals": {
       "ts-jest": {
-        "isolatedModules": false
+        "isolatedModules": true
       }
     }
   },
