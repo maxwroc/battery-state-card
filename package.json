@@ -20,7 +20,7 @@
     "build": "rollup -c",
     "release": "rollup --environment RELEASE -c",
     "watch": "rollup -c --watch",
-    "test": "jest --runInBand",
+    "test": "jest",
     "test+debug": "SET DEBUG_MODE=1&&jest"
   },
   "jest": {
