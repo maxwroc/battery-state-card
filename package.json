@@ -47,7 +47,6 @@
     "@types/jest": "^27.0.3",
     "electron": "^16.0.5",
     "jest": "^24.9.0",
-    "jest-electron": "^0.1.12",
     "rollup": "^2.61.1",
     "rollup-plugin-import-css": "^3.0.2",
     "rollup-plugin-minify-html-literals": "^1.2.6",
