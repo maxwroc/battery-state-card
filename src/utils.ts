@@ -1,4 +1,4 @@
-console.info(
+export const printVersion = () => console.info(
     "%c BATTERY-STATE-CARD %c [VI]{version}[/VI]",
     "color: white; background: forestgreen; font-weight: 700;",
     "color: forestgreen; background: white; font-weight: 700;",
