@@ -30,7 +30,7 @@
     "testMatch": [
       "**/test/**/*.test.ts"
     ],
-    "verbose": true,
+    "verbose": false,
     "setupFilesAfterEnv": [
       "<rootDir>/dist/battery-state-card.js"
     ],
