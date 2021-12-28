@@ -1,4 +1,4 @@
-import { createEntityElement, entityElements, getEntityConfig, getHassMock } from "./helpers";
+import { createEntityElement, entityElements, getEntityConfig, getHassMock } from "../helpers";
 
 test.each([
     [95, "mdi:battery"],

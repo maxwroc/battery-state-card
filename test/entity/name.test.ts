@@ -1,4 +1,4 @@
-import { createEntityElement, entityElements, getEntityConfig, getHassMock } from "./helpers";
+import { createEntityElement, entityElements, getEntityConfig, getHassMock } from "../helpers";
 
 test("Static name", async () => {
     const config = getEntityConfig();

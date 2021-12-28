@@ -1,4 +1,4 @@
-import { createEntityElement, entityElements, getEntityConfig, getHassMock } from "./helpers";
+import { createEntityElement, entityElements, getEntityConfig, getHassMock } from "../helpers";
 
 test("Secondary info custom text", async () => {
     const entity = await createEntityElement(
