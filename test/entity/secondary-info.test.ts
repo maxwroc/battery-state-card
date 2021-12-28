@@ -1,17 +1,31 @@
-import { createEntityElement, entityElements, getEntityConfig, getHassMock, testCleanUp } from "../helpers"
+import { createEntityElement, entityElements, getEntityConfig, getHassMock, testCleanUp } from "../helpers";
 
-describe("secondary info", () => {
+describe("Icon", () => {
 
-    beforeEach(() => console.log("beforeEach"));
+    afterEach(testCleanUp);
+    
+    test.each([
+        [95, "mdi:battery"],
+        [94, "mdi:battery-90"],
+        [49, "mdi:battery-50"],
+        [10, "mdi:battery-10"],
+        [5, "mdi:battery-10"],
+        [4, "mdi:battery-outline"],
+        [0, "mdi:battery-outline"],
+    ])("dynamic name", async (state: number, expectedIcon: string) => {
+        const entity = await createEntityElement(getEntityConfig(), getHassMock(state));
+        const accessors = entityElements(entity);
+        
+        expect(accessors.icon()).toBe(expectedIcon);
+    });
 
-    afterEach(() => console.log("afterEach"));
+    test("static name", async () => {
+        const config = getEntityConfig();
+        config.icon = "mdi:custom-icon";
 
-    beforeAll(() => console.log("beforeAll"));
-    afterAll(() => console.log("afterAll"));
-
-    test("custom text", async () => {
-        console.log("test start");
-        expect(2).toBe(2);
-        console.log("test end");
+        const entity = await createEntityElement(config, getHassMock());
+        const accessors = entityElements(entity);
+        
+        expect(accessors.icon()).toBe("mdi:custom-icon");
     });
 })
