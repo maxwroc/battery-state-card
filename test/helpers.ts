@@ -50,7 +50,6 @@ export const createEntityElement = async (config: IBatteryEntityConfig, hass: Ho
  * Removing all existing elements
  */
 export const testCleanUp = () => {
-    console.log("wefewwwwwwwwwwww");
     ["battery-state-card", "battery-state-entity"].forEach(cardTagName => Array
         .from(document.body.getElementsByTagName(cardTagName))
         .forEach(elem => elem.remove()));

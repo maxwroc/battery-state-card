@@ -1,6 +1,6 @@
-import { createEntityElement, entityElements, getEntityConfig, getHassMock, testCleanUp } from "../helpers";
+import { createEntityElement, entityElements, getEntityConfig, getHassMock } from "../helpers";
 
-test("static name", async () => {
+test("Static name", async () => {
     const config = getEntityConfig();
     config.icon = "mdi:custom-icon";
 
