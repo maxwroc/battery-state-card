@@ -129,7 +129,7 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
     }
 
     convertoToEntityId(input: string) {
-        return input.toLocaleLowerCase().replace(/-\s/g, "_")
+        return input.toLocaleLowerCase().replace(/[-\s]/g, "_")
     }
 }
 

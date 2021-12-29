@@ -1,4 +1,4 @@
-import { css, CSSResult, TemplateResult } from "lit"
+import { css, CSSResult, html, TemplateResult } from "lit"
 import { LovelaceCard } from "./lovelace-card";
 import { property } from "lit/decorators.js";
 import { cardHtml } from "./battery-state-card.views";
@@ -80,6 +80,11 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
     }
 
     render(): TemplateResult<1> {
+        if (this.list.length == 0 && this.groups.length == 0) {
+            // if there are no entities to show we don't want to render anything
+            return html``;
+        }
+
         return cardHtml(this);
     }
 
