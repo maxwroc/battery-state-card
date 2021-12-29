@@ -7,11 +7,11 @@ import { throttledCall } from "../src/utils";
 /**
  * Removing all custome elements
  */
-afterEach(() => {
-    ["battery-state-card", "battery-state-entity"].forEach(cardTagName => Array
-        .from(document.body.getElementsByTagName(cardTagName))
-        .forEach(elem => elem.remove()));
-});
+// afterEach(() => {
+//     ["battery-state-card", "battery-state-entity"].forEach(cardTagName => Array
+//         .from(document.body.getElementsByTagName(cardTagName))
+//         .forEach(elem => elem.remove()));
+// });
 
 export class CardElements {
     constructor(private card: BatteryStateCard) {
@@ -129,7 +129,7 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
     }
 
     convertoToEntityId(input: string) {
-        return input.toLocaleLowerCase().replace(/-\s/g, "_")
+        return input.toLocaleLowerCase().replace(/[-\s]/g, "_")
     }
 }
 
