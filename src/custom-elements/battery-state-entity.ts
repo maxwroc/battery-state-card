@@ -66,7 +66,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         return css(<any>[sharedStyles + entityStyles]);
     }
     
-    internalUpdate(): void {
+    async internalUpdate() {
         this.name = getName(this.config, this.hass);
         this.state = getBatteryLevel(this.config, this.hass);
 

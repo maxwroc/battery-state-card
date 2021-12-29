@@ -39,8 +39,8 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
      * in the same execution path. We want to throttle such updates and handle just 
      * the last one.
      */
-    private triggerUpdate = throttledCall(() => {
-        this.internalUpdate(this.configUpdated, this.hassUpdated);
+    private triggerUpdate = throttledCall(async () => {
+        await this.internalUpdate(this.configUpdated, this.hassUpdated);
         this.configUpdated = false;
         this.hassUpdated = false;
         this.updateNotifyQueue.forEach(n => n());
@@ -86,7 +86,7 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
      * @param config Whether config has been updated since the last call
      * @param hass Whetther hass has been updated since the last call
      */
-    abstract internalUpdate(config: boolean, hass:boolean): void;
+    abstract internalUpdate(config: boolean, hass:boolean): Promise<void>;
 
     abstract render(): TemplateResult<1>;
 }
