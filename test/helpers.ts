@@ -1,67 +1,137 @@
 import { HomeAssistant } from "custom-card-helpers";
+import { BatteryStateCard } from "../src/custom-elements/battery-state-card";
 import { BatteryStateEntity } from "../src/custom-elements/battery-state-entity";
-
-
-export const getHassMock = (state = 89, attributes: IEntityAttributes = <any>{}): HomeAssistant => <any>{
-    states: {
-        "sensor.remote_battery_level": {
-            state: state,
-            attributes: {
-                friendly_name: "Battery entity",
-                ...attributes
-            }
-        }
-    },
-    localize: jest.fn((key: string) => `[${key}]`)
-};
-
-export const getEntityConfig = (overrides: IBatteryEntityConfigOverrides = <any>{}) => {
-    return <IBatteryEntityConfig>{
-        entity: "sensor.remote_battery_level",
-        ...<any>overrides
-    }
-}
-
-
-export const entityElements = (card: BatteryStateEntity) => {
-    return {
-        icon: () => card.shadowRoot?.querySelector("ha-icon")?.getAttribute("icon"),
-        name: () => card.shadowRoot?.querySelector(".name")?.textContent?.trim(),
-        secondaryInfo: () => card.shadowRoot?.querySelector(".secondary")?.textContent?.trim(),
-    }
-}
-
-
-
-export const createEntityElement = async (config: IBatteryEntityConfig, hass: HomeAssistant) => {
-    const myCard = <BatteryStateEntity>document.createElement("battery-state-entity");
-
-    myCard.setConfig(config);
-    myCard.hass = hass;
-
-    document.body.appendChild(myCard);
-
-    await myCard.cardUpdated;
-
-    return myCard;
-}
+import { LovelaceCard } from "../src/custom-elements/lovelace-card";
+import { throttledCall } from "../src/utils";
 
 /**
- * Removing all existing elements
+ * Removing all custome elements
  */
-export const testCleanUp = () => {
+afterEach(() => {
     ["battery-state-card", "battery-state-entity"].forEach(cardTagName => Array
         .from(document.body.getElementsByTagName(cardTagName))
         .forEach(elem => elem.remove()));
+});
+
+export class CardElements {
+    constructor(private card: BatteryStateCard) {
+
+    }
+
+    get header() {
+        return this.card.shadowRoot?.querySelector(".card-header .truncate")?.textContent?.trim();
+    }
+
+    get itemsCount() {
+        return this.card.shadowRoot!.querySelectorAll(".card-content > * > battery-state-entity").length;
+    }
+
+    item(index: number) {
+        const entity = this.card.shadowRoot!.querySelectorAll<BatteryStateEntity>(".card-content > * > battery-state-entity")[index];
+        if (!entity) {
+            throw new Error("Card element not found: " + index);
+        }
+
+        return new EntityElements(entity);
+    }
 }
 
-afterEach(testCleanUp);
+export class EntityElements {
+    constructor(private card: BatteryStateEntity) {
+
+    }
+
+    get icon() {
+        return this.card.shadowRoot?.querySelector("ha-icon")?.getAttribute("icon")
+    }
+
+    get name() {
+        return this.card.shadowRoot?.querySelector(".name")?.textContent?.trim();
+    }
+
+    get secondaryInfo() {
+        return this.card.shadowRoot?.querySelector(".secondary")?.textContent?.trim();
+    }
+}
+
+
+export class HomeAssistantMock<T extends LovelaceCard<any>> {
+
+    private cards: LovelaceCard<any>[] = [];
+
+    private hass: HomeAssistant = <any>{
+        states: {},
+        localize: jest.fn((key: string) => `[${key}]`)
+    };
+
+    private throttledUpdate = throttledCall(() => {
+        this.cards.forEach(c => c.hass = this.hass);
+    }, 0)
+
+    addCard<K extends LovelaceCard<T>>(type: string, config: extractGeneric<T>): T {
+        const elementName = type.replace("custom:", "");
+
+        if (customElements.get(elementName) === undefined) {
+            throw new Error("Card definition not found: " + elementName);
+        }
+
+        const card = <T>document.createElement(elementName);
+        card.setConfig(config as T);
+        card.hass = this.hass;
+
+        document.body.appendChild(card);
+        this.cards.push(card);
+
+        return card;
+    }
+
+    addEntity(name: string, state?: string, attribs?: IEntityAttributes) {
+        const entity = {
+            entity_id: this.convertoToEntityId(name),
+            state: state || "",
+            attributes: {
+                friendly_name: name,
+                ...attribs
+            },
+            last_changed: "",
+            last_updated: "",
+            context: {
+                id: "",
+                user_id: null
+            },
+            setState: (state: string) => {
+                this.hass.states[entity.entity_id].state = state;
+
+                this.throttledUpdate();
+                return entity;
+            },
+            setAttributes: (attribs: IEntityAttributes) => {
+                this.hass.states[entity.entity_id].attributes = {
+                    ...this.hass.states[entity.entity_id].attributes,
+                    ...attribs
+                };
+
+                this.throttledUpdate();
+                return entity;
+            }
+        };
+
+        this.hass.states[entity.entity_id] = entity;
+
+        return entity
+    }
+
+    convertoToEntityId(input: string) {
+        return input.toLocaleLowerCase().replace(/-\s/g, "_")
+    }
+}
+
+type extractGeneric<Type> = Type extends LovelaceCard<infer X> ? X : never
+
 
 interface IEntityAttributes {
+    [key: string]: string | number | undefined;
     friendly_name?: string;
-    [key: string]: any;
-}
-
-interface IBatteryEntityConfigOverrides extends Omit<IBatteryEntityConfig, "entity"> {
-    entity?: string;
+    battery_level?: string;
+    device_class?: string;
 }
