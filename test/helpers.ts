@@ -52,6 +52,13 @@ export class EntityElements {
     get secondaryInfo() {
         return this.card.shadowRoot?.querySelector(".secondary")?.textContent?.trim();
     }
+
+    get state() {
+        return this.card.shadowRoot?.querySelector(".state")
+            ?.textContent
+            ?.trim()
+            .replace(String.fromCharCode(160), " "); // replace non breakable space
+    }
 }
 
 
@@ -85,7 +92,7 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
         return card;
     }
 
-    addEntity(name: string, state?: string, attribs?: IEntityAttributes) {
+    addEntity(name: string, state?: string, attribs?: IEntityAttributes): IEntityMock {
         const entity = {
             entity_id: this.convertoToEntityId(name),
             state: state || "",
@@ -134,4 +141,10 @@ interface IEntityAttributes {
     friendly_name?: string;
     battery_level?: string;
     device_class?: string;
+}
+
+interface IEntityMock {
+    readonly entity_id: string;
+    setState(state: string): IEntityMock;
+    setAttributes(attribs: IEntityAttributes): IEntityMock;
 }
