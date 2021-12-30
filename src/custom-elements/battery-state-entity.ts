@@ -235,6 +235,7 @@ const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): st
         }
     }
 
+    // trying to extract value from string e.g. "34 %"
     if (!isNumber(level)) {
         const match = stringValuePattern.exec(level);
         if (match != null) {
@@ -242,11 +243,16 @@ const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): st
         }
     }
 
-    if (config.multiplier && isNumber(level)) {
-        level = (config.multiplier * Number(level)).toString();
-    }
+    if (isNumber(level)) {
+        if (config.multiplier) {
+            level = (config.multiplier * Number(level)).toString();
+        }
 
-    if (!isNumber(level)) {
+        if (typeof config.round === "number") {
+            level = parseFloat(level).toFixed(config.round).toString();
+        }
+    }
+    else {
         // capitalize first letter
         level = level.charAt(0).toUpperCase() + level.slice(1);
     }
