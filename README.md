@@ -60,6 +60,7 @@ These options can be specified both per-entity and at the top level (affecting a
 | charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
 | secondary_info | string |  | v1.3.0 | Secondary info text. It can be a custom text, attribute name or state property name e.g. `charging`, `last_changed`, `"My battery"`. ([example](#secondary-info))
 | round | number |  | v2.1.0 | Rounds the value to number of fractional digits
+| unit | string | `%` | v2.1.0 | Override for unit displayed next to the state/level value ([example](#other-use-cases))
 
 ### Threshold object
 
@@ -507,6 +508,33 @@ entities:
     name: No action
     value_override: 80
 
+```
+
+### Other use cases
+
+![image](https://user-images.githubusercontent.com/8268674/147777101-c6f8a299-a03e-4792-a92c-8477b03d1941.png)
+
+```yaml
+type: custom:battery-state-card
+title: Link quality
+sort_by_level: asc
+color_gradient:
+  - '#ff0000'
+  - '#ffff00'
+  - '#00ff00'
+icon: mdi:signal
+unit: lqi
+entities:
+  - entity: sensor.bathroom_motion_signal
+    name: Bathroom motion sensor
+  - entity: sensor.bedroom_balcony_signal
+    name: Bedroom balkony door sensor
+  - entity: sensor.bedroom_motion_signal
+    name: Bedroom motion sensor
+  - entity: sensor.bedroom_switch_signal
+    name: Bedroom Aqara switch
+  - entity: sensor.bedroomtemp_signal
+    name: Bedroom temp. sensor
 ```
 
 ## Installation

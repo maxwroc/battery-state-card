@@ -42,6 +42,12 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     public state: string;
 
     /**
+     * Unit
+     */
+    @property({ attribute: false })
+    public unit: string | undefined;
+
+    /**
      * Entity icon
      */
     @property({ attribute: false })
@@ -69,6 +75,12 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     async internalUpdate() {
         this.name = getName(this.config, this.hass);
         this.state = getBatteryLevel(this.config, this.hass);
+        if (isNumber(this.state)) {
+            this.unit = String.fromCharCode(160) + (this.config.unit || "%");
+        }
+        else {
+            this.unit = undefined;
+        }
 
         const isCharging = getChargingState(this.config, this.state, this.hass);
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, isCharging);

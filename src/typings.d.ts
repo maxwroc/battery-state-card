@@ -212,7 +212,12 @@ interface IBatteryEntityConfig {
     /**
      * Rules for renaming entities/batteries
      */
-    bulk_rename?: IConvert | IConvert[]
+    bulk_rename?: IConvert | IConvert[];
+
+    /**
+     * Override for unit shown next to the value
+     */
+    unit?: string;
 }
 
 interface IBatteryCardConfig {

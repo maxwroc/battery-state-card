@@ -1,6 +1,5 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { html } from "lit";
-import { isNumber } from "../utils";
 import { BatteryStateEntity } from "./battery-state-entity";
 
 export const secondaryInfo = (text?: string) => text && html`
@@ -29,6 +28,6 @@ ${icon(model.icon, model.iconColor)}
     ${typeof(model.secondaryInfo) == "string" ? secondaryInfo(model.secondaryInfo) : secondaryInfoTime(model.hass, model.secondaryInfo)}
 </div>
 <div class="state">
-    ${model.state}${isNumber(model.state) ? html`&nbsp;%` : ""}
+    ${model.state}${model.unit}
 </div>
 `;
