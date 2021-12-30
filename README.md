@@ -59,6 +59,7 @@ These options can be specified both per-entity and at the top level (affecting a
 | state_map | list([Convert](#convert))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
 | charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
 | secondary_info | string |  | v1.3.0 | Secondary info text. It can be a custom text, attribute name or state property name e.g. `charging`, `last_changed`, `"My battery"`. ([example](#secondary-info))
+| round | number |  | v2.1.0 | Rounds the value to number of fractional digits
 
 ### Threshold object
 

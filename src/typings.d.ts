@@ -170,6 +170,11 @@ interface IBatteryEntityConfig {
     multiplier?: number;
 
     /**
+     * When specified it rounds the value to number of fractional digits
+     */
+    round?: number;
+
+    /**
      * Action to be performed when entity is tapped/clicked
      */
     tap_action?: IActionConfig;

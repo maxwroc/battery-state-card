@@ -4,8 +4,8 @@ import { CardElements, HomeAssistantMock } from "../helpers";
 test("Include filter via entity_id", async () => {
 
     const hass = new HomeAssistantMock<BatteryStateCard>();
-    const motionSensor = hass.addEntity("Bedroom motion battery level", "90");
-    const tempSensor = hass.addEntity("Temp sensor battery level", "50");
+    hass.addEntity("Bedroom motion battery level", "90");
+    hass.addEntity("Temp sensor battery level", "50");
 
     const cardElem = hass.addCard("battery-state-card", {
         title: "Header",
@@ -32,8 +32,8 @@ test("Include filter via entity_id", async () => {
 test("Include via entity_id and exclude via state - empty result", async () => {
 
     const hass = new HomeAssistantMock<BatteryStateCard>();
-    const motionSensor = hass.addEntity("Bedroom motion battery level", "90");
-    const tempSensor = hass.addEntity("Temp sensor battery level", "50");
+    hass.addEntity("Bedroom motion battery level", "90");
+    hass.addEntity("Temp sensor battery level", "50");
 
     const cardElem = hass.addCard("battery-state-card", {
         title: "Header",
