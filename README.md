@@ -575,6 +575,14 @@ If you do like the card please star it on [github](https://github.com/maxwroc/ba
 
 This project is under the [MIT license](https://github.com/maxwroc/battery-state-card/blob/master/LICENSE).
 
+## Automatic notifications about low battery levels
+
+It is not possible to do such a thing from the card level. If you want to get automatic notifications/alerts you can use the blueprint shared by sbyx:
+
+https://my.home-assistant.io/create-link/?redirect=blueprint_import&blueprint_url=https%3A%2F%2Fgist.github.com%2Fsbyx%2F1f6f434f0903b872b84c4302637d0890
+
+Click on "copy url" button and paste it in your browser. If you have configured my.home-assistant.io already you should be redirected to the page in your HA where you can review the blueprint code and add it. Once you add it you can create automation based on it.
+
 ## My other HA related repos
 [github-flexi-card](https://github.com/maxwroc/github-flexi-card) | [homeassistant-config](https://github.com/maxwroc/homeassistant) | [lovelace-card-boilerplate](https://github.com/maxwroc/lovelace-card-boilerplate)
 
