@@ -137,7 +137,7 @@ type extractGeneric<Type> = Type extends LovelaceCard<infer X> ? X : never
 
 
 interface IEntityAttributes {
-    [key: string]: string | number | undefined;
+    [key: string]: any;
     friendly_name?: string;
     battery_level?: string;
     device_class?: string;

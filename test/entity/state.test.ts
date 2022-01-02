@@ -70,3 +70,24 @@ test("State with string value", async () => {
     
     expect(entity.state).toBe("Charging");
 });
+
+test.each([
+    ["High", "Good"],
+    ["Low", "Low"]
+])("State map with string values as target", async (state: string, expectedState: string) => {
+    const hass = new HomeAssistantMock<BatteryStateEntity>();
+    const sensor = hass.addEntity("Motion sensor battery level", state);
+    const cardElem = hass.addCard("battery-state-entity", {
+        entity: sensor.entity_id,
+        state_map: [
+            { from: "High", to: "Good" },
+            { from: "Low", to: "Low" }
+        ]
+    });
+    
+    await cardElem.cardUpdated;
+
+    const entity = new EntityElements(cardElem);
+    
+    expect(entity.state).toBe(expectedState);
+});

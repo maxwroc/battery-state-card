@@ -376,10 +376,10 @@ const getChargingState = (config: IBatteryEntityConfig, state: string, hass?: Ho
     // check if we should take the state from attribute
     if (attributesLookup.length != 0) {
         // take first attribute name which exists on entity
-        const exisitngAttrib = attributesLookup.find(attr => entityWithChargingState.attributes[attr.name] != undefined);
+        const exisitngAttrib = attributesLookup.find(attr => getValueFromJsonPath(entityWithChargingState.attributes, attr.name) !== undefined);
         if (exisitngAttrib) {
-            return exisitngAttrib.value != undefined ?
-                entityWithChargingState.attributes[exisitngAttrib.name] == exisitngAttrib.value :
+            return exisitngAttrib.value !== undefined ?
+                getValueFromJsonPath(entityWithChargingState.attributes, exisitngAttrib.name) == exisitngAttrib.value :
                 true;
         }
         else {
@@ -412,4 +412,22 @@ const isColorGradientValid = (gradientColors: string[]) => {
     }
 
     return true;
+}
+
+/**
+ * Returns value from given object and the path
+ * @param data Data
+ * @param path JSON path
+ * @returns Value from the path
+ */
+const getValueFromJsonPath = (data: any, path: string) => {
+    if (data === undefined) {
+        return data;
+    }
+
+    path.split(".").forEach(chunk => {
+        data = data ? data[chunk] : undefined;
+    });
+
+    return data;
 }
