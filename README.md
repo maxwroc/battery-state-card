@@ -145,7 +145,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 
 | Name | Type | Default | Description |
 |:-----|:-----|:-----|:-----|
-| name | string | **(required)** | Name of the attribute
+| name | string | **(required)** | Name of the attribute. If the charging info is in an object use the path e.g. "charger.is_charging"
 | value | string |  | Value of the attribute
 
 ### Group object
