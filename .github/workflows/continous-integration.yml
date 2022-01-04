@@ -6,6 +6,7 @@ on:
     # only PR for master
     branches:
       - master
+      - next
 
 jobs:
   continous_integration:

@@ -13,13 +13,13 @@ test("State updates", async () => {
 
     const entity = new EntityElements(cardElem);
     
-    expect(entity.state).toBe("80 %");
+    expect(entity.stateText).toBe("80 %");
 
     sensor.setState("50");
 
     await cardElem.cardUpdated;
 
-    expect(entity.state).toBe("50 %");
+    expect(entity.stateText).toBe("50 %");
 });
 
 test.each([
@@ -39,7 +39,7 @@ test.each([
 
     const entity = new EntityElements(cardElem);
     
-    expect(entity.state).toBe(expectedState);
+    expect(entity.stateText).toBe(expectedState);
 });
 
 test("State with custom unit", async () => {
@@ -54,7 +54,7 @@ test("State with custom unit", async () => {
 
     const entity = new EntityElements(cardElem);
     
-    expect(entity.state).toBe("80 lqi");
+    expect(entity.stateText).toBe("80 lqi");
 });
 
 test("State with string value", async () => {
@@ -68,7 +68,7 @@ test("State with string value", async () => {
 
     const entity = new EntityElements(cardElem);
     
-    expect(entity.state).toBe("Charging");
+    expect(entity.stateText).toBe("Charging");
 });
 
 test.each([
@@ -89,5 +89,5 @@ test.each([
 
     const entity = new EntityElements(cardElem);
     
-    expect(entity.state).toBe(expectedState);
+    expect(entity.stateText).toBe(expectedState);
 });

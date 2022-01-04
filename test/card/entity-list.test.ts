@@ -49,6 +49,6 @@ test("Entities as objects with custom settings", async () => {
     const card = new CardElements(cardElem);
 
     expect(card.itemsCount).toBe(2);
-    expect(card.item(0).name).toBe("Entity 1");
-    expect(card.item(1).name).toBe("Entity 2");
+    expect(card.item(0).nameText).toBe("Entity 1");
+    expect(card.item(1).nameText).toBe("Entity 2");
 });

@@ -15,6 +15,11 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 ![image](https://user-images.githubusercontent.com/8268674/80753326-fabd1280-8b24-11ea-8f90-4c934793f231.png)
 
+## Update to v3.X.X
+
+* Secondary info lasy_updated / last_changed values. Now these values has to be in curly braces e.g. `secondary_info: "{last_updated}"`
+* Secondary info charging indication. Now the value has to be in curly braces e.g. `secondary_info: "{charging}"`
+
 ## Update to 2.X.X
 
 If you want to update the card to v2 you need to be aware of few breaking changes:
@@ -58,9 +63,30 @@ These options can be specified both per-entity and at the top level (affecting a
 | tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
 | state_map | list([Convert](#convert))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
 | charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
-| secondary_info | string |  | v1.3.0 | Secondary info text. It can be a custom text, attribute name or state property name e.g. `charging`, `last_changed`, `"My battery"`. ([example](#secondary-info))
+| secondary_info | [KString](#keyword-string-kstring) |  | v3.0.0 | Secondary info text. It can be a custom text with keywords (dynamic values) ([example](#secondary-info))
 | round | number |  | v2.1.0 | Rounds the value to number of fractional digits
-| unit | string | `%` | v2.1.0 | Override for unit displayed next to the state/level value ([example](#other-use-cases))
+| unit | string | `"%"` | v2.1.0 | Override for unit displayed next to the state/level value ([example](#other-use-cases))
+
+### Keyword string (KString)
+
+This is a string value containing dynamic values. Data for dynamic values can be taken from entity properties, its attributes, other entity state/attributes, etc.
+
+| Type | Example | Description |
+|:-----|:-----|:-----|
+| Charging state | `"{charging}"` | Shows text specified in [ChargingState](#charging-state-object)
+| Entity property | `"{last_updated}"` | Current entity property. To show relative time there cannot be any additional string befor/after the keyword otherwise it will show full date.
+| Entity attributes | `"Remaining time: {attributes.remaining_time}"` | Current entity attribute value.
+| Other entity data | `"Since last charge: {sensor.tesla.attributes.distance}"` | You can use full "path" to the other entity data
+
+Keywords support simple functions to convert the values
+
+| Func | Example | Description |
+|:-----|:-----|:-----|
+| round(\[number\]) | `"{state\|round(2)}"` | Rounds the value to number of fractional digits. E.g. if state is 20.617 the output will be 20.62.
+| replace(\[old_string\]=\[new_string\]) | `"{attributes.friendly_name\|replace(Battery level=)}"` | Simple replace. E.g. if name contains "Battery level" string then it will be removed
+
+You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:=)|replace(%=)|round()} %"` and the end result will be "27 %"
+
 
 ### Threshold object
 
@@ -139,7 +165,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | attribute | list([Attribute](#attribute-object)) |  | v1.2.0 | List of attribute name-values indicating charging in progress
 | state | list(any) |  | v1.1.0 | List of values indicating charging in progress
 | icon | string |  | v1.1.0 | Icon to show when charging is in progress
-| secondary_info_text | string |  | v1.1.0 | Text to be shown when battery is charging. To show it you need to have `secondary_info: charging` property set on entity. ([example](#secondary-info))
+| secondary_info_text | string |  | v1.1.0 | Text to be shown when battery is charging. To show it you need to have `secondary_info: "{charging}"` property set on entity. ([example](#secondary-info))
 
 ### Attribute object
 
@@ -457,7 +483,7 @@ entities:
   - entity: sensor.bedroom_motion_battery_level
     name: "Bedroom motion sensor"
   - entity: sensor.mi_robrock
-    secondary_info: charging # only appears when charging is detected
+    secondary_info: "{charging}" # only appears when charging is detected
     charging_state:
       attribute:
         name: "is_charging"
@@ -554,10 +580,14 @@ resources:
 ```
 
 ## Development
+<details>
+  <summary>Click to expand</summary>
+
 ```shell
 npm install
 npm run build
 ```
+
 Bundeled transpiled code will appear in `dist` directory.
 
 For automatic compilation on detected changes use:
@@ -565,7 +595,26 @@ For automatic compilation on detected changes use:
 npm run watch
 ```
 
+The `watch` script starts web server exposing dist dir so you can reference the local file in your HA via the following:
+
+```yaml
+lovelace:
+  resources:
+    - url: http://127.0.0.1:5501/dist/battery-state-card.js
+      type: module
+```
+
 Note: there is "undocumented" `value_override` property on the [entity object](#entity-object) which you can use for testing.
+
+### Testing 
+
+```shell
+npm run test
+```
+
+Tests in `card` and `entity` directory are e2e tests and run in Electron (headless) browser. All the other tests run in node env (hence they are much faster).
+
+</details>
 
 ## Do you like the card?
 

@@ -284,3 +284,7 @@ interface IActionData {
     card: Node;
     entityId: string
 }
+
+interface IMap<T> {
+    [key: string]: T;
+}

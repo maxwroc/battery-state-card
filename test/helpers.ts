@@ -41,19 +41,23 @@ export class EntityElements {
 
     }
 
-    get icon() {
+    get iconName() {
         return this.card.shadowRoot?.querySelector("ha-icon")?.getAttribute("icon")
     }
 
-    get name() {
+    get nameText() {
         return this.card.shadowRoot?.querySelector(".name")?.textContent?.trim();
     }
 
     get secondaryInfo() {
-        return this.card.shadowRoot?.querySelector(".secondary")?.textContent?.trim();
+        return this.card.shadowRoot?.querySelector(".secondary");
     }
 
-    get state() {
+    get secondaryInfoText() {
+        return this.secondaryInfo?.textContent?.trim();
+    }
+
+    get stateText() {
         return this.card.shadowRoot?.querySelector(".state")
             ?.textContent
             ?.trim()
@@ -66,14 +70,20 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
 
     private cards: LovelaceCard<any>[] = [];
 
-    private hass: HomeAssistant = <any>{
+    public hass: HomeAssistant = <any>{
         states: {},
         localize: jest.fn((key: string) => `[${key}]`)
     };
 
     private throttledUpdate = throttledCall(() => {
         this.cards.forEach(c => c.hass = this.hass);
-    }, 0)
+    }, 0);
+
+    constructor(disableCardUpdates?: boolean) {
+        if (disableCardUpdates) {
+            this.throttledUpdate = () => {};
+        }
+    }
 
     addCard<K extends LovelaceCard<T>>(type: string, config: extractGeneric<T>): T {
         const elementName = type.replace("custom:", "");
@@ -92,9 +102,9 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
         return card;
     }
 
-    addEntity(name: string, state?: string, attribs?: IEntityAttributes): IEntityMock {
+    addEntity(name: string, state?: string, attribs?: IEntityAttributes, domain?: string): IEntityMock {
         const entity = {
-            entity_id: this.convertoToEntityId(name),
+            entity_id: this.convertoToEntityId(name, domain),
             state: state || "",
             attributes: {
                 friendly_name: name,
@@ -120,6 +130,14 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
 
                 this.throttledUpdate();
                 return entity;
+            },
+            setLastUpdated: (val: string) => {
+                entity.last_updated = val;
+                this.throttledUpdate();
+            },
+            setLastChanged: (val: string) => {
+                entity.last_changed = val;
+                this.throttledUpdate();
             }
         };
 
@@ -128,8 +146,8 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
         return entity
     }
 
-    convertoToEntityId(input: string) {
-        return input.toLocaleLowerCase().replace(/[-\s]/g, "_")
+    convertoToEntityId(input: string, domain?: string) {
+        return (domain ? domain + "." : "") + input.toLocaleLowerCase().replace(/[-\s]/g, "_");
     }
 }
 
@@ -147,4 +165,6 @@ interface IEntityMock {
     readonly entity_id: string;
     setState(state: string): IEntityMock;
     setAttributes(attribs: IEntityAttributes): IEntityMock;
+    setLastUpdated(val: string): void;
+    setLastChanged(val: string): void;
 }
