@@ -41,19 +41,23 @@ export class EntityElements {
 
     }
 
-    get icon() {
+    get iconName() {
         return this.card.shadowRoot?.querySelector("ha-icon")?.getAttribute("icon")
     }
 
-    get name() {
+    get nameText() {
         return this.card.shadowRoot?.querySelector(".name")?.textContent?.trim();
     }
 
     get secondaryInfo() {
-        return this.card.shadowRoot?.querySelector(".secondary")?.textContent?.trim();
+        return this.card.shadowRoot?.querySelector(".secondary");
     }
 
-    get state() {
+    get secondaryInfoText() {
+        return this.secondaryInfo?.textContent?.trim();
+    }
+
+    get stateText() {
         return this.card.shadowRoot?.querySelector(".state")
             ?.textContent
             ?.trim()

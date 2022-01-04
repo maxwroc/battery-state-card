@@ -1,6 +1,6 @@
-import { BatteryStateEntity } from "../src/custom-elements/battery-state-entity";
-import { RichStringProcessor } from "../src/rich-string-processor"
-import { HomeAssistantMock } from "./helpers"
+import { BatteryStateEntity } from "../../src/custom-elements/battery-state-entity";
+import { RichStringProcessor } from "../../src/rich-string-processor"
+import { HomeAssistantMock } from "../helpers"
 
 describe("RichStringProcessor", () => {
     test.each([

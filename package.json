@@ -46,11 +46,7 @@
       {
         "preset": "ts-jest",
         "testMatch": [
-          "<rootDir>/test/**/*.test.ts"
-        ],
-        "modulePathIgnorePatterns": [
-          "<rootDir>/test/card/",
-          "<rootDir>/test/entity/"
+          "<rootDir>/test/other/**/*.test.ts"
         ],
         "verbose": false,
         "globals": {

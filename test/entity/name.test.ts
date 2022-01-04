@@ -12,7 +12,7 @@ test("Name taken from friendly_name attribute", async () => {
 
     const entity = new EntityElements(cardElem);
     
-    expect(entity.name).toBe("Motion sensor battery level");
+    expect(entity.nameText).toBe("Motion sensor battery level");
 });
 
 test("Name taken from config override", async () => {
@@ -27,5 +27,5 @@ test("Name taken from config override", async () => {
 
     const entity = new EntityElements(cardElem);
     
-    expect(entity.name).toBe("Static name");
+    expect(entity.nameText).toBe("Static name");
 });

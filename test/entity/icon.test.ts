@@ -21,7 +21,7 @@ test.each([
 
     const entity = new EntityElements(cardElem);
 
-    expect(entity.icon).toBe(expectedIcon);
+    expect(entity.iconName).toBe(expectedIcon);
 });
 
 test("Static icon", async () => {
@@ -36,7 +36,7 @@ test("Static icon", async () => {
 
     const entity = new EntityElements(cardElem);
 
-    expect(entity.icon).toBe("mdi:static");
+    expect(entity.iconName).toBe("mdi:static");
 });
 
 // ################# Charging state #################
@@ -67,7 +67,7 @@ test.each([
 
     const entity = new EntityElements(cardElem);
 
-    expect(entity.icon).toBe(expectedIcon);
+    expect(entity.iconName).toBe(expectedIcon);
 });
 
 test("Static charging icon", async () => {
@@ -88,7 +88,7 @@ test("Static charging icon", async () => {
 
     const entity = new EntityElements(cardElem);
 
-    expect(entity.icon).toBe("mdi:static-charging-icon");
+    expect(entity.iconName).toBe("mdi:static-charging-icon");
 });
 
 test("Charging state taken from object set as attribute", async () => {
@@ -109,5 +109,5 @@ test("Charging state taken from object set as attribute", async () => {
 
     const entity = new EntityElements(cardElem);
 
-    expect(entity.icon).toBe("mdi:static-charging-icon");
+    expect(entity.iconName).toBe("mdi:static-charging-icon");
 });

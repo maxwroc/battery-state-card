@@ -69,7 +69,7 @@ This is a string value containing dynamic values. Data for dynamic values can be
 | Type | Example | Description |
 |:-----|:-----|:-----|
 | Charging state | `"{charging}"` | Shows text specified in [ChargingState](#charging-state-object)
-| Entity property | `"{last_updated}"` | Current entity property. To show relative time you cannot be any additional string befor/after the keyword otherwise it will show full date.
+| Entity property | `"{last_updated}"` | Current entity property. To show relative time there cannot be any additional string befor/after the keyword otherwise it will show full date.
 | Entity attributes | `"Remaining time: {attributes.remaining_time}"` | Current entity attribute value.
 | Other entity data | `"Since last charge: {sensor.tesla.attributes.distance}"` | You can use full "path" to the other entity data
 
@@ -607,7 +607,7 @@ Note: there is "undocumented" `value_override` property on the [entity object](#
 npm run test
 ```
 
-Tests in `card` and `entity` directory are e2e tests and run in Electron (headless) browser. All the others run in node env (hence they are much faster).
+Tests in `card` and `entity` directory are e2e tests and run in Electron (headless) browser. All the other tests run in node env (hence they are much faster).
 
 </details>
 
