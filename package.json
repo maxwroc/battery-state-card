@@ -30,8 +30,8 @@
         "runner": "jest-electron/runner",
         "testEnvironment": "jest-electron/environment",
         "testMatch": [
-          "**/test/card/**/*.test.ts",
-          "**/test/entity/**/*.test.ts"
+          "<rootDir>/test/card/**/*.test.ts",
+          "<rootDir>/test/entity/**/*.test.ts"
         ],
         "verbose": false,
         "setupFilesAfterEnv": [
@@ -46,7 +46,11 @@
       {
         "preset": "ts-jest",
         "testMatch": [
-          "**/test/*.test.ts"
+          "<rootDir>/test/**/*.test.ts"
+        ],
+        "modulePathIgnorePatterns": [
+          "<rootDir>/test/card/",
+          "<rootDir>/test/entity/"
         ],
         "verbose": false,
         "globals": {

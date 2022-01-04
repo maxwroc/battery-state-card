@@ -554,10 +554,14 @@ resources:
 ```
 
 ## Development
+<details>
+  <summary>Click to expand</summary>
+
 ```shell
 npm install
 npm run build
 ```
+
 Bundeled transpiled code will appear in `dist` directory.
 
 For automatic compilation on detected changes use:
@@ -565,7 +569,26 @@ For automatic compilation on detected changes use:
 npm run watch
 ```
 
+The `watch` script starts web server exposing dist dir so you can reference the local file in your HA via the following:
+
+```yaml
+lovelace:
+  resources:
+    - url: http://127.0.0.1:5501/dist/battery-state-card.js
+      type: module
+```
+
 Note: there is "undocumented" `value_override` property on the [entity object](#entity-object) which you can use for testing.
+
+### Testing 
+
+```shell
+npm run test
+```
+
+Tests in `card` and `entity` directory are e2e tests and run in Electron (headless) browser. All the others run in node env (hence they are much faster).
+
+</details>
 
 ## Do you like the card?
 
