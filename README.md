@@ -58,9 +58,30 @@ These options can be specified both per-entity and at the top level (affecting a
 | tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
 | state_map | list([Convert](#convert))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
 | charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
-| secondary_info | string |  | v1.3.0 | Secondary info text. It can be a custom text, attribute name or state property name e.g. `charging`, `last_changed`, `"My battery"`. ([example](#secondary-info))
+| secondary_info | [KString](#keyword-string-kstring) |  | v3.0.0 | Secondary info text. It can be a custom text with keywords (dynamic values) ([example](#secondary-info))
 | round | number |  | v2.1.0 | Rounds the value to number of fractional digits
-| unit | string | `%` | v2.1.0 | Override for unit displayed next to the state/level value ([example](#other-use-cases))
+| unit | string | `"%"` | v2.1.0 | Override for unit displayed next to the state/level value ([example](#other-use-cases))
+
+### Keyword string (KString)
+
+This is a string value containing dynamic values. Data for dynamic values can be taken from entity properties, its attributes, other entity state/attributes, etc.
+
+| Type | Example | Description |
+|:-----|:-----|:-----|
+| Charging state | `"{charging}"` | Shows text specified in [ChargingState](#charging-state-object)
+| Entity property | `"{last_updated}"` | Current entity property. To show relative time you cannot be any additional string befor/after the keyword otherwise it will show full date.
+| Entity attributes | `"Remaining time: {attributes.remaining_time}"` | Current entity attribute value.
+| Other entity data | `"Since last charge: {sensor.tesla.attributes.distance}"` | You can use full "path" to the other entity data
+
+Keywords support simple functions to convert the values
+
+| Func | Example | Description |
+|:-----|:-----|:-----|
+| round(\[number\]) | `"{state\|round(2)}"` | Rounds the value to number of fractional digits. E.g. if state is 20.617 the output will be 20.62.
+| replace(\[search_string\]=[]) | `"{attributes.friendly_name\|replace(Battery level=)}"` | Simple replace. E.g. if name contains "Battery level" string then it will be removed
+
+You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:=)|replace(%=)|round()} %"` and the end result will be "27 %"
+
 
 ### Threshold object
 
