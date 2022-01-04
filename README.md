@@ -15,6 +15,11 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 ![image](https://user-images.githubusercontent.com/8268674/80753326-fabd1280-8b24-11ea-8f90-4c934793f231.png)
 
+## Update to v3.X.X
+
+* Secondary info lasy_updated / last_changed values. Now these values has to be in curly braces e.g. `secondary_info: "{last_updated}"`
+* Secondary info charging indication. Now the value has to be in curly braces e.g. `secondary_info: "{charging}"`
+
 ## Update to 2.X.X
 
 If you want to update the card to v2 you need to be aware of few breaking changes:
@@ -78,7 +83,7 @@ Keywords support simple functions to convert the values
 | Func | Example | Description |
 |:-----|:-----|:-----|
 | round(\[number\]) | `"{state\|round(2)}"` | Rounds the value to number of fractional digits. E.g. if state is 20.617 the output will be 20.62.
-| replace(\[search_string\]=[]) | `"{attributes.friendly_name\|replace(Battery level=)}"` | Simple replace. E.g. if name contains "Battery level" string then it will be removed
+| replace(\[old_string\]=\[new_string\]) | `"{attributes.friendly_name\|replace(Battery level=)}"` | Simple replace. E.g. if name contains "Battery level" string then it will be removed
 
 You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:=)|replace(%=)|round()} %"` and the end result will be "27 %"
 
