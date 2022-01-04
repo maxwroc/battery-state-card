@@ -139,7 +139,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | attribute | list([Attribute](#attribute-object)) |  | v1.2.0 | List of attribute name-values indicating charging in progress
 | state | list(any) |  | v1.1.0 | List of values indicating charging in progress
 | icon | string |  | v1.1.0 | Icon to show when charging is in progress
-| secondary_info_text | string |  | v1.1.0 | Text to be shown when battery is charging. To show it you need to have `secondary_info: charging` property set on entity. ([example](#secondary-info))
+| secondary_info_text | string |  | v1.1.0 | Text to be shown when battery is charging. To show it you need to have `secondary_info: "{charging}"` property set on entity. ([example](#secondary-info))
 
 ### Attribute object
 
@@ -457,7 +457,7 @@ entities:
   - entity: sensor.bedroom_motion_battery_level
     name: "Bedroom motion sensor"
   - entity: sensor.mi_robrock
-    secondary_info: charging # only appears when charging is detected
+    secondary_info: "{charging}" # only appears when charging is detected
     charging_state:
       attribute:
         name: "is_charging"
