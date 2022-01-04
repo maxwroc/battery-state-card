@@ -7,6 +7,7 @@ import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
 import entityStyles from "./battery-state-entity.css";
 import { handleAction } from "../action";
+import { RichStringProcessor } from "../rich-string-processor";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
@@ -174,24 +175,14 @@ const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined):
  */
 const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, isCharging: boolean): string | Date => {
     if (config.secondary_info) {
-        if (config.secondary_info == "charging") {
-            if (isCharging) {
-                return config.charging_state?.secondary_info_text || "Charging"; // todo: think about i18n
-            }
+        const processor = new RichStringProcessor(hass, config.entity, {
+            "charging": isCharging ? (config.charging_state?.secondary_info_text || "Charging") : "" // todo: think about i18n
+        });
 
-            return <any>null;
-        }
-        else {
-            let val = config.secondary_info;
+        let result = processor.process(config.secondary_info);
 
-            const entityData = hass?.states[config.entity];
-            if (entityData) {
-                val = (<any>entityData)[config.secondary_info] || entityData?.attributes[config.secondary_info] || config.secondary_info
-            }
-
-            const dateVal = Date.parse(val);
-            return isNaN(dateVal) ? val : new Date(dateVal);
-        }
+        const dateVal = Date.parse(result);
+        return isNaN(dateVal) ? result : new Date(dateVal);
     }
 
     return <any>null;

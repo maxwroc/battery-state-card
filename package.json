@@ -24,21 +24,38 @@
     "test+debug": "SET DEBUG_MODE=1&&jest"
   },
   "jest": {
-    "preset": "ts-jest",
-    "runner": "jest-electron/runner",
-    "testEnvironment": "jest-electron/environment",
-    "testMatch": [
-      "**/test/**/*.test.ts"
-    ],
-    "verbose": false,
-    "setupFilesAfterEnv": [
-      "<rootDir>/dist/battery-state-card.js"
-    ],
-    "globals": {
-      "ts-jest": {
-        "isolatedModules": true
+    "projects": [
+      {
+        "preset": "ts-jest",
+        "runner": "jest-electron/runner",
+        "testEnvironment": "jest-electron/environment",
+        "testMatch": [
+          "**/test/card/**/*.test.ts",
+          "**/test/entity/**/*.test.ts"
+        ],
+        "verbose": false,
+        "setupFilesAfterEnv": [
+          "<rootDir>/dist/battery-state-card.js"
+        ],
+        "globals": {
+          "ts-jest": {
+            "isolatedModules": true
+          }
+        }
+      },
+      {
+        "preset": "ts-jest",
+        "testMatch": [
+          "**/test/*.test.ts"
+        ],
+        "verbose": false,
+        "globals": {
+          "ts-jest": {
+            "isolatedModules": true
+          }
+        }
       }
-    }
+    ]
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.1.2",
