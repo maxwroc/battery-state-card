@@ -33,7 +33,7 @@ If you want to update the card to v2 you need to be aware of few breaking change
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-entity` |
-| entities | list([Entity](#entity-object) \| string) | **(required)** | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
+| entities | list([Entity](#entity-object) \| string) |  | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
 | title | string |  | v0.9.0 | Card title
 | sort | list([Sort](#sort-object) \| string) |  | v3.0.0 | Sets the sorting options
 | collapse | number \| list([Group](#group-object)) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view)). Or list of entity/battery groups ([example](#battery-groups))
