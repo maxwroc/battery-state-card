@@ -37,6 +37,12 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
     return thresholds.find(th => level <= th.value!)?.color || defaultColor;
 }
 
+/**
+ * Gets color for given battery level (smooth transition between step colors)
+ * @param config Color steps
+ * @param level Battery level
+ * @returns Hex HTML color
+ */
 const getGradientColors = (config: IColorSteps[], level: number): string => {
 
     let simpleList = config.map(s => s.color);
@@ -74,8 +80,14 @@ const getGradientColors = (config: IColorSteps[], level: number): string => {
     return getColorInterpolationForPercentage(simpleList, level);
 }
 
+/**
+ * Default color (inherited color)
+ */
 const defaultColor = "inherit";
 
+/**
+ * Default step values
+ */
 const defaultColorSteps: IColorSteps[] = [{ value: 20, color: "var(--label-badge-red)" }, { value: 55, color: "var(--label-badge-yellow)" }, { value: 100, color: "var(--label-badge-green)" }];
 
 /**
