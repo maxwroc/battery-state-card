@@ -104,7 +104,7 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
 
     addEntity(name: string, state?: string, attribs?: IEntityAttributes, domain?: string): IEntityMock {
         const entity = {
-            entity_id: this.convertoToEntityId(name, domain),
+            entity_id: convertoToEntityId(name, domain),
             state: state || "",
             attributes: {
                 friendly_name: name,
@@ -145,10 +145,11 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
 
         return entity
     }
+}
 
-    convertoToEntityId(input: string, domain?: string) {
-        return (domain ? domain + "." : "") + input.toLocaleLowerCase().replace(/[-\s]/g, "_");
-    }
+
+export const convertoToEntityId = (input: string, domain?: string) => {
+    return (domain ? domain + "." : "") + input.toLocaleLowerCase().replace(/[-\s]/g, "_");
 }
 
 type extractGeneric<Type> = Type extends LovelaceCard<infer X> ? X : never

@@ -224,7 +224,7 @@ interface IBatteryCardConfig {
     /**
      * List of entities to show in the card
      */
-    entities: IBatteryEntityConfig[] | string[];
+    entities: ISimplifiedArray<IBatteryEntityConfig>;
 
     /**
      * Title of the card (header text)
@@ -232,9 +232,9 @@ interface IBatteryCardConfig {
     title?: string;
 
     /**
-     * Sort by battery level
+     * Sort options
      */
-    sort_by_level?: "asc" | "desc";
+    sort?: ISimplifiedArray<ISortOption>;
 
     /**
      * Collapse after given number of entities
@@ -252,6 +252,13 @@ interface IBatteryCardConfig {
  */
 interface IBatteryStateCardConfig extends IBatteryCardConfig, IBatteryEntityConfig  {
 
+}
+
+type SortByOption = "state" | "name";
+
+interface ISortOption {
+    by: SortByOption;
+    desc?: boolean;
 }
 
 interface IHomeAssistantGroupProps {
@@ -288,3 +295,6 @@ interface IActionData {
 interface IMap<T> {
     [key: string]: T;
 }
+
+type IObjectOrString<T> = T | string;
+type ISimplifiedArray<T> = IObjectOrString<T> | IObjectOrString<T>[] | undefined;
