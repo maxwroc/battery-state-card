@@ -76,4 +76,17 @@ describe("Colors", () => {
 
         expect(result).toBe(expectedColor);
     })
+
+    test("diabling colors", () => {
+        const config = <IBatteryEntityConfig>{
+            entity: "",
+            colors: {
+                steps: []
+            }
+        }
+
+        const result = getColorForBatteryLevel(config, "80", false);
+
+        expect(result).toBe("inherit");
+    })
 })

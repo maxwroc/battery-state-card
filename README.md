@@ -260,15 +260,16 @@ entities:
 ```yaml
 type: custom:battery-state-card
 title: "Custom color thresholds"
-color_thresholds:
-  - value: 35 # applied to all values below/equal
-    color: "#8fffe1"
-  - value: 45 # applied to all values below/equal
-    color: "#8fbbff"
-  - value: 60 # applied to all values below/equal
-    color: "#978fff"
-  - value: 100 # applied to all values below/equal
-    color: "#fe8fff"
+colors:
+  steps:
+    - value: 35 # applied to all values below/equal
+      color: "#8fffe1"
+    - value: 45 # applied to all values below/equal
+      color: "#8fbbff"
+    - value: 60 # applied to all values below/equal
+      color: "#978fff"
+    - value: 100 # applied to all values below/equal
+      color: "#fe8fff"
 entities:
   - entity: sensor.bathroom_motion_battery_level
     name: "Bathroom motion sensor"
@@ -289,10 +290,12 @@ entities:
 ```yaml
 type: custom:battery-state-card
 title: "Color gradient"
-color_gradient:
-  - "#ff0000" # red
-  - "#ffff00" # yellow
-  - "#00ff00" # green
+colors:
+  steps:
+    - "#ff0000" # red
+    - "#ffff00" # yellow
+    - "#00ff00" # green
+  gradient: true
 entities:
   - entity: sensor.bathroom_motion_battery_level
     name: "Bathroom motion sensor"
@@ -308,14 +311,15 @@ entities:
 
 #### Disabling colors
 
-When you put empty array in `color_thresholds` property you can disable colors.
+When you put empty array in `steps` property you can disable colors.
 
 ![image](https://user-images.githubusercontent.com/8268674/79975932-aa461500-8493-11ea-9947-f4513863ae53.png)
 
 ```yaml
 type: custom:battery-state-card
 title: "No color"
-color_thresholds: []
+colors: 
+  steps: []
 entities:
   - sensor.bedroom_motion_battery_level
   - sensor.bathroom_motion_battery_level
@@ -331,11 +335,12 @@ You can setup as well colors only for lower battery levels and leave the default
 ```yaml
 type: custom:battery-state-card
 title: "No color - selective"
-color_thresholds:
-  - value: 20
-    color: "red"
-  - value: 60
-    color: "yellow"
+colors:
+  steps:
+    - value: 20
+      color: "red"
+    - value: 60
+      color: "yellow"
 entities:
   - sensor.bedroom_motion_battery_level
   - sensor.bathroom_motion_battery_level
@@ -528,10 +533,12 @@ entities:
 
 ```yaml
 type: 'custom:battery-state-card'name: Click
-color_gradient:
-  - '#ff0000'
-  - '#0000ff'
-  - '#00ff00'
+colors:
+  steps:
+    - '#ff0000'
+    - '#0000ff'
+    - '#00ff00'
+  gradient: true
 entities:
   - entity: sensor.bedroom_motion_battery_level
     name: More info
@@ -572,10 +579,12 @@ entities:
 type: custom:battery-state-card
 title: Link quality
 sort: "state"
-color_gradient:
-  - '#ff0000'
-  - '#ffff00'
-  - '#00ff00'
+colors:
+  steps:
+    - '#ff0000'
+    - '#ffff00'
+    - '#00ff00'
+  gradient: true
 icon: mdi:signal
 unit: lqi
 entities:
