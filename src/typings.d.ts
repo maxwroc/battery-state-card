@@ -224,7 +224,7 @@ interface IBatteryCardConfig {
     /**
      * List of entities to show in the card
      */
-    entities: IBatteryEntityConfig[] | string[];
+    entities: ISimplifiedArray<IBatteryEntityConfig>;
 
     /**
      * Title of the card (header text)

@@ -7,6 +7,7 @@ import { getBatteryGroups, IBatteryGroup } from "../grouping";
 import sharedStyles from "./shared.css"
 import cardStyles from "./battery-state-card.css"
 import { getIdsOfSortedBatteries } from "../sorting";
+import { safeGetConfigArrayOfObjects } from "../utils";
 
 
 /**
@@ -100,7 +101,7 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
      * we cannot provide any reasonable estimation.
      */
      getCardSize() {
-        let size = this.config.entities?.length || 1;
+        let size = safeGetConfigArrayOfObjects(this.config.entities, "entity").length || 1;
 
         if (this.config.collapse) {
             if (typeof this.config.collapse == "number") {

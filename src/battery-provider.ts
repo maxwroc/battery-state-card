@@ -1,4 +1,4 @@
-import { log } from "./utils";
+import { log, safeGetConfigArrayOfObjects } from "./utils";
 import { HomeAssistant } from "custom-card-helpers";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 
@@ -210,14 +210,7 @@ export class BatteryProvider {
      * Adds batteries based on entities from config.
      */
     private processExplicitEntities() {
-        let entities = (this.config.entities || []).map((entity: string | IBatteryEntityConfig) => {
-                // check if it is just the id string
-                if (typeof (entity) === "string") {
-                    entity = <IBatteryEntityConfig>{ entity: entity };
-                }
-
-                return entity;
-            });
+        let entities = safeGetConfigArrayOfObjects(this.config.entities, "entity");
 
         // remove groups to add them later
         entities = entities.filter(e => {
