@@ -1,23 +1,19 @@
 import { css } from "lit";
 import { property } from "lit/decorators.js"
 import { HomeAssistant } from "custom-card-helpers"
-import { getColorInterpolationForPercentage, isNumber, log, safeGetArray, safeGetConfigObject } from "../utils";
+import { isNumber, log, safeGetArray, safeGetConfigObject } from "../utils";
 import { batteryHtml } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
 import entityStyles from "./battery-state-entity.css";
 import { handleAction } from "../action";
 import { RichStringProcessor } from "../rich-string-processor";
+import { getColorForBatteryLevel } from "../colors";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
  */
 const stringValuePattern = /\b([0-9]{1,3})\s?%/;
-
-/**
- * HTML color pattern
- */
-const htmlColorPattern = /^#[A-Fa-f0-9]{6}$/;
 
 /**
  * Battery entity element
@@ -86,7 +82,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         const isCharging = getChargingState(this.config, this.state, this.hass);
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, isCharging);
         this.icon = getIcon(this.config, Number(this.state), isCharging, this.hass);
-        this.iconColor = getIconColor(this.config, this.state, isCharging);
+        this.iconColor = getColorForBatteryLevel(this.config, this.state, isCharging);
     }
 
     connectedCallback() {
@@ -308,36 +304,6 @@ const getIcon = (config: IBatteryEntityConfig, level: number, isCharging: boolea
 }
 
 /**
- * Gets icon color
- * @param config Entity config
- * @param batteryLevel Battery level/state
- * @param isCharging Whether battery is in chargin mode
- * @returns Icon color
- */
-const getIconColor = (config: IBatteryEntityConfig, batteryLevel: string, isCharging: boolean): string => {
-
-    const defaultColor = "inherit";
-    const level = Number(batteryLevel);
-
-    if (isCharging && config.charging_state?.color) {
-        return config.charging_state.color;
-    }
-
-    if (isNaN(level) || level > 100 || level < 0) {
-        return defaultColor;
-    }
-
-    if (config.color_gradient && isColorGradientValid(config.color_gradient)) {
-        return getColorInterpolationForPercentage(config.color_gradient, level);
-    }
-
-    const thresholds = config.color_thresholds ||
-        [{ value: 20, color: "var(--label-badge-red)" }, { value: 55, color: "var(--label-badge-yellow)" }, { value: 101, color: "var(--label-badge-green)" }];
-
-    return thresholds.find(th => level <= th.value)?.color || defaultColor;
-}
-
-/**
  * Gets flag indicating charging mode
  * @param config Entity config
  * @param state Battery level/state
@@ -382,27 +348,6 @@ const getChargingState = (config: IBatteryEntityConfig, state: string, hass?: Ho
     const statesIndicatingCharging = safeGetArray(chargingConfig.state);
 
     return statesIndicatingCharging.length == 0 ? !!state : statesIndicatingCharging.some(s => s == state);
-}
-
-/**
- * Tests whether given color gradient elements are valid
- * @param gradientColors Gradient color steps
- * @returns Whether the given collection is valid
- */
-const isColorGradientValid = (gradientColors: string[]) => {
-    if (gradientColors.length < 2) {
-        log("Value for 'color_gradient' should be an array with at least 2 colors.");
-        return;
-    }
-
-    for (const color of gradientColors) {
-        if (!htmlColorPattern.test(color)) {
-            log("Color '${color}' is not valid. Please provide valid HTML hex color in #XXXXXX format.");
-            return false;
-        }
-    }
-
-    return true;
 }
 
 /**

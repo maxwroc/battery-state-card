@@ -15,17 +15,23 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 ![image](https://user-images.githubusercontent.com/8268674/80753326-fabd1280-8b24-11ea-8f90-4c934793f231.png)
 
-## Update to v3.X.X
+## Breaking changes
+
+<details>
+  <summary>Update to v3.X.X</summary>
 
 * Secondary info last_updated / last_changed values. Now these values has to be put in curly braces e.g. `secondary_info: "{last_updated}"`
 * Secondary info charging indication. Now the value has to be in curly braces e.g. `secondary_info: "{charging}"`
 * Sorting setting has changed. Now it is called `sort` (previously "sort_by_level") and it can define multiple levels of sorting.
+* Color settings are now in a single config entry `colors` ("color_thresholds" and "color_gradient" settings are not working any more)
+</details>
 
-## Update to 2.X.X
+<details>
+  <summary>Update to v2.X.X</summary>
 
-If you want to update the card to v2 you need to be aware of few breaking changes:
 * When you want to use it as entity (e.g. in `entities` card) you need to use differnt type: `custom:battery-state-entity` instead of `custom:battery-state-card`.
 * Custom styles are not supported any more
+</details>
 
 ## Config
 
@@ -59,8 +65,7 @@ These options can be specified both per-entity and at the top level (affecting a
 
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| color_thresholds | list([Threshold](#threshold-object)) | (see [below](#default-thresholds)) | v0.9.0 | Thresholds and colors for indication of battery level.
-| color_gradient | list(string) | | v0.9.0 | List of hex HTML colors. At least two. In #XXXXXX format, eg. `"#FFB033"`.
+| colors | [ColorSettings](#color-settings) | (see [below](#default-colors)) | v3.0.0 | Color settings
 | tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
 | state_map | list([Convert](#convert))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
 | charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
@@ -103,14 +108,23 @@ sort:
   - "state"
 ```
 
-### Threshold object
+### Color settings
+
+| Name | Type | Default | Since | Description |
+|:-----|:-----|:-----|:-----|:-----|
+| steps | list([ColorStep](#color-step) \| string) | **(required)** | v3.0.0 | List of colors or color steps
+| gradient | boolean | `false` | v3.0.0 | Whether to enable smooth color transition between steps
+
+Note: enabling `gradient` requires at least two colors/steps and all provided colors need to be in hex HTML format e.g. `#ff00bb`.
+
+#### Color step
 
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | value | number | **(required)** | v0.9.0 | Threshold value
 | color | string | `inherit` | v0.9.0 | CSS color which will be used for levels below or equal the value field. If not specified the default one is used (default icon/text color for current HA theme)
 
-#### Default thresholds
+#### Default colors
 | Value | Color | Description |
 |:------|:------|:------|
 | 20 | `var(--label-badge-red)` | If value is less or equal `20` the color will be red
@@ -118,7 +132,6 @@ sort:
 | 100 | `var(--label-badge-green)` | If value is less or equal `100` the color will be green
 
 Note: the exact color is taken from CSS variable and it depends on your current template.
-
 
 ### Filters
 | Name | Type | Default | Description |

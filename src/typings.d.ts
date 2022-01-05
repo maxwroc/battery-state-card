@@ -3,16 +3,30 @@ declare module "*.css";
 /**
  * Color threshold
  */
- interface IColorThreshold {
+ interface IColorSteps {
     /**
      * Value/threshold below which color should be applied
      */
-    value: number;
+    value?: number;
 
     /**
      * Color to be applied when value is below the threshold
      */
-    color?: string;
+    color: string;
+}
+
+/**
+ * Color settings
+ */
+interface IColorSettings {
+    /**
+     * Color steps
+     */
+    steps: ISimplifiedArray<IColorSteps>;
+    /**
+     * Whether to enable smooth color transition between steps
+     */
+    gradient?: boolean;
 }
 
 /**
@@ -195,14 +209,9 @@ interface IBatteryEntityConfig {
     value_override?: string;
 
     /**
-     * Color thresholds configuration
+     * Colors settings
      */
-    color_thresholds?: IColorThreshold[];
-
-    /**
-     * Color gradient configuration
-     */
-    color_gradient?: string[];
+    colors?: IColorSettings;
 
     /**
      * What to display as secondary info
