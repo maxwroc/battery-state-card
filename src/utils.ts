@@ -80,15 +80,46 @@ export const safeGetArray = <T>(val: T | T[] | undefined): T[] => {
         return val;
     }
 
-    return val ? [val] : [];
+    return val !== undefined ? [val] : [];
 };
+
+/**
+ * Converts config value to array of specified objects.
+ * 
+ * ISimplifiedArray config object supports simple list of strings or even an individual item. This function 
+ * ensures we're getting an array in all situations.
+ * 
+ * E.g. all of the below are valid entries and can be converted to objects
+ * 1. Single string
+ *   my_setting: "name"
+ * 2. Single object
+ *   my_setting:
+ *     by: "name"
+ *     desc: true
+ * 3. Array of strings
+ *   my_setting:
+ *     - "name"
+ *     - "state"
+ * 4. Array of objects
+ *   my_setting:
+ *     - by: "name"
+ *     - by: "sort"
+ *       desc: true
+ * 
+ * @param value Config array
+ * @param defaultKey Key of the object to populate
+ * @returns Array of objects
+ */
+export const safeGetConfigArrayOfObjects = <T>(value: ISimplifiedArray<T>, defaultKey: keyof T): T[] => {
+    return safeGetArray(value).map(v => safeGetConfigObject(v, defaultKey));
+}
 
 /**
  * Converts string to object with given property or returns the object if it is not a string
  * @param value Value from the config
  * @param propertyName Property name of the expected config object to which value will be assigned
  */
- export const safeGetConfigObject = <T>(value: string | T, propertyName: string): T => {
+ export const safeGetConfigObject = <T>(value: IObjectOrString<T>, propertyName: keyof T): T => {
 
     switch (typeof value) {
         case "string":
