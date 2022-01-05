@@ -17,8 +17,9 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 ## Update to v3.X.X
 
-* Secondary info lasy_updated / last_changed values. Now these values has to be in curly braces e.g. `secondary_info: "{last_updated}"`
+* Secondary info last_updated / last_changed values. Now these values has to be put in curly braces e.g. `secondary_info: "{last_updated}"`
 * Secondary info charging indication. Now the value has to be in curly braces e.g. `secondary_info: "{charging}"`
+* Sorting setting has changed. Now it is called `sort` (previously "sort_by_level") and it can define multiple levels of sorting.
 
 ## Update to 2.X.X
 
@@ -32,7 +33,7 @@ If you want to update the card to v2 you need to be aware of few breaking change
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-entity` |
-| entities | list([Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
+| entities | list([Entity](#entity-object) \| string) | **(required)** | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
 | title | string |  | v0.9.0 | Card title
 | sort | list([Sort](#sort-object) \| string) |  | v3.0.0 | Sets the sorting options
 | collapse | number \| list([Group](#group-object)) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view)). Or list of entity/battery groups ([example](#battery-groups))
