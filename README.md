@@ -34,7 +34,7 @@ If you want to update the card to v2 you need to be aware of few breaking change
 | type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-entity` |
 | entities | list([Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
 | title | string |  | v0.9.0 | Card title
-| sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
+| sort | list([Sort](#sort-object) \| string) |  | v3.0.0 | Sets the sorting options
 | collapse | number \| list([Group](#group-object)) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view)). Or list of entity/battery groups ([example](#battery-groups))
 | filter | [Filters](#filters) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
 | bulk_rename | list([Convert](#convert)) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
@@ -87,6 +87,20 @@ Keywords support simple functions to convert the values
 
 You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:=)|replace(%=)|round()} %"` and the end result will be "27 %"
 
+### Sort object
+
+| Name | Type | Default | Since | Description |
+|:-----|:-----|:-----|:-----|:-----|
+| by | string | **(required)** | v3.0.0 | Field of the entity used to sort (`"state"` or `"name"`)
+| desc | boolean | `false` | v3.0.0 | Whether to sort in descending order
+
+Note: you can simplify this setting and use just use strings if you want to keep ascending order e.g.:
+
+```yaml
+sort: 
+  - "name"
+  - "state"
+```
 
 ### Threshold object
 
@@ -323,7 +337,7 @@ entities:
 ```yaml
 type: custom:battery-state-card
 title: "Sorted list and collapsed view"
-sort_by_level: "asc"
+sort: "state"
 collapse: 4
 entities:
   - sensor.bedroom_motion_battery_level
@@ -343,7 +357,7 @@ Note: If you have battery groups defined in Home Assistant you can use their IDs
 ```yaml
 type: 'custom:battery-state-card'
 title: Battery state card
-sort_by_level: asc
+sort: "state"
 collapse:
   - name: 'Door sensors (min: {min}%, count: {count})' # special keywords in group name
     secondary_info: 'Battery levels {range}%' # special keywords in group secondary info
@@ -448,7 +462,7 @@ If you add entities automatically you cannot specify properties for individual e
 ```yaml
 type: 'custom:battery-state-card'
 title: Filters
-sort_by_level: "asc"
+sort: "state"
 bulk_rename:
   - from: "Battery Level" # simple string replace (note: "to" is not required if you want to remove string)
     to: "sensor"
@@ -543,7 +557,7 @@ entities:
 ```yaml
 type: custom:battery-state-card
 title: Link quality
-sort_by_level: asc
+sort: "state"
 color_gradient:
   - '#ff0000'
   - '#ffff00'
