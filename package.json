@@ -58,6 +58,6 @@
   },
   "dependencies": {
     "custom-card-helpers": "^1.8.0",
-    "lit": "^2.0.2"
+    "lit": "^2.1.0"
   }
 }
