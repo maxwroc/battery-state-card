@@ -43,8 +43,8 @@
             "isolatedModules": true
           }
         },
-        "collectCoverageFrom": [
-          "<rootDir>/src"
+        "coveragePathIgnorePatterns": [
+          "<rootDir>/test"
         ]
       },
       {
@@ -58,8 +58,8 @@
             "isolatedModules": true
           }
         },
-        "collectCoverageFrom": [
-          "<rootDir>/src"
+        "coveragePathIgnorePatterns": [
+          "<rootDir>/test"
         ]
       }
     ]
