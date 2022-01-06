@@ -154,7 +154,7 @@ const getColorInterpolationForPercentage = function (colors: string[], pct: numb
  */
  const isColorGradientValid = (gradientColors: string[]) => {
     if (gradientColors.length < 2) {
-        log("Value for 'color_gradient' should be an array with at least 2 colors.");
+        log("Value for 'color_gradient' should be an array with at least 2 colors..");
         return;
     }
 

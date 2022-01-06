@@ -114,6 +114,6 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
         }
 
         // +1 to account header
-        return size + 5;
+        return size + 1;
     }
 }
