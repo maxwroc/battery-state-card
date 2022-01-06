@@ -25,6 +25,10 @@ jobs:
         run: npm run build
       - name: Test
         run: npm run test+coverage
+      - name: Code Coverage Report
+        uses: romeovs/lcov-reporter-action@v0.2.11
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Coveralls
         uses: coverallsapp/github-action@v1.1.2
         with:
