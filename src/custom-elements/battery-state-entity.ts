@@ -68,7 +68,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     public static get styles() {
         return css(<any>[sharedStyles + entityStyles]);
     }
-    
+
     async internalUpdate() {
         this.name = getName(this.config, this.hass);
         this.state = getBatteryLevel(this.config, this.hass);
@@ -116,7 +116,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
                         entityId: this.config.entity,
                     }, this.hass!);
                 }
-    
+
                 this.addEventListener("click", this.action);
                 this.classList.add("clickable");
             }
@@ -218,7 +218,9 @@ const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): st
             entityData.state
         ];
 
-        level = candidates.find(n => n !== null && n !== undefined)?.toString() || UnknownLevel;
+        level = candidates.find(val => isNumber(val)) ||
+                candidates.find(val => val !== null && val !== undefined)?.toString() ||
+                UnknownLevel
     }
 
     // check if we should convert value eg. for binary sensors

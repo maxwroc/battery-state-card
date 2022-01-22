@@ -159,6 +159,7 @@ interface IEntityAttributes {
     [key: string]: any;
     friendly_name?: string;
     battery_level?: string;
+    battery?: string;
     device_class?: string;
 }
 
