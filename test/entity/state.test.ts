@@ -27,7 +27,7 @@ test.each([
     [80.456, 2, "80.46 %"],
     [80.456, 0, "80 %"],
     [80.456, undefined, "80.456 %"]
-])("State updates", async (state: number, round: number | undefined, expectedState: string) => {
+])("State rounding", async (state: number, round: number | undefined, expectedState: string) => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", state.toString());
     const cardElem = hass.addCard("battery-state-entity", {
@@ -83,6 +83,25 @@ test.each([
             { from: "High", to: "Good" },
             { from: "Low", to: "Low" }
         ]
+    });
+    
+    await cardElem.cardUpdated;
+
+    const entity = new EntityElements(cardElem);
+    
+    expect(entity.state).toBe(expectedState);
+});
+
+test.each([
+    ["Charging", "80", undefined, "80 %"], // value taken from battery_level attribute
+    ["Charging", undefined, "55", "55 %"], // value taken from battery attribute
+    ["44", "OneThird", undefined, "44 %"], // value taken from the entity state
+])("State value priority", async (entityState: string, batteryLevelAttrib?: string, batteryAttrib?: string, expectedState?: string) => {
+    const hass = new HomeAssistantMock<BatteryStateEntity>();
+    const sensor = hass.addEntity("Motion sensor battery level", entityState);
+    sensor.setAttributes({ battery_level: batteryLevelAttrib, battery: batteryAttrib })
+    const cardElem = hass.addCard("battery-state-entity", {
+        entity: sensor.entity_id,
     });
     
     await cardElem.cardUpdated;
