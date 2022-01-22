@@ -69,8 +69,10 @@ export const getColorInterpolationForPercentage = function (colors: string[], pc
  * Checks whether given value is a number
  * @param val String value to check
  */
-export const isNumber = (val: string) => !isNaN(Number(val));
-
+export const isNumber = (value: string | number): boolean =>
+    {
+        return (value !== null && value !== '' && !isNaN(Number(value)))
+    }
 /**
  * Returns array of values regardles if given value is string array or null
  * @param val Value to process
