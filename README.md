@@ -536,7 +536,41 @@ entities:
   - entity: sensor.bedroomtemp_signal
     name: Bedroom temp. sensor
 ```
+![image](https://user-images.githubusercontent.com/10567188/151678867-28bd47b9-fb66-42ed-a78a-390d55860634.png)
 
+```yaml
+type: custom:battery-state-card
+title: HDD temperatures
+icon: mdi:harddisk
+color_thresholds:
+  - value: 26
+    color: blue
+  - value: 36
+    color: green
+  - value: 45
+    color: yellow
+  - value: 60
+    color: red
+tap_action:
+  action: more-info
+collapse: 3
+sort_by_level: desc
+unit: °C
+round: 0
+filter:
+  include:
+    - name: entity_id
+      value: sensor.nasos_sd*
+    - name: entity_id
+      value: sensor.omv2_sd*
+    - name: entity_id
+      value: sensor.exnas_st12*temper*
+    - name: entity_id
+      value: sensor.*_disk_*_temperature
+entities:
+  - entity: sensor.vidik_temperature
+  - entity: sensor.exnas_d1_temperatures_temperature
+```
 ## Installation
 
 Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following to your lovelace configuration
