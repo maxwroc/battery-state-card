@@ -85,7 +85,7 @@ const validEntityDomains = ["sensor", "binary_sensor"];
             data = JSON.stringify(data);
         }
 
-        return data.toString();
+        return data === undefined ? undefined : data.toString();
     }
 }
 
