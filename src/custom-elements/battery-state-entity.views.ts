@@ -25,7 +25,7 @@ export const batteryHtml = (model: BatteryStateEntity) => html`
 ${icon(model.icon, model.iconColor)}
 <div class="name truncate">
     ${model.name}
-    ${typeof(model.secondaryInfo) == "string" ? secondaryInfo(model.secondaryInfo) : secondaryInfoTime(model.hass, model.secondaryInfo)}
+    ${model.secondaryInfo instanceof Date ? secondaryInfoTime(model.hass, model.secondaryInfo) : secondaryInfo(model.secondaryInfo)}
 </div>
 <div class="state">
     ${model.state}${model.unit}

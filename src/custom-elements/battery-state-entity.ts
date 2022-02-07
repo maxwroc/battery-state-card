@@ -9,6 +9,7 @@ import entityStyles from "./battery-state-entity.css";
 import { handleAction } from "../action";
 import { RichStringProcessor } from "../rich-string-processor";
 import { getColorForBatteryLevel } from "../colors";
+import { getSecondaryInfo } from "../entity-fields/get-secondary-info";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
@@ -160,28 +161,6 @@ const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined):
     });
 
     return name;
-}
-
-/**
- * Gets secondary info text
- * @param config Entity config
- * @param hass HomeAssistant state object
- * @param isCharging Whther battery is in charging mode
- * @returns Secondary info text
- */
-const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, isCharging: boolean): string | Date => {
-    if (config.secondary_info) {
-        const processor = new RichStringProcessor(hass, config.entity, {
-            "charging": isCharging ? (config.charging_state?.secondary_info_text || "Charging") : "" // todo: think about i18n
-        });
-
-        let result = processor.process(config.secondary_info);
-
-        const dateVal = Date.parse(result);
-        return isNaN(dateVal) ? result : new Date(dateVal);
-    }
-
-    return <any>null;
 }
 
 /**
