@@ -573,11 +573,13 @@ entities:
 ```
 ## Installation
 
-Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following to your lovelace configuration
+Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following resource to your **lovelace** configuration (if you have yaml mode active)
 ```yaml
-resources:
-  - url: /hacsfiles/battery-state-card/battery-state-card.js
-    type: module
+lovelace:
+  mode: yaml
+  resources:
+    - url: /hacsfiles/battery-state-card/battery-state-card.js
+      type: module
 ```
 
 If you don't have HACS you can download js file from [latest release](https://github.com/maxwroc/battery-state-card/releases/latest). Drop it then in `www` folder in your `config` directory. Next add the following entry in lovelace configuration
