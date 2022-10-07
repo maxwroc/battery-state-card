@@ -165,6 +165,7 @@ interface IEntityAttributes {
 
 interface IEntityMock {
     readonly entity_id: string;
+    readonly state: string;
     setState(state: string): IEntityMock;
     setAttributes(attribs: IEntityAttributes): IEntityMock;
     setLastUpdated(val: string): void;
