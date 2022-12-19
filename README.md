@@ -26,7 +26,7 @@ If you want to update the card to v2 you need to be aware of few breaking change
 ### Card config
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-entity` |
+| type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-card` |
 | entities | list([Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
 | title | string |  | v0.9.0 | Card title
 | sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
@@ -39,7 +39,7 @@ If you want to update the card to v2 you need to be aware of few breaking change
 ### Entity object
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-card` |
+| type | string | | v0.9.0 | Must be `custom:battery-state-entity` if used as entity row e.g. in entity-list card  |
 | entity | string | **(required)** | v0.9.0 | Entity ID
 | name | string |  | v0.9.0 | Entity name override
 | icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one). You can provide entity attribute name which contains icon class (e.g. `attribute.battery_icon` - it has to be prefixed with "attribute.")
