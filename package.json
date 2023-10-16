@@ -41,7 +41,7 @@
     }
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^10.0.1",
     "@types/jest": "^27.4.0",
     "jest": "^24.9.0",
