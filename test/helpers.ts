@@ -159,11 +159,13 @@ interface IEntityAttributes {
     [key: string]: any;
     friendly_name?: string;
     battery_level?: string;
+    battery?: string;
     device_class?: string;
 }
 
 interface IEntityMock {
     readonly entity_id: string;
+    readonly state: string;
     setState(state: string): IEntityMock;
     setAttributes(attribs: IEntityAttributes): IEntityMock;
     setLastUpdated(val: string): void;

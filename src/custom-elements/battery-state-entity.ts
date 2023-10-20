@@ -9,6 +9,8 @@ import entityStyles from "./battery-state-entity.css";
 import { handleAction } from "../action";
 import { RichStringProcessor } from "../rich-string-processor";
 import { getColorForBatteryLevel } from "../colors";
+import { getSecondaryInfo } from "../entity-fields/get-secondary-info";
+import { getChargingState } from "../entity-fields/charging-state";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
@@ -68,7 +70,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     public static get styles() {
         return css(<any>[sharedStyles + entityStyles]);
     }
-    
+
     async internalUpdate() {
         this.name = getName(this.config, this.hass);
         this.state = getBatteryLevel(this.config, this.hass);
@@ -116,7 +118,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
                         entityId: this.config.entity,
                     }, this.hass!);
                 }
-    
+
                 this.addEventListener("click", this.action);
                 this.classList.add("clickable");
             }
@@ -163,28 +165,6 @@ const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined):
 }
 
 /**
- * Gets secondary info text
- * @param config Entity config
- * @param hass HomeAssistant state object
- * @param isCharging Whther battery is in charging mode
- * @returns Secondary info text
- */
-const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, isCharging: boolean): string | Date => {
-    if (config.secondary_info) {
-        const processor = new RichStringProcessor(hass, config.entity, {
-            "charging": isCharging ? (config.charging_state?.secondary_info_text || "Charging") : "" // todo: think about i18n
-        });
-
-        let result = processor.process(config.secondary_info);
-
-        const dateVal = Date.parse(result);
-        return isNaN(dateVal) ? result : new Date(dateVal);
-    }
-
-    return <any>null;
-}
-
-/**
  * Getts battery level/state
  * @param config Entity config
  * @param hass HomeAssistant state object
@@ -218,7 +198,9 @@ const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): st
             entityData.state
         ];
 
-        level = candidates.find(n => n !== null && n !== undefined)?.toString() || UnknownLevel;
+        level = candidates.find(val => isNumber(val)) ||
+                candidates.find(val => val !== null && val !== undefined)?.toString() ||
+                UnknownLevel
     }
 
     // check if we should convert value eg. for binary sensors
@@ -301,69 +283,4 @@ const getIcon = (config: IBatteryEntityConfig, level: number, isCharging: boolea
         default:
             return (isCharging ? "mdi:battery-charging-" : "mdi:battery-") + roundedLevel;
     }
-}
-
-/**
- * Gets flag indicating charging mode
- * @param config Entity config
- * @param state Battery level/state
- * @param hass HomeAssistant state object
- * @returns Whether battery is in chargin mode
- */
-const getChargingState = (config: IBatteryEntityConfig, state: string, hass?: HomeAssistant): boolean => {
-    const chargingConfig = config.charging_state;
-    if (!chargingConfig || !hass) {
-        return false;
-    }
-
-    let entityWithChargingState = hass.states[config.entity];
-
-    // check whether we should use different entity to get charging state
-    if (chargingConfig.entity_id) {
-        entityWithChargingState = hass.states[chargingConfig.entity_id]
-        if (!entityWithChargingState) {
-            log(`'charging_state' entity id (${chargingConfig.entity_id}) not found`);
-            return false;
-        }
-
-        state = entityWithChargingState.state;
-    }
-
-    const attributesLookup = safeGetArray(chargingConfig.attribute);
-    // check if we should take the state from attribute
-    if (attributesLookup.length != 0) {
-        // take first attribute name which exists on entity
-        const exisitngAttrib = attributesLookup.find(attr => getValueFromJsonPath(entityWithChargingState.attributes, attr.name) !== undefined);
-        if (exisitngAttrib) {
-            return exisitngAttrib.value !== undefined ?
-                getValueFromJsonPath(entityWithChargingState.attributes, exisitngAttrib.name) == exisitngAttrib.value :
-                true;
-        }
-        else {
-            // if there is no attribute indicating charging it means the charging state is false
-            return false;
-        }
-    }
-
-    const statesIndicatingCharging = safeGetArray(chargingConfig.state);
-
-    return statesIndicatingCharging.length == 0 ? !!state : statesIndicatingCharging.some(s => s == state);
-}
-
-/**
- * Returns value from given object and the path
- * @param data Data
- * @param path JSON path
- * @returns Value from the path
- */
-const getValueFromJsonPath = (data: any, path: string) => {
-    if (data === undefined) {
-        return data;
-    }
-
-    path.split(".").forEach(chunk => {
-        data = data ? data[chunk] : undefined;
-    });
-
-    return data;
 }
