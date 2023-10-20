@@ -4,7 +4,7 @@
 [![GitHub Release][releases-shield]][releases]
 [![GitHub All Releases][downloads-total-shield]][releases]
 [![hacs_badge][hacs-shield]][hacs]
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/maxwroc/battery-state-card/Release%20Drafter?label=tests)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/maxwroc/battery-state-card/release-drafter.yml?label=tests)
 [![Community Forum][forum-shield]][forum]
 
 Battery state card for [Home Assistant](https://github.com/home-assistant/home-assistant). It shows battery levels from connected devices (entities).
