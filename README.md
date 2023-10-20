@@ -4,7 +4,7 @@
 [![GitHub Release][releases-shield]][releases]
 [![GitHub All Releases][downloads-total-shield]][releases]
 [![hacs_badge][hacs-shield]][hacs]
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/maxwroc/battery-state-card/Release%20Drafter?label=tests)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/maxwroc/battery-state-card/release-drafter.yml?label=tests)
 [![Community Forum][forum-shield]][forum]
 
 Battery state card for [Home Assistant](https://github.com/home-assistant/home-assistant). It shows battery levels from connected devices (entities).
@@ -51,10 +51,10 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 ### Entity object
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-card` |
+| type | string | | v0.9.0 | Must be `custom:battery-state-entity` if used as entity row e.g. in entity-list card  |
 | entity | string | **(required)** | v0.9.0 | Entity ID
 | name | string |  | v0.9.0 | Entity name override
-| icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one). You can provide entity attribute name which contains icon class (e.g. `attribute.battery_icon` - it has to be prefixed with "attribute.")
+| icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one). You can provide entity attribute name which contains icon class (e.g. `attributes.battery_icon` - it has to be prefixed with "attributes.")
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
 
@@ -599,14 +599,50 @@ entities:
   - entity: sensor.bedroomtemp_signal
     name: Bedroom temp. sensor
 ```
+![image](https://user-images.githubusercontent.com/10567188/151678867-28bd47b9-fb66-42ed-a78a-390d55860634.png)
 
+```yaml
+type: custom:battery-state-card
+title: HDD temperatures
+icon: mdi:harddisk
+color_thresholds:
+  - value: 26
+    color: blue
+  - value: 36
+    color: green
+  - value: 45
+    color: yellow
+  - value: 60
+    color: red
+tap_action:
+  action: more-info
+collapse: 3
+sort_by_level: desc
+unit: °C
+round: 0
+filter:
+  include:
+    - name: entity_id
+      value: sensor.nasos_sd*
+    - name: entity_id
+      value: sensor.omv2_sd*
+    - name: entity_id
+      value: sensor.exnas_st12*temper*
+    - name: entity_id
+      value: sensor.*_disk_*_temperature
+entities:
+  - entity: sensor.vidik_temperature
+  - entity: sensor.exnas_d1_temperatures_temperature
+```
 ## Installation
 
-Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following to your lovelace configuration
+Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following resource to your **lovelace** configuration (if you have yaml mode active)
 ```yaml
-resources:
-  - url: /hacsfiles/battery-state-card/battery-state-card.js
-    type: module
+lovelace:
+  mode: yaml
+  resources:
+    - url: /hacsfiles/battery-state-card/battery-state-card.js
+      type: module
 ```
 
 If you don't have HACS you can download js file from [latest release](https://github.com/maxwroc/battery-state-card/releases/latest). Drop it then in `www` folder in your `config` directory. Next add the following entry in lovelace configuration
