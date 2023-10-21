@@ -212,6 +212,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | icon_color | string |  | v2.0.0 | Group icon color. It can be a static HTML (e.g. `#ff0000`) or dynamic (`first` or `last`) color value based on the battery colors in the group.
 | min | number |  | v1.4.0 | Minimal battery level. Batteries below that level won't be assigned to this group.
 | max | number |  | v1.4.0 | Maximal battery level. Batteries above that level won't be assigned to this group.
+| entities | list(string) |  | v1.4.0 | List of endity ids
 ## Examples
 
 You can use this component as a card or as an entity (e.g. in `entities card`);
