@@ -19,7 +19,7 @@ import { isNumber, log } from "../utils";
 
     if (config.value_override !== undefined) {
         const proc = new RichStringProcessor(hass, config.entity);
-        return proc.process(config.value_override);
+        return proc.process(config.value_override.toString());
     }
 
     const entityData = hass?.states[config.entity];
