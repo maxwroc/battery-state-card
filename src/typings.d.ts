@@ -206,7 +206,7 @@ interface IBatteryEntityConfig {
     /**
      * (Testing purposes) Override for battery level value
      */
-    value_override?: string;
+    value_override?: string | number;
 
     /**
      * Colors settings
