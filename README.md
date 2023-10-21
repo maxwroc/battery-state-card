@@ -57,6 +57,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 | icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one). You can provide entity attribute name which contains icon class (e.g. `attributes.battery_icon` - it has to be prefixed with "attributes.")
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
+| value_override | [KString](#keyword-string-kstring) |  | v3.0.0 | Allows to override the battery level value. Note: when used the `multiplier`, `round`, `state_map` setting is ignored
 
  +[common options](#common-options) (if specified they will override the card-level ones)
 
@@ -90,8 +91,13 @@ Keywords support simple functions to convert the values
 |:-----|:-----|:-----|
 | round(\[number\]) | `"{state\|round(2)}"` | Rounds the value to number of fractional digits. E.g. if state is 20.617 the output will be 20.62.
 | replace(\[old_string\]=\[new_string\]) | `"{attributes.friendly_name\|replace(Battery level=)}"` | Simple replace. E.g. if name contains "Battery level" string then it will be removed
+| multiply(\[number\]) | `"{state\|multiply(10)}"` | Multiplies the value by given number
+| greaterthan(\[threshold_number\],\[result_value\]) | `"{state\|greaterthan(10,100)}"` | Changes the value to a given one when the threshold is met. In the given example the value will be replaced to 100 when the current value is greater than 10
+| lessthan(\[threshold_number\],\[result_value\]) | `"{state\|lessthan(10,0)}"` | Changes the value to a given one when the threshold is met. In the given example the value will be replaced to 0 when the current value is less than 10
+| between(\[lower_threshold_number\],[upper_threshold_number\],\[result_value\]) | `"{state\|between(2,6,30)}"` | Changes the value to a given one when the value is between two given numbers. In the given example the value will be replaced to 30 when the current value is between 2 and 6
+| thresholds(\[number1\],\[number2\],...) | `"{state\|thresholds(22,89,200,450)}"` | Converts the value to percentage based on given thresholds. In the given example values will be converted in the following way 20=>0, 30=>25, 99=>50, 250=>75, 555=>100
 
-You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:=)|replace(%=)|round()} %"` and the end result will be "27 %"
+You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:=)|replace(%=)|round()} %"` and the end result will be "27"
 
 ### Sort object
 
