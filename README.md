@@ -67,7 +67,7 @@ These options can be specified both per-entity and at the top level (affecting a
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | colors | [ColorSettings](#color-settings) | (see [below](#default-colors)) | v3.0.0 | Color settings
-| tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
+| tap_action | [TapAction](#tap-action) | more-info | v1.1.0 | Action that will be performed when this entity is tapped.
 | state_map | list([Convert](#convert))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
 | charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
 | secondary_info | [KString](#keyword-string-kstring) |  | v3.0.0 | Secondary info text. It can be a custom text with keywords (dynamic values) ([example](#secondary-info))
@@ -176,7 +176,7 @@ Operator is an optional property. If operator is not specified it depends on `va
 The definition is similar to the default [tap-action](https://www.home-assistant.io/lovelace/actions/#tap-action) in HomeAssistant.
 | Name | Type | Default | Description |
 |:-----|:-----|:-----|:-----|
-| action | string | `none` | Action type, one of the following: `more-info`, `call-service`, `navigate`, `url`, `none`
+| action | string | `more-info` | Action type, one of the following: `more-info`, `call-service`, `navigate`, `url`, `none`
 | service | string |  | Service to call when `action` defined as `call-service`. Eg. `"notify.pushover"`
 | service_data | any |  | Service data to inlclue when `action` defined as `call-service`
 | navigation_path | string |  | Path to navigate to when `action` defined as `navigate`. Eg. `"/lovelace/0"`
