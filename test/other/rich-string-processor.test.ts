@@ -60,4 +60,56 @@ describe("RichStringProcessor", () => {
         const result = proc.process("{is_charging}");
         expect(result).toBe("Charging");
     });
+
+    test.each([
+        ["Value {state|multiply(2)}", "20.56", "Value 41.12"], 
+        ["Value {state|multiply(0.5)}", "20.56", "Value 10.28"], 
+        ["Value {state|multiply()}", "20.56", "Value 20.56"],  // param missing
+    ])("multiply function", (text: string, state:string, expectedResult: string) => {
+        const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
+        const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
+        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+
+        const result = proc.process(text);
+        expect(result).toBe(expectedResult);
+    });
+
+    test.each([
+        ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "1", "0"],
+        ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "2", "50"],
+        ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "5", "50"],
+        ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "7", "50"],
+        ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "8", "100"],
+        ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "70", "100"],
+        // missing params
+        ["{state|lessthan()|greaterthan(7,100)|between(1,8,50)}", "1", "1"],
+        ["{state|lessthan(2,0)|greaterthan(7,100)|between()}", "5", "5"],
+        ["{state|lessthan(2,0)|greaterthan()|between(1,8,50)}", "70", "70"],
+    ])("greater, lessthan, between functions", (text: string, state:string, expectedResult: string) => {
+        const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
+        const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
+        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+
+        const result = proc.process(text);
+        expect(result).toBe(expectedResult);
+    });
+
+    test.each([
+        ["{state|thresholds(22,88,200,450)}", "1", "0"],
+        ["{state|thresholds(22,88,200,450)}", "22", "25"],
+        ["{state|thresholds(22,88,200,450)}", "60", "25"],
+        ["{state|thresholds(22,88,200,450)}", "90", "50"],
+        ["{state|thresholds(22,88,200,450)}", "205", "75"],
+        ["{state|thresholds(22,88,200,450)}", "449", "75"],
+        ["{state|thresholds(22,88,200,450)}", "500", "100"],
+        ["{state|thresholds(22,88,200)}", "90", "67"],
+        ["{state|thresholds(22,88,200)}", "200", "100"],
+    ])("threshold function", (text: string, state:string, expectedResult: string) => {
+        const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
+        const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
+        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+
+        const result = proc.process(text);
+        expect(result).toBe(expectedResult);
+    });
 })

@@ -110,6 +110,65 @@ const availableProcessors: IMap<IProcessorCtor> = {
         }
 
         return val => parseFloat(val).toFixed(decimalPlaces);
+    },
+    "multiply": (params) => {
+        if (params === "") {
+            log("[KString]multiply function is missing parameter");
+            return val => val;
+        }
+
+        const multiplier = Number(params);
+
+        return val => isNaN(multiplier) ? val : (Number(val) * multiplier).toString();
+    },
+    "greaterthan": (params) => {
+        const chunks = params.split(",");
+        if (chunks.length != 2) {
+            log("[KString]greaterthan function requires two parameters");
+            return val => val;
+        }
+
+        const compareTo = Number(chunks[0]);
+        return val =>  Number(val) > compareTo ? chunks[1] : val;
+    },
+    "lessthan": (params) => {
+        const chunks = params.split(",");
+        if (chunks.length != 2) {
+            log("[KString]lessthan function requires two parameters");
+            return val => val;
+        }
+
+        const compareTo = Number(chunks[0]);
+        return val =>  Number(val) < compareTo ? chunks[1] : val;
+    },
+    "between": (params) => {
+        const chunks = params.split(",");
+        if (chunks.length != 3) {
+            log("[KString]between function requires three parameters");
+            return val => val;
+        }
+
+        const compareLower = Number(chunks[0]);
+        const compareGreater = Number(chunks[1]);
+        return val => {
+            const numericVal = Number(val);
+            return compareLower < numericVal && compareGreater > numericVal ? chunks[2] : val;
+        }
+    },
+    "thresholds": (params) => {
+        const thresholds = params.split(",").map(v => Number(v));
+
+        return val => {
+            const numericVal = Number(val);
+            const result = thresholds.findIndex(v => numericVal < v);
+
+            if (result == -1) {
+                // looks like the value is higher than the last threshold
+                return "100";
+            }
+
+            return Math.round(100 / thresholds.length * result).toString();
+        }
     }
 }
 
