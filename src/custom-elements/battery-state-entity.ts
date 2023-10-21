@@ -1,7 +1,6 @@
 import { css } from "lit";
 import { property } from "lit/decorators.js"
-import { HomeAssistant } from "custom-card-helpers"
-import { isNumber, log, safeGetArray, safeGetConfigObject } from "../utils";
+import { isNumber, safeGetConfigObject } from "../utils";
 import { batteryHtml } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
@@ -11,6 +10,8 @@ import { getColorForBatteryLevel } from "../colors";
 import { getSecondaryInfo } from "../entity-fields/get-secondary-info";
 import { getChargingState } from "../entity-fields/charging-state";
 import { getBatteryLevel } from "../entity-fields/battery-level";
+import { getName } from "../entity-fields/get-name";
+import { getIcon } from "../entity-fields/get-icon";
 
 /**
  * Battery entity element
@@ -125,80 +126,5 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
                 this.action = undefined;
             }
         }
-    }
-}
-
-/**
- * Battery name getter
- * @param config Entity config
- * @param hass HomeAssistant state object
- * @returns Battery name
- */
-const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined): string => {
-    if (config.name) {
-        return config.name;
-    }
-
-    if (!hass) {
-        return config.entity;
-    }
-
-    let name = hass.states[config.entity]?.attributes.friendly_name || config.entity;
-
-    const renameRules = safeGetArray(config.bulk_rename)
-    renameRules.forEach(r => {
-        if (r.from[0] == "/" && r.from[r.from.length - 1] == "/") {
-            // create regexp after removing slashes
-            name = name.replace(new RegExp(r.from.substr(1, r.from.length - 2)), r.to || "");
-        }
-        else {
-            name = name.replace(r.from, r.to || "");
-        }
-    });
-
-    return name;
-}
-
-/**
- * Gets MDI icon class
- * @param config Entity config
- * @param level Battery level/state
- * @param isCharging Whether battery is in chargin mode
- * @param hass HomeAssistant state object
- * @returns Mdi icon string
- */
-const getIcon = (config: IBatteryEntityConfig, level: number, isCharging: boolean, hass: HomeAssistant | undefined): string => {
-    if (isCharging && config.charging_state?.icon) {
-        return config.charging_state.icon;
-    }
-
-    if (config.icon) {
-        const attribPrefix = "attribute.";
-        if (hass && config.icon.startsWith(attribPrefix)) {
-            const attribName = config.icon.substr(attribPrefix.length);
-            const val = hass.states[config.entity].attributes[attribName] as string | undefined;
-            if (!val) {
-                log(`Icon attribute missing in '${config.entity}' entity`, "error");
-                return config.icon;
-            }
-
-            return val;
-        }
-
-        return config.icon;
-    }
-
-    if (isNaN(level) || level > 100 || level < 0) {
-        return "mdi:battery-unknown";
-    }
-
-    const roundedLevel = Math.round(level / 10) * 10;
-    switch (roundedLevel) {
-        case 100:
-            return isCharging ? 'mdi:battery-charging-100' : "mdi:battery";
-        case 0:
-            return isCharging ? "mdi:battery-charging-outline" : "mdi:battery-outline";
-        default:
-            return (isCharging ? "mdi:battery-charging-" : "mdi:battery-") + roundedLevel;
     }
 }
