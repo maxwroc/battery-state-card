@@ -105,12 +105,13 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
      */
     private setupAction(enable: boolean = true) {
         if (enable) {
-            if (this.config.tap_action && !this.action) {
+            let tapAction = this.config.tap_action || "more-info";
+            if (tapAction != "none" && !this.action) {
                 this.action = evt => {
                     evt.stopPropagation();
                     handleAction({
                         card: this,
-                        config: safeGetConfigObject(this.config.tap_action!, "action"),
+                        config: safeGetConfigObject(tapAction, "action"),
                         entityId: this.config.entity,
                     }, this.hass!);
                 }
