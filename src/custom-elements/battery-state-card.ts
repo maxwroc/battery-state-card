@@ -141,5 +141,9 @@ const getDefaultConfig = () => <IBatteryStateCardConfig>{
     bulk_rename: [
         { from: " Battery" },
         { from: " level" },
-    ]
+    ],
+    colors: {
+        steps: [ "#ff0000", "#ffff00", "#00ff00" ],
+        gradient: true,
+    }
 }

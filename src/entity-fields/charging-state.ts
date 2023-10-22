@@ -65,7 +65,7 @@ const getDefaultChargingState = (config: IBatteryEntityConfig, hass?: HomeAssist
         return false;
     }
 
-    return ["Charging", "charging"].includes(batteryStateEntity.state);
+    return ["charging", "full"].includes(batteryStateEntity.state);
 }
 
 /**

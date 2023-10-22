@@ -5,7 +5,7 @@ import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 /**
  * Properties which should be copied over to individual entities from the card
  */
-const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ "tap_action", "state_map", "charging_state", "secondary_info", "colors", "bulk_rename", "icon", "round", "unit" ];
+const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ "tap_action", "state_map", "charging_state", "secondary_info", "colors", "bulk_rename", "icon", "round", "unit", "value_override" ];
 
 const regExpPattern = /\/([^/]+)\/([igmsuy]*)/;
 

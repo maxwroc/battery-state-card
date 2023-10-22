@@ -169,7 +169,9 @@ const availableProcessors: IMap<IProcessorCtor> = {
 
             return Math.round(100 / thresholds.length * result).toString();
         }
-    }
+    },
+    "abs": () => 
+        val => Math.abs(Number(val)).toString(),
 }
 
 interface IProcessor {
