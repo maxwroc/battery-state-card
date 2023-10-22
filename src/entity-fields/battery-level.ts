@@ -52,7 +52,7 @@ import { isNumber, log } from "../utils";
         const convertedVal = config.state_map.find(s => s.from === level);
         if (convertedVal === undefined) {
             if (!isNumber(level)) {
-                log(`Missing option for '${level}' in 'state_map'`);
+                log(`Missing option for '${level}' in 'state_map.'`);
             }
         }
         else {
