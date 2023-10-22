@@ -6,6 +6,7 @@ on:
     # only PR for master
     branches:
       - master
+      - next
 
 jobs:
   continous_integration:
@@ -23,4 +24,14 @@ jobs:
       - name: Build
         run: npm run build
       - name: Test
-        run: npm run test
+        run: npm run test+coverage
+      - name: Code Coverage Report
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          filter-changed-files: true
+          #delete-old-comments: true
+      - name: Coveralls
+        uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

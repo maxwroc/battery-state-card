@@ -15,21 +15,57 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 ![image](https://user-images.githubusercontent.com/8268674/80753326-fabd1280-8b24-11ea-8f90-4c934793f231.png)
 
-## Update to 2.X.X
+## Breaking changes
 
-If you want to update the card to v2 you need to be aware of few breaking changes:
+<details>
+  <summary>Update to v3.X.X</summary>
+
+* Secondary info last_updated / last_changed values. Now these values has to be put in quotes and curly braces e.g. `secondary_info: "{last_updated}"`
+* Secondary info charging indication. Now the value has to be in curly braces e.g. `secondary_info: "{charging}"`
+* Sorting setting has changed. Now it is called `sort` (previously "sort_by_level") and it can define multiple levels of sorting.
+* Color settings are now in a single config entry `colors` ("color_thresholds" and "color_gradient" settings are not working any more)
+</details>
+
+<details>
+  <summary>Update to v2.X.X</summary>
+
 * When you want to use it as entity (e.g. in `entities` card) you need to use differnt type: `custom:battery-state-entity` instead of `custom:battery-state-card`.
 * Custom styles are not supported any more
+</details>
 
 ## Config
+
+### Default card config
+
+When config is empty the card is initialized with the default config which you can find below. Once you start adding custom configuration the default configuration won't be applied hence if you wish to alter the default config please copy-paste it from the below listing.
+```yaml
+type: custom:battery-state-card
+secondary_info: "{last_changed}"
+filter:
+  include:
+    - name: "attributes.device_class"
+      value: "battery"
+sort:
+  by: "state"
+collapse: 8
+bulk_rename:
+  - from: " Battery"
+  - from: " level"
+colors:
+  steps:
+    - '#ff0000'
+    - '#ffff00'
+    - '#00ff00'
+  gradient: true
+```
 
 ### Card config
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-card` |
-| entities | list([Entity](#entity-object)) | **(required)** | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
+| type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-entity` |
+| entities | list([Entity](#entity-object) \| string) |  | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
 | title | string |  | v0.9.0 | Card title
-| sort_by_level | string |  | v0.9.0 | Values: `asc`, `desc`
+| sort | list([Sort](#sort-object) \| string) |  | v3.0.0 | Sets the sorting options
 | collapse | number \| list([Group](#group-object)) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view)). Or list of entity/battery groups ([example](#battery-groups))
 | filter | [Filters](#filters) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
 | bulk_rename | list([Convert](#convert)) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
@@ -53,23 +89,73 @@ These options can be specified both per-entity and at the top level (affecting a
 
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| color_thresholds | list([Threshold](#threshold-object)) | (see [below](#default-thresholds)) | v0.9.0 | Thresholds and colors for indication of battery level.
-| color_gradient | list(string) | | v0.9.0 | List of hex HTML colors. At least two. In #XXXXXX format, eg. `"#FFB033"`.
-| tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
+| colors | [ColorSettings](#color-settings) | (see [below](#default-colors)) | v3.0.0 | Color settings
+| tap_action | [TapAction](#tap-action) | more-info | v1.1.0 | Action that will be performed when this entity is tapped.
 | state_map | list([Convert](#convert))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
 | charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
-| secondary_info | string |  | v1.3.0 | Secondary info text. It can be a custom text, attribute name or state property name e.g. `charging`, `last_changed`, `"My battery"`. ([example](#secondary-info))
+| secondary_info | [KString](#keyword-string-kstring) |  | v3.0.0 | Secondary info text. It can be a custom text with keywords (dynamic values) ([example](#secondary-info))
 | round | number |  | v2.1.0 | Rounds the value to number of fractional digits
-| unit | string | `%` | v2.1.0 | Override for unit displayed next to the state/level value ([example](#other-use-cases))
+| unit | string | `"%"` | v2.1.0 | Override for unit displayed next to the state/level value ([example](#other-use-cases))
+| value_override | [KString](#keyword-string-kstring) |  | v3.0.0 | Allows to override the battery level value. Note: when used the `multiplier`, `round`, `state_map` setting is ignored
 
-### Threshold object
+### Keyword string (KString)
+
+This is a string value containing dynamic values. Data for dynamic values can be taken from entity properties, its attributes, other entity state/attributes, etc.
+
+| Type | Example | Description |
+|:-----|:-----|:-----|
+| Charging state | `"{charging}"` | Shows text specified in [ChargingState](#charging-state-object)
+| Entity property | `"{last_updated}"` | Current entity property. To show relative time there cannot be any additional string befor/after the keyword otherwise it will show full date.
+| Entity attributes | `"Remaining time: {attributes.remaining_time}"` | Current entity attribute value.
+| Other entity data | `"Since last charge: {sensor.tesla.attributes.distance}"` | You can use full "path" to the other entity data
+
+Keywords support simple functions to convert the values
+
+| Func | Example | Description |
+|:-----|:-----|:-----|
+| round(\[number\]) | `"{state\|round(2)}"` | Rounds the value to number of fractional digits. E.g. if state is 20.617 the output will be 20.62.
+| replace(\[old_string\]=\[new_string\]) | `"{attributes.friendly_name\|replace(Battery level=)}"` | Simple replace. E.g. if name contains "Battery level" string then it will be removed
+| multiply(\[number\]) | `"{state\|multiply(10)}"` | Multiplies the value by given number
+| greaterthan(\[threshold_number\],\[result_value\]) | `"{state\|greaterthan(10,100)}"` | Changes the value to a given one when the threshold is met. In the given example the value will be replaced to 100 when the current value is greater than 10
+| lessthan(\[threshold_number\],\[result_value\]) | `"{state\|lessthan(10,0)}"` | Changes the value to a given one when the threshold is met. In the given example the value will be replaced to 0 when the current value is less than 10
+| between(\[lower_threshold_number\],[upper_threshold_number\],\[result_value\]) | `"{state\|between(2,6,30)}"` | Changes the value to a given one when the value is between two given numbers. In the given example the value will be replaced to 30 when the current value is between 2 and 6
+| thresholds(\[number1\],\[number2\],...) | `"{state\|thresholds(22,89,200,450)}"` | Converts the value to percentage based on given thresholds. In the given example values will be converted in the following way 20=>0, 30=>25, 99=>50, 250=>75, 555=>100
+| abs() | `"{state\|abs()}"` | Produces the absolute value
+
+You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:=)|replace(%=)|round()} %"` and the end result will be "27"
+
+### Sort object
+
+| Name | Type | Default | Since | Description |
+|:-----|:-----|:-----|:-----|:-----|
+| by | string | **(required)** | v3.0.0 | Field of the entity used to sort (`"state"` or `"name"`)
+| desc | boolean | `false` | v3.0.0 | Whether to sort in descending order
+
+Note: you can simplify this setting and use just use strings if you want to keep ascending order e.g.:
+
+```yaml
+sort: 
+  - "name"
+  - "state"
+```
+
+### Color settings
+
+| Name | Type | Default | Since | Description |
+|:-----|:-----|:-----|:-----|:-----|
+| steps | list([ColorStep](#color-step) \| string) | **(required)** | v3.0.0 | List of colors or color steps
+| gradient | boolean | `false` | v3.0.0 | Whether to enable smooth color transition between steps
+
+Note: enabling `gradient` requires at least two colors/steps and all provided colors need to be in hex HTML format e.g. `#ff00bb`.
+
+#### Color step
 
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | value | number | **(required)** | v0.9.0 | Threshold value
 | color | string | `inherit` | v0.9.0 | CSS color which will be used for levels below or equal the value field. If not specified the default one is used (default icon/text color for current HA theme)
 
-#### Default thresholds
+#### Default colors
 | Value | Color | Description |
 |:------|:------|:------|
 | 20 | `var(--label-badge-red)` | If value is less or equal `20` the color will be red
@@ -77,7 +163,6 @@ These options can be specified both per-entity and at the top level (affecting a
 | 100 | `var(--label-badge-green)` | If value is less or equal `100` the color will be green
 
 Note: the exact color is taken from CSS variable and it depends on your current template.
-
 
 ### Filters
 | Name | Type | Default | Description |
@@ -116,7 +201,7 @@ Operator is an optional property. If operator is not specified it depends on `va
 The definition is similar to the default [tap-action](https://www.home-assistant.io/lovelace/actions/#tap-action) in HomeAssistant.
 | Name | Type | Default | Description |
 |:-----|:-----|:-----|:-----|
-| action | string | `none` | Action type, one of the following: `more-info`, `call-service`, `navigate`, `url`, `none`
+| action | string | `more-info` | Action type, one of the following: `more-info`, `call-service`, `navigate`, `url`, `none`
 | service | string |  | Service to call when `action` defined as `call-service`. Eg. `"notify.pushover"`
 | service_data | any |  | Service data to inlclue when `action` defined as `call-service`
 | navigation_path | string |  | Path to navigate to when `action` defined as `navigate`. Eg. `"/lovelace/0"`
@@ -139,7 +224,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | attribute | list([Attribute](#attribute-object)) |  | v1.2.0 | List of attribute name-values indicating charging in progress
 | state | list(any) |  | v1.1.0 | List of values indicating charging in progress
 | icon | string |  | v1.1.0 | Icon to show when charging is in progress
-| secondary_info_text | string |  | v1.1.0 | Text to be shown when battery is charging. To show it you need to have `secondary_info: charging` property set on entity. ([example](#secondary-info))
+| secondary_info_text | string |  | v1.1.0 | Text to be shown when battery is charging. To show it you need to have `secondary_info: "{charging}"` property set on entity. ([example](#secondary-info))
 
 ### Attribute object
 
@@ -158,6 +243,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | icon_color | string |  | v2.0.0 | Group icon color. It can be a static HTML (e.g. `#ff0000`) or dynamic (`first` or `last`) color value based on the battery colors in the group.
 | min | number |  | v1.4.0 | Minimal battery level. Batteries below that level won't be assigned to this group.
 | max | number |  | v1.4.0 | Maximal battery level. Batteries above that level won't be assigned to this group.
+| entities | list(string) |  | v1.4.0 | List of endity ids
 ## Examples
 
 You can use this component as a card or as an entity (e.g. in `entities card`);
@@ -206,15 +292,16 @@ entities:
 ```yaml
 type: custom:battery-state-card
 title: "Custom color thresholds"
-color_thresholds:
-  - value: 35 # applied to all values below/equal
-    color: "#8fffe1"
-  - value: 45 # applied to all values below/equal
-    color: "#8fbbff"
-  - value: 60 # applied to all values below/equal
-    color: "#978fff"
-  - value: 100 # applied to all values below/equal
-    color: "#fe8fff"
+colors:
+  steps:
+    - value: 35 # applied to all values below/equal
+      color: "#8fffe1"
+    - value: 45 # applied to all values below/equal
+      color: "#8fbbff"
+    - value: 60 # applied to all values below/equal
+      color: "#978fff"
+    - value: 100 # applied to all values below/equal
+      color: "#fe8fff"
 entities:
   - entity: sensor.bathroom_motion_battery_level
     name: "Bathroom motion sensor"
@@ -235,10 +322,12 @@ entities:
 ```yaml
 type: custom:battery-state-card
 title: "Color gradient"
-color_gradient:
-  - "#ff0000" # red
-  - "#ffff00" # yellow
-  - "#00ff00" # green
+colors:
+  steps:
+    - "#ff0000" # red
+    - "#ffff00" # yellow
+    - "#00ff00" # green
+  gradient: true
 entities:
   - entity: sensor.bathroom_motion_battery_level
     name: "Bathroom motion sensor"
@@ -254,14 +343,15 @@ entities:
 
 #### Disabling colors
 
-When you put empty array in `color_thresholds` property you can disable colors.
+When you put empty array in `steps` property you can disable colors.
 
 ![image](https://user-images.githubusercontent.com/8268674/79975932-aa461500-8493-11ea-9947-f4513863ae53.png)
 
 ```yaml
 type: custom:battery-state-card
 title: "No color"
-color_thresholds: []
+colors: 
+  steps: []
 entities:
   - sensor.bedroom_motion_battery_level
   - sensor.bathroom_motion_battery_level
@@ -277,11 +367,12 @@ You can setup as well colors only for lower battery levels and leave the default
 ```yaml
 type: custom:battery-state-card
 title: "No color - selective"
-color_thresholds:
-  - value: 20
-    color: "red"
-  - value: 60
-    color: "yellow"
+colors:
+  steps:
+    - value: 20
+      color: "red"
+    - value: 60
+      color: "yellow"
 entities:
   - sensor.bedroom_motion_battery_level
   - sensor.bathroom_motion_battery_level
@@ -297,7 +388,7 @@ entities:
 ```yaml
 type: custom:battery-state-card
 title: "Sorted list and collapsed view"
-sort_by_level: "asc"
+sort: "state"
 collapse: 4
 entities:
   - sensor.bedroom_motion_battery_level
@@ -317,7 +408,7 @@ Note: If you have battery groups defined in Home Assistant you can use their IDs
 ```yaml
 type: 'custom:battery-state-card'
 title: Battery state card
-sort_by_level: asc
+sort: "state"
 collapse:
   - name: 'Door sensors (min: {min}%, count: {count})' # special keywords in group name
     secondary_info: 'Battery levels {range}%' # special keywords in group secondary info
@@ -422,7 +513,7 @@ If you add entities automatically you cannot specify properties for individual e
 ```yaml
 type: 'custom:battery-state-card'
 title: Filters
-sort_by_level: "asc"
+sort: "state"
 bulk_rename:
   - from: "Battery Level" # simple string replace (note: "to" is not required if you want to remove string)
     to: "sensor"
@@ -452,12 +543,12 @@ filter:
 ```yaml
 type: custom:battery-state-card
 name: Secondary info
-secondary_info: last_updated # applied to all entities which don't have the override
+secondary_info: "{last_updated}" # applied to all entities which don't have the override
 entities:
   - entity: sensor.bedroom_motion_battery_level
     name: "Bedroom motion sensor"
   - entity: sensor.mi_robrock
-    secondary_info: charging # only appears when charging is detected
+    secondary_info: "{charging}" # only appears when charging is detected
     charging_state:
       attribute:
         name: "is_charging"
@@ -474,10 +565,12 @@ entities:
 
 ```yaml
 type: 'custom:battery-state-card'name: Click
-color_gradient:
-  - '#ff0000'
-  - '#0000ff'
-  - '#00ff00'
+colors:
+  steps:
+    - '#ff0000'
+    - '#0000ff'
+    - '#00ff00'
+  gradient: true
 entities:
   - entity: sensor.bedroom_motion_battery_level
     name: More info
@@ -512,29 +605,34 @@ entities:
 
 ### Other use cases
 
-![image](https://user-images.githubusercontent.com/8268674/147777101-c6f8a299-a03e-4792-a92c-8477b03d1941.png)
+![image](https://github.com/maxwroc/battery-state-card/assets/8268674/d66bcd53-e37a-4518-a087-bd7e708b3425)
 
 ```yaml
 type: custom:battery-state-card
-title: Link quality
-sort_by_level: asc
-color_gradient:
-  - '#ff0000'
-  - '#ffff00'
-  - '#00ff00'
+secondary_info: '{last_changed}'
 icon: mdi:signal
-unit: lqi
-entities:
-  - entity: sensor.bathroom_motion_signal
-    name: Bathroom motion sensor
-  - entity: sensor.bedroom_balcony_signal
-    name: Bedroom balkony door sensor
-  - entity: sensor.bedroom_motion_signal
-    name: Bedroom motion sensor
-  - entity: sensor.bedroom_switch_signal
-    name: Bedroom Aqara switch
-  - entity: sensor.bedroomtemp_signal
-    name: Bedroom temp. sensor
+filter:
+  include:
+    - name: attributes.device_class
+      value: signal_strength
+sort:
+  by: state
+collapse: 8
+bulk_rename:
+  - from: ' Signal'
+  - from: ' strength'
+  - from: ' Rssi'
+  - from: ' numeric'
+value_override: '{state|abs()}'
+colors:
+  steps:
+    - color: '#00ff00'
+      value: 50
+    - color: '#ffff00'
+      value: 65
+    - color: '#ff0000'
+      value: 100
+  gradient: true
 ```
 ![image](https://user-images.githubusercontent.com/10567188/151678867-28bd47b9-fb66-42ed-a78a-390d55860634.png)
 
@@ -554,7 +652,9 @@ color_thresholds:
 tap_action:
   action: more-info
 collapse: 3
-sort_by_level: desc
+sort: 
+  by: state
+  desc: true
 unit: °C
 round: 0
 filter:
@@ -590,10 +690,14 @@ resources:
 ```
 
 ## Development
+<details>
+  <summary>Click to expand</summary>
+
 ```shell
 npm install
 npm run build
 ```
+
 Bundeled transpiled code will appear in `dist` directory.
 
 For automatic compilation on detected changes use:
@@ -601,7 +705,26 @@ For automatic compilation on detected changes use:
 npm run watch
 ```
 
+The `watch` script starts web server exposing dist dir so you can reference the local file in your HA via the following:
+
+```yaml
+lovelace:
+  resources:
+    - url: http://127.0.0.1:5501/dist/battery-state-card.js
+      type: module
+```
+
 Note: there is "undocumented" `value_override` property on the [entity object](#entity-object) which you can use for testing.
+
+### Testing 
+
+```shell
+npm run test
+```
+
+Tests in `card` and `entity` directory are e2e tests and run in Electron (headless) browser. All the other tests run in node env (hence they are much faster).
+
+</details>
 
 ## Do you like the card?
 

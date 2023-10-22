@@ -14,58 +14,6 @@ export const log = (message: string, level: "warn" | "error" = "warn") => {
 }
 
 /**
- * Converts HTML hex color to RGB values
- *
- * @param color Color to convert
- */
-const convertHexColorToRGB = (color: string) => {
-    color = color.replace("#", "");
-    return {
-        r: parseInt(color.substr(0, 2), 16),
-        g: parseInt(color.substr(2, 2), 16),
-        b: parseInt(color.substr(4, 2), 16),
-    }
-};
-
-/**
- * Gets color interpolation for given color range and percentage
- *
- * @param colors HTML hex color values
- * @param pct Percent
- */
-export const getColorInterpolationForPercentage = function (colors: string[], pct: number): string {
-    // convert from 0-100 to 0-1 range
-    pct = pct / 100;
-
-    const percentColors = colors.map((color, index) => {
-        return {
-            pct: (1 / (colors.length - 1)) * index,
-            color: convertHexColorToRGB(color)
-        }
-    });
-
-    let colorBucket = 1
-    for (colorBucket = 1; colorBucket < percentColors.length - 1; colorBucket++) {
-        if (pct < percentColors[colorBucket].pct) {
-            break;
-        }
-    }
-
-    const lower = percentColors[colorBucket - 1];
-    const upper = percentColors[colorBucket];
-    const range = upper.pct - lower.pct;
-    const rangePct = (pct - lower.pct) / range;
-    const pctLower = 1 - rangePct;
-    const pctUpper = rangePct;
-    const color = {
-        r: Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper),
-        g: Math.floor(lower.color.g * pctLower + upper.color.g * pctUpper),
-        b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper)
-    };
-    return "rgb(" + [color.r, color.g, color.b].join(",") + ")";
-};
-
-/**
  * Checks whether given value is a number
  * @param val String value to check
  */
@@ -82,15 +30,46 @@ export const safeGetArray = <T>(val: T | T[] | undefined): T[] => {
         return val;
     }
 
-    return val ? [val] : [];
+    return val !== undefined ? [val] : [];
 };
+
+/**
+ * Converts config value to array of specified objects.
+ * 
+ * ISimplifiedArray config object supports simple list of strings or even an individual item. This function 
+ * ensures we're getting an array in all situations.
+ * 
+ * E.g. all of the below are valid entries and can be converted to objects
+ * 1. Single string
+ *   my_setting: "name"
+ * 2. Single object
+ *   my_setting:
+ *     by: "name"
+ *     desc: true
+ * 3. Array of strings
+ *   my_setting:
+ *     - "name"
+ *     - "state"
+ * 4. Array of objects
+ *   my_setting:
+ *     - by: "name"
+ *     - by: "sort"
+ *       desc: true
+ * 
+ * @param value Config array
+ * @param defaultKey Key of the object to populate
+ * @returns Array of objects
+ */
+export const safeGetConfigArrayOfObjects = <T>(value: ISimplifiedArray<T>, defaultKey: keyof T): T[] => {
+    return safeGetArray(value).map(v => safeGetConfigObject(v, defaultKey));
+}
 
 /**
  * Converts string to object with given property or returns the object if it is not a string
  * @param value Value from the config
  * @param propertyName Property name of the expected config object to which value will be assigned
  */
- export const safeGetConfigObject = <T>(value: string | T, propertyName: string): T => {
+ export const safeGetConfigObject = <T>(value: IObjectOrString<T>, propertyName: keyof T): T => {
 
     switch (typeof value) {
         case "string":

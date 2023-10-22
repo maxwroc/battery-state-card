@@ -3,16 +3,30 @@ declare module "*.css";
 /**
  * Color threshold
  */
- interface IColorThreshold {
+ interface IColorSteps {
     /**
      * Value/threshold below which color should be applied
      */
-    value: number;
+    value?: number;
 
     /**
      * Color to be applied when value is below the threshold
      */
-    color?: string;
+    color: string;
+}
+
+/**
+ * Color settings
+ */
+interface IColorSettings {
+    /**
+     * Color steps
+     */
+    steps: ISimplifiedArray<IColorSteps>;
+    /**
+     * Whether to enable smooth color transition between steps
+     */
+    gradient?: boolean;
 }
 
 /**
@@ -192,17 +206,12 @@ interface IBatteryEntityConfig {
     /**
      * (Testing purposes) Override for battery level value
      */
-    value_override?: string;
+    value_override?: string | number;
 
     /**
-     * Color thresholds configuration
+     * Colors settings
      */
-    color_thresholds?: IColorThreshold[];
-
-    /**
-     * Color gradient configuration
-     */
-    color_gradient?: string[];
+    colors?: IColorSettings;
 
     /**
      * What to display as secondary info
@@ -224,7 +233,7 @@ interface IBatteryCardConfig {
     /**
      * List of entities to show in the card
      */
-    entities: IBatteryEntityConfig[] | string[];
+    entities: ISimplifiedArray<IBatteryEntityConfig>;
 
     /**
      * Title of the card (header text)
@@ -232,9 +241,9 @@ interface IBatteryCardConfig {
     title?: string;
 
     /**
-     * Sort by battery level
+     * Sort options
      */
-    sort_by_level?: "asc" | "desc";
+    sort?: ISimplifiedArray<ISortOption>;
 
     /**
      * Collapse after given number of entities
@@ -252,6 +261,13 @@ interface IBatteryCardConfig {
  */
 interface IBatteryStateCardConfig extends IBatteryCardConfig, IBatteryEntityConfig  {
 
+}
+
+type SortByOption = "state" | "name";
+
+interface ISortOption {
+    by: SortByOption;
+    desc?: boolean;
 }
 
 interface IHomeAssistantGroupProps {
@@ -283,4 +299,23 @@ interface IActionData {
     config: IActionConfig
     card: Node;
     entityId: string
+}
+
+interface IMap<T> {
+    [key: string]: T;
+}
+
+type IObjectOrString<T> = T | string;
+type ISimplifiedArray<T> = IObjectOrString<T> | IObjectOrString<T>[] | undefined;
+
+interface HomeAssistantWindow extends Window {
+    customCards: ICardInfo[] | undefined;
+}
+
+interface ICardInfo {
+    type: string;
+    name: string;
+    description: string;
+    preview?: boolean;
+    documentationURL?: string;
 }

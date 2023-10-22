@@ -6,6 +6,8 @@ import { BatteryProvider, IBatteryCollection } from "../battery-provider";
 import { getBatteryGroups, IBatteryGroup } from "../grouping";
 import sharedStyles from "./shared.css"
 import cardStyles from "./battery-state-card.css"
+import { getIdsOfSortedBatteries } from "../sorting";
+import { safeGetConfigArrayOfObjects } from "../utils";
 
 
 /**
@@ -51,6 +53,11 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
     async internalUpdate(configUpdated: boolean, hassUpdated: boolean) {
 
         if (this.batteryProvider == undefined || configUpdated) {
+            // checking whether we should apply default config
+            if (Object.keys(this.config).length == 1) {
+                this.config = getDefaultConfig();
+            }
+
             this.batteryProvider = new BatteryProvider(this.config);
         }
 
@@ -82,8 +89,11 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
     render(): TemplateResult<1> {
         if (this.list.length == 0 && this.groups.length == 0) {
             // if there are no entities to show we don't want to render anything
+            this.style.display = "none";
             return html``;
         }
+
+        this.style.removeProperty("display");
 
         return cardHtml(this);
     }
@@ -99,7 +109,7 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
      * we cannot provide any reasonable estimation.
      */
      getCardSize() {
-        let size = this.config.entities?.length || 1;
+        let size = safeGetConfigArrayOfObjects(this.config.entities, "entity").length || 1;
 
         if (this.config.collapse) {
             if (typeof this.config.collapse == "number") {
@@ -116,36 +126,24 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
     }
 }
 
-/**
- * Sorts batteries by given criterias and returns their IDs
- * @param config Card configuration
- * @param batteries List of all known battery elements
- * @returns List of battery IDs (batteries sorted by given criterias)
- */
-const getIdsOfSortedBatteries = (config: IBatteryCardConfig, batteries: IBatteryCollection): string[] => {
-    let batteriesToSort = Object.keys(batteries).map(entityId => batteries[entityId]);
-    switch (config.sort_by_level) {
-        case "asc": 
-            batteriesToSort = batteriesToSort.sort((a, b) => compareBatteries(a.state, b.state));
-            break;
-        case "desc":
-            batteriesToSort = batteriesToSort.sort((a, b) => compareBatteries(b.state, a.state));
-            break;
+const getDefaultConfig = () => <IBatteryStateCardConfig>{
+    sort: {
+        by: "state"
+    },
+    collapse: 8,
+    filter: {
+        include: [{
+            name: "attributes.device_class",
+            value: "battery"
+        }]
+    },
+    secondary_info: "{last_changed}",
+    bulk_rename: [
+        { from: " Battery" },
+        { from: " level" },
+    ],
+    colors: {
+        steps: [ "#ff0000", "#ffff00", "#00ff00" ],
+        gradient: true,
     }
-
-    return batteriesToSort.map(b => b.entityId!);
-} 
-
-/**
- * Battery state comparer
- * @param a Battery A
- * @param b Battery B
- * @returns Comparison result
- */
-const compareBatteries = (a: string, b: string): number => {
-    let aNum = Number(a);
-    let bNum = Number(b);
-    aNum = isNaN(aNum) ? -1 : aNum;
-    bNum = isNaN(bNum) ? -1 : bNum;
-    return aNum - bNum;
 }
