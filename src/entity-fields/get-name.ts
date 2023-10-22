@@ -1,5 +1,5 @@
 import { HomeAssistant } from "custom-card-helpers";
-import { safeGetArray } from "../utils";
+import { getRegexFromString, safeGetArray } from "../utils";
 
 
 /**
@@ -21,9 +21,10 @@ export const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | unde
 
     const renameRules = safeGetArray(config.bulk_rename)
     renameRules.forEach(r => {
-        if (r.from[0] == "/" && r.from[r.from.length - 1] == "/") {
+        const regex = getRegexFromString(r.from);
+        if (regex) {
             // create regexp after removing slashes
-            name = name.replace(new RegExp(r.from.substr(1, r.from.length - 2)), r.to || "");
+            name = name.replace(regex, r.to || "");
         }
         else {
             name = name.replace(r.from, r.to || "");
@@ -32,3 +33,4 @@ export const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | unde
 
     return name;
 }
+

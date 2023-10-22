@@ -54,4 +54,19 @@ describe("Get name", () => {
 
         expect(name).toBe(expectedResult);
     });
+
+    test.each(
+        [
+            ["Kitchen Battery", { from: "/ Battery/", to: "" }, "Kitchen"],
+            ["Kitchen Battery", { from: "/ battery/i", to: "" }, "Kitchen"],
+            ["Kitchen battery temperature battery", [{ from: "/\\sbattery/ig", to: "" }], "Kitchen temperature"],
+        ]
+    )("regex", (entityName: string, renameRules: IConvert | IConvert[], expectedResult: string) => {
+        const hassMock = new HomeAssistantMock(true);
+        hassMock.addEntity("My entity", "45", { friendly_name: entityName });
+
+        let name = getName({ entity: "my_entity", bulk_rename: renameRules }, hassMock.hass);
+
+        expect(name).toBe(expectedResult);
+    });
 });

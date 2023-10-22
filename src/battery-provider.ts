@@ -1,4 +1,4 @@
-import { log, safeGetConfigArrayOfObjects } from "./utils";
+import { getRegexFromString, log, safeGetConfigArrayOfObjects } from "./utils";
 import { HomeAssistant } from "custom-card-helpers";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 
@@ -25,17 +25,7 @@ const operatorHandlers: { [key in FilterOperator]: (val: string | number | undef
             return false;
         }
 
-        pattern = pattern.toString();
-
-        let exp: RegExp | undefined;
-        const regexpMatch = pattern.match(regExpPattern);
-        if (regexpMatch) {
-            // create regexp after removing slashes
-            exp = new RegExp(regexpMatch[1], regexpMatch[2]);
-        } else if (pattern.indexOf("*") != -1) {
-            exp = new RegExp("^" + pattern.replace(/\*/g, ".*") + "$");
-        }
-
+        const exp = getRegexFromString(pattern.toString());
         return exp ? exp.test(val.toString()) : val === pattern;
     }
 }
@@ -104,7 +94,8 @@ class Filter {
             }
             else {
                 const expectedVal = this.config.value.toString();
-                operator = expectedVal.indexOf("*") != -1 || (expectedVal[0] == "/" && expectedVal[expectedVal.length - 1] == "/") ?
+                const regex = getRegexFromString(expectedVal);
+                operator = expectedVal.indexOf("*") != -1 || regex ?
                     "matches" :
                     "=";
             }

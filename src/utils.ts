@@ -102,3 +102,24 @@ export const throttledCall = function <T extends Function>(func: T, throttleMs: 
         timeoutHook = setTimeout(() => func.apply(null, args), 100);
     })) as T
 }
+
+
+const regexPattern = /\/(.*?)\/([igm]{1,3})/
+/**
+ * Extracts regex from the given string
+ * @param ruleVal Value to process
+ * @returns Parsed regex
+ */
+export const getRegexFromString = (ruleVal: string): RegExp | null => {
+    if (ruleVal[0] == "/" && ruleVal[ruleVal.length - 1] == "/") {
+        return new RegExp(ruleVal.substr(1, ruleVal.length - 2));
+    }
+    else { 
+        let matches = ruleVal.match(regexPattern)
+        if (matches && matches.length == 3) {
+            return new RegExp(matches[1], matches[2]);
+        }
+    }
+
+    return null;
+}
