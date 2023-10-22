@@ -35,6 +35,24 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 ## Config
 
+### Default card config
+
+When config is empty the card is initialized with the default config which you can find below. Once you start adding custom configuration the default configuration won't be applied hence if you wish to alter the default config please copy-paste it from the below listing.
+```yaml
+type: custom:battery-state-card
+secondary_info: "{last_changed}"
+filter:
+  include:
+    - name: "attributes.device_class"
+      value: "battery"
+sort:
+  by: "state"
+collapse: 8
+bulk_rename:
+  - from: " Battery"
+  - from: " level"
+```
+
 ### Card config
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|

@@ -53,6 +53,11 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
     async internalUpdate(configUpdated: boolean, hassUpdated: boolean) {
 
         if (this.batteryProvider == undefined || configUpdated) {
+            // checking whether we should apply default config
+            if (Object.keys(this.config).length == 1) {
+                this.config = getDefaultConfig();
+            }
+
             this.batteryProvider = new BatteryProvider(this.config);
         }
 
@@ -119,4 +124,22 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
         // +1 to account header
         return size + 1;
     }
+}
+
+const getDefaultConfig = () => <IBatteryStateCardConfig>{
+    sort: {
+        by: "state"
+    },
+    collapse: 8,
+    filter: {
+        include: [{
+            name: "attributes.device_class",
+            value: "battery"
+        }]
+    },
+    secondary_info: "{last_changed}",
+    bulk_rename: [
+        { from: " Battery" },
+        { from: " level" },
+    ]
 }
