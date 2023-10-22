@@ -227,6 +227,11 @@ interface IBatteryEntityConfig {
      * Override for unit shown next to the value
      */
     unit?: string;
+
+    /**
+     * Whether the entity is not a battery entity
+     */
+    non_battery_entity?: boolean;
 }
 
 interface IBatteryCardConfig {
