@@ -71,7 +71,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         this.name = getName(this.config, this.hass);
         this.state = getBatteryLevel(this.config, this.hass);
         if (isNumber(this.state)) {
-            this.unit = String.fromCharCode(160) + (this.config.unit || "%");
+            this.unit = String.fromCharCode(160) + (this.config.unit || this.hass?.states[this.config.entity]?.attributes["unit_of_measurement"] || "%");
         }
         else {
             this.unit = undefined;
