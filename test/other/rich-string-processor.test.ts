@@ -112,4 +112,16 @@ describe("RichStringProcessor", () => {
         const result = proc.process(text);
         expect(result).toBe(expectedResult);
     });
+
+    test.each([
+        ["{state|abs()}", "-64", "64"],
+        ["{state|abs()}", "64", "64"],
+    ])("abs function", (text: string, state:string, expectedResult: string) => {
+        const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
+        const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
+        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+
+        const result = proc.process(text);
+        expect(result).toBe(expectedResult);
+    });
 })
