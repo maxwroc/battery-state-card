@@ -42,7 +42,10 @@
           "ts-jest": {
             "isolatedModules": true
           }
-        }
+        },
+        "coveragePathIgnorePatterns": [
+          "<rootDir>/test"
+        ]
       },
       {
         "preset": "ts-jest",
@@ -54,7 +57,10 @@
           "ts-jest": {
             "isolatedModules": true
           }
-        }
+        },
+        "coveragePathIgnorePatterns": [
+          "<rootDir>/test"
+        ]
       }
     ]
   },

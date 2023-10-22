@@ -25,7 +25,7 @@ import { log, safeGetArray } from "../utils";
     if (chargingConfig.entity_id) {
         entityWithChargingState = hass.states[chargingConfig.entity_id]
         if (!entityWithChargingState) {
-            log(`'charging_state' entity id (${chargingConfig.entity_id}) not found`);
+            log(`'charging_state' entity id (${chargingConfig.entity_id}) not found.`);
             return false;
         }
 
