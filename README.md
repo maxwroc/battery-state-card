@@ -97,6 +97,7 @@ These options can be specified both per-entity and at the top level (affecting a
 | round | number |  | v2.1.0 | Rounds the value to number of fractional digits
 | unit | string | `"%"` | v2.1.0 | Override for unit displayed next to the state/level value ([example](#other-use-cases))
 | value_override | [KString](#keyword-string-kstring) |  | v3.0.0 | Allows to override the battery level value. Note: when used the `multiplier`, `round`, `state_map` setting is ignored
+| non_battery_entity | boolean | `false` | Disables default battery state sources e.g. "battery_level" attribute
 
 ### Keyword string (KString)
 

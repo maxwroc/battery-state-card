@@ -85,6 +85,16 @@ describe("Battery level", () => {
         expect(level).toBe("45");
     });
 
+    test("is taken from dafault locations - non battery entity", () => {
+        
+        const hassMock = new HomeAssistantMock(true);
+        hassMock.addEntity("Mocked entity", "OK", { battery_level: "45%" });
+
+        const level = getBatteryLevel({ entity: "mocked_entity", non_battery_entity: true }, hassMock.hass);
+        
+        expect(level).toBe("OK");
+    });
+
     test("is taken from dafault locations - state", () => {
         
         const hassMock = new HomeAssistantMock(true);

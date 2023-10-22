@@ -37,8 +37,8 @@ import { isNumber, log } from "../utils";
     }
     else {
         const candidates: string[] = [
-            entityData.attributes.battery_level,
-            entityData.attributes.battery,
+            config.non_battery_entity ? null: entityData.attributes.battery_level,
+            config.non_battery_entity ? null: entityData.attributes.battery,
             entityData.state
         ];
 
