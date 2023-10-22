@@ -9,9 +9,14 @@ import { log, safeGetArray } from "../utils";
  * @returns Whether battery is in chargin mode
  */
  export const getChargingState = (config: IBatteryEntityConfig, state: string, hass?: HomeAssistant): boolean => {
-    const chargingConfig = config.charging_state;
-    if (!chargingConfig || !hass) {
+
+    if (!hass) {
         return false;
+    }
+
+    const chargingConfig = config.charging_state;
+    if (!chargingConfig) {
+        return getDefaultChargingState(config, hass);
     }
 
     let entityWithChargingState = hass.states[config.entity];
@@ -46,6 +51,21 @@ import { log, safeGetArray } from "../utils";
     const statesIndicatingCharging = safeGetArray(chargingConfig.state);
 
     return statesIndicatingCharging.length == 0 ? !!state : statesIndicatingCharging.some(s => s == state);
+}
+
+const standardBatteryLevelEntitySuffix = "_battery_level";
+const standardBatteryStateEntitySuffix = "_battery_state";
+const getDefaultChargingState = (config: IBatteryEntityConfig, hass?: HomeAssistant): boolean => {
+    if (!config.entity.endsWith(standardBatteryLevelEntitySuffix)) {
+        return false;
+    }
+
+    const batteryStateEntity = hass?.states[config.entity.replace(standardBatteryLevelEntitySuffix, standardBatteryStateEntitySuffix)];
+    if (!batteryStateEntity) {
+        return false;
+    }
+
+    return ["charging", "full"].includes(batteryStateEntity.state);
 }
 
 /**

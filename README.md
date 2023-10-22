@@ -4,7 +4,7 @@
 [![GitHub Release][releases-shield]][releases]
 [![GitHub All Releases][downloads-total-shield]][releases]
 [![hacs_badge][hacs-shield]][hacs]
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/maxwroc/battery-state-card/Release%20Drafter?label=tests)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/maxwroc/battery-state-card/release-drafter.yml?label=tests)
 [![Community Forum][forum-shield]][forum]
 
 Battery state card for [Home Assistant](https://github.com/home-assistant/home-assistant). It shows battery levels from connected devices (entities).
@@ -20,7 +20,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 <details>
   <summary>Update to v3.X.X</summary>
 
-* Secondary info last_updated / last_changed values. Now these values has to be put in curly braces e.g. `secondary_info: "{last_updated}"`
+* Secondary info last_updated / last_changed values. Now these values has to be put in quotes and curly braces e.g. `secondary_info: "{last_updated}"`
 * Secondary info charging indication. Now the value has to be in curly braces e.g. `secondary_info: "{charging}"`
 * Sorting setting has changed. Now it is called `sort` (previously "sort_by_level") and it can define multiple levels of sorting.
 * Color settings are now in a single config entry `colors` ("color_thresholds" and "color_gradient" settings are not working any more)
@@ -34,6 +34,30 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 </details>
 
 ## Config
+
+### Default card config
+
+When config is empty the card is initialized with the default config which you can find below. Once you start adding custom configuration the default configuration won't be applied hence if you wish to alter the default config please copy-paste it from the below listing.
+```yaml
+type: custom:battery-state-card
+secondary_info: "{last_changed}"
+filter:
+  include:
+    - name: "attributes.device_class"
+      value: "battery"
+sort:
+  by: "state"
+collapse: 8
+bulk_rename:
+  - from: " Battery"
+  - from: " level"
+colors:
+  steps:
+    - '#ff0000'
+    - '#ffff00'
+    - '#00ff00'
+  gradient: true
+```
 
 ### Card config
 | Name | Type | Default | Since | Description |
@@ -51,10 +75,10 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 ### Entity object
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
-| type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-card` |
+| type | string | | v0.9.0 | Must be `custom:battery-state-entity` if used as entity row e.g. in entity-list card  |
 | entity | string | **(required)** | v0.9.0 | Entity ID
 | name | string |  | v0.9.0 | Entity name override
-| icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one). You can provide entity attribute name which contains icon class (e.g. `attribute.battery_icon` - it has to be prefixed with "attribute.")
+| icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one). You can provide entity attribute name which contains icon class (e.g. `attributes.battery_icon` - it has to be prefixed with "attributes.")
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
 
@@ -66,12 +90,13 @@ These options can be specified both per-entity and at the top level (affecting a
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | colors | [ColorSettings](#color-settings) | (see [below](#default-colors)) | v3.0.0 | Color settings
-| tap_action | [TapAction](#tap-action) |  | v1.1.0 | Action that will be performed when this entity is tapped.
+| tap_action | [TapAction](#tap-action) | more-info | v1.1.0 | Action that will be performed when this entity is tapped.
 | state_map | list([Convert](#convert))|  | v1.1.0 | Collection of value mappings. It is useful if your sensor doesn't produce numeric values. ([example](#non-numeric-state-values))
 | charging_state | [ChargingState](#charging-state-object) |  | v1.1.0 | Configuration for charging indication. ([example](#charging-state-indicators))
 | secondary_info | [KString](#keyword-string-kstring) |  | v3.0.0 | Secondary info text. It can be a custom text with keywords (dynamic values) ([example](#secondary-info))
 | round | number |  | v2.1.0 | Rounds the value to number of fractional digits
 | unit | string | `"%"` | v2.1.0 | Override for unit displayed next to the state/level value ([example](#other-use-cases))
+| value_override | [KString](#keyword-string-kstring) |  | v3.0.0 | Allows to override the battery level value. Note: when used the `multiplier`, `round`, `state_map` setting is ignored
 
 ### Keyword string (KString)
 
@@ -90,8 +115,14 @@ Keywords support simple functions to convert the values
 |:-----|:-----|:-----|
 | round(\[number\]) | `"{state\|round(2)}"` | Rounds the value to number of fractional digits. E.g. if state is 20.617 the output will be 20.62.
 | replace(\[old_string\]=\[new_string\]) | `"{attributes.friendly_name\|replace(Battery level=)}"` | Simple replace. E.g. if name contains "Battery level" string then it will be removed
+| multiply(\[number\]) | `"{state\|multiply(10)}"` | Multiplies the value by given number
+| greaterthan(\[threshold_number\],\[result_value\]) | `"{state\|greaterthan(10,100)}"` | Changes the value to a given one when the threshold is met. In the given example the value will be replaced to 100 when the current value is greater than 10
+| lessthan(\[threshold_number\],\[result_value\]) | `"{state\|lessthan(10,0)}"` | Changes the value to a given one when the threshold is met. In the given example the value will be replaced to 0 when the current value is less than 10
+| between(\[lower_threshold_number\],[upper_threshold_number\],\[result_value\]) | `"{state\|between(2,6,30)}"` | Changes the value to a given one when the value is between two given numbers. In the given example the value will be replaced to 30 when the current value is between 2 and 6
+| thresholds(\[number1\],\[number2\],...) | `"{state\|thresholds(22,89,200,450)}"` | Converts the value to percentage based on given thresholds. In the given example values will be converted in the following way 20=>0, 30=>25, 99=>50, 250=>75, 555=>100
+| abs() | `"{state\|abs()}"` | Produces the absolute value
 
-You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:=)|replace(%=)|round()} %"` and the end result will be "27 %"
+You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:=)|replace(%=)|round()} %"` and the end result will be "27"
 
 ### Sort object
 
@@ -170,7 +201,7 @@ Operator is an optional property. If operator is not specified it depends on `va
 The definition is similar to the default [tap-action](https://www.home-assistant.io/lovelace/actions/#tap-action) in HomeAssistant.
 | Name | Type | Default | Description |
 |:-----|:-----|:-----|:-----|
-| action | string | `none` | Action type, one of the following: `more-info`, `call-service`, `navigate`, `url`, `none`
+| action | string | `more-info` | Action type, one of the following: `more-info`, `call-service`, `navigate`, `url`, `none`
 | service | string |  | Service to call when `action` defined as `call-service`. Eg. `"notify.pushover"`
 | service_data | any |  | Service data to inlclue when `action` defined as `call-service`
 | navigation_path | string |  | Path to navigate to when `action` defined as `navigate`. Eg. `"/lovelace/0"`
@@ -212,6 +243,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | icon_color | string |  | v2.0.0 | Group icon color. It can be a static HTML (e.g. `#ff0000`) or dynamic (`first` or `last`) color value based on the battery colors in the group.
 | min | number |  | v1.4.0 | Minimal battery level. Batteries below that level won't be assigned to this group.
 | max | number |  | v1.4.0 | Maximal battery level. Batteries above that level won't be assigned to this group.
+| entities | list(string) |  | v1.4.0 | List of endity ids
 ## Examples
 
 You can use this component as a card or as an entity (e.g. in `entities card`);
@@ -511,7 +543,7 @@ filter:
 ```yaml
 type: custom:battery-state-card
 name: Secondary info
-secondary_info: last_updated # applied to all entities which don't have the override
+secondary_info: "{last_updated}" # applied to all entities which don't have the override
 entities:
   - entity: sensor.bedroom_motion_battery_level
     name: "Bedroom motion sensor"
@@ -573,40 +605,81 @@ entities:
 
 ### Other use cases
 
-![image](https://user-images.githubusercontent.com/8268674/147777101-c6f8a299-a03e-4792-a92c-8477b03d1941.png)
+![image](https://github.com/maxwroc/battery-state-card/assets/8268674/d66bcd53-e37a-4518-a087-bd7e708b3425)
 
 ```yaml
 type: custom:battery-state-card
-title: Link quality
-sort: "state"
+secondary_info: '{last_changed}'
+icon: mdi:signal
+filter:
+  include:
+    - name: attributes.device_class
+      value: signal_strength
+sort:
+  by: state
+collapse: 8
+bulk_rename:
+  - from: ' Signal'
+  - from: ' strength'
+  - from: ' Rssi'
+  - from: ' numeric'
+value_override: '{state|abs()}'
 colors:
   steps:
-    - '#ff0000'
-    - '#ffff00'
-    - '#00ff00'
+    - color: '#00ff00'
+      value: 50
+    - color: '#ffff00'
+      value: 65
+    - color: '#ff0000'
+      value: 100
   gradient: true
-icon: mdi:signal
-unit: lqi
-entities:
-  - entity: sensor.bathroom_motion_signal
-    name: Bathroom motion sensor
-  - entity: sensor.bedroom_balcony_signal
-    name: Bedroom balkony door sensor
-  - entity: sensor.bedroom_motion_signal
-    name: Bedroom motion sensor
-  - entity: sensor.bedroom_switch_signal
-    name: Bedroom Aqara switch
-  - entity: sensor.bedroomtemp_signal
-    name: Bedroom temp. sensor
 ```
+![image](https://user-images.githubusercontent.com/10567188/151678867-28bd47b9-fb66-42ed-a78a-390d55860634.png)
 
+```yaml
+type: custom:battery-state-card
+title: HDD temperatures
+icon: mdi:harddisk
+color_thresholds:
+  - value: 26
+    color: blue
+  - value: 36
+    color: green
+  - value: 45
+    color: yellow
+  - value: 60
+    color: red
+tap_action:
+  action: more-info
+collapse: 3
+sort: 
+  by: state
+  desc: true
+unit: °C
+round: 0
+filter:
+  include:
+    - name: entity_id
+      value: sensor.nasos_sd*
+    - name: entity_id
+      value: sensor.omv2_sd*
+    - name: entity_id
+      value: sensor.exnas_st12*temper*
+    - name: entity_id
+      value: sensor.*_disk_*_temperature
+entities:
+  - entity: sensor.vidik_temperature
+  - entity: sensor.exnas_d1_temperatures_temperature
+```
 ## Installation
 
-Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following to your lovelace configuration
+Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following resource to your **lovelace** configuration (if you have yaml mode active)
 ```yaml
-resources:
-  - url: /hacsfiles/battery-state-card/battery-state-card.js
-    type: module
+lovelace:
+  mode: yaml
+  resources:
+    - url: /hacsfiles/battery-state-card/battery-state-card.js
+      type: module
 ```
 
 If you don't have HACS you can download js file from [latest release](https://github.com/maxwroc/battery-state-card/releases/latest). Drop it then in `www` folder in your `config` directory. Next add the following entry in lovelace configuration

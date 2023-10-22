@@ -206,7 +206,7 @@ interface IBatteryEntityConfig {
     /**
      * (Testing purposes) Override for battery level value
      */
-    value_override?: string;
+    value_override?: string | number;
 
     /**
      * Colors settings
@@ -307,3 +307,15 @@ interface IMap<T> {
 
 type IObjectOrString<T> = T | string;
 type ISimplifiedArray<T> = IObjectOrString<T> | IObjectOrString<T>[] | undefined;
+
+interface HomeAssistantWindow extends Window {
+    customCards: ICardInfo[] | undefined;
+}
+
+interface ICardInfo {
+    type: string;
+    name: string;
+    description: string;
+    preview?: boolean;
+    documentationURL?: string;
+}

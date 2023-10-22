@@ -114,7 +114,8 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
             last_updated: "",
             context: {
                 id: "",
-                user_id: null
+                user_id: null,
+                parent_id: null,
             },
             setState: (state: string) => {
                 this.hass.states[entity.entity_id].state = state;

@@ -53,6 +53,11 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
     async internalUpdate(configUpdated: boolean, hassUpdated: boolean) {
 
         if (this.batteryProvider == undefined || configUpdated) {
+            // checking whether we should apply default config
+            if (Object.keys(this.config).length == 1) {
+                this.config = getDefaultConfig();
+            }
+
             this.batteryProvider = new BatteryProvider(this.config);
         }
 
@@ -84,8 +89,11 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
     render(): TemplateResult<1> {
         if (this.list.length == 0 && this.groups.length == 0) {
             // if there are no entities to show we don't want to render anything
+            this.style.display = "none";
             return html``;
         }
+
+        this.style.removeProperty("display");
 
         return cardHtml(this);
     }
@@ -115,5 +123,27 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
 
         // +1 to account header
         return size + 1;
+    }
+}
+
+const getDefaultConfig = () => <IBatteryStateCardConfig>{
+    sort: {
+        by: "state"
+    },
+    collapse: 8,
+    filter: {
+        include: [{
+            name: "attributes.device_class",
+            value: "battery"
+        }]
+    },
+    secondary_info: "{last_changed}",
+    bulk_rename: [
+        { from: " Battery" },
+        { from: " level" },
+    ],
+    colors: {
+        steps: [ "#ff0000", "#ffff00", "#00ff00" ],
+        gradient: true,
     }
 }

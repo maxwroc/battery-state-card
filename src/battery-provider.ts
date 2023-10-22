@@ -5,7 +5,7 @@ import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 /**
  * Properties which should be copied over to individual entities from the card
  */
-const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ "tap_action", "state_map", "charging_state", "secondary_info", "colors", "bulk_rename", "icon", "round", "unit" ];
+const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ "tap_action", "state_map", "charging_state", "secondary_info", "colors", "bulk_rename", "icon", "round", "unit", "value_override" ];
 
 const regExpPattern = /\/([^/]+)\/([igmsuy]*)/;
 
@@ -16,10 +16,10 @@ const operatorHandlers: { [key in FilterOperator]: (val: string | number | undef
     "exists": val => val !== undefined,
     "contains": (val, searchString) => val !== undefined && val.toString().indexOf(searchString.toString()) != -1,
     "=": (val, expectedVal) => val == expectedVal,
-    ">": (val, expectedVal) => Number(val) > expectedVal,
-    "<": (val, expectedVal) => Number(val) < expectedVal,
-    ">=": (val, expectedVal) => Number(val) >= expectedVal,
-    "<=": (val, expectedVal) => Number(val) <= expectedVal,
+    ">": (val, expectedVal) => Number(val) > Number(expectedVal),
+    "<": (val, expectedVal) => Number(val) < Number(expectedVal),
+    ">=": (val, expectedVal) => Number(val) >= Number(expectedVal),
+    "<=": (val, expectedVal) => Number(val) <= Number(expectedVal),
     "matches": (val, pattern) => {
         if (val === undefined) {
             return false;
@@ -323,8 +323,9 @@ export class BatteryProvider {
             const battery = this.batteries[entityId];
             let isHidden = false;
             for (let filter of filters) {
-                // passing HA entity state together with VM battery level as the source of this value can vary
-                if (filter.isValid(hass.states[entityId], battery.state)) {
+                const entityState = hass.states[entityId];
+                // we want to show batteries for which entities are missing in HA
+                if (entityState !== undefined && filter.isValid(entityState, battery.state)) {
                     if (filter.is_permanent) {
                         // permanent filters have conditions based on static values so we can safely
                         // remove such battery to avoid updating them unnecessarily
