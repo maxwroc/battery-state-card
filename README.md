@@ -606,12 +606,15 @@ entities:
 
 ### Other use cases
 
-![image](https://github.com/maxwroc/battery-state-card/assets/8268674/d66bcd53-e37a-4518-a087-bd7e708b3425)
+![image](https://github.com/maxwroc/battery-state-card/assets/8268674/40957377-d523-45d2-99ae-39325b5ddacc)
+![image](https://github.com/maxwroc/battery-state-card/assets/8268674/477149f8-9d88-4858-b1f4-f7c615186845)
 
 ```yaml
 type: custom:battery-state-card
 secondary_info: '{last_changed}'
 icon: mdi:signal
+# below an example with dynamic icon
+# icon: "mdi:signal-cellular-{state|abs()|greaterthan(69,outline)|greaterthan(59,1)|greaterthan(49,2)|greaterthan(2,3)}"
 filter:
   include:
     - name: attributes.device_class

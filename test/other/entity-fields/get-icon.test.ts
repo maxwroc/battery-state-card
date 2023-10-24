@@ -1,4 +1,5 @@
 import { getIcon } from "../../../src/entity-fields/get-icon";
+import { HomeAssistantMock } from "../../helpers";
 
 describe("Get icon", () => {
     test("charging and charging icon set in config", () => {
@@ -45,4 +46,19 @@ describe("Get icon", () => {
         let icon = getIcon({ entity: "", icon: "mdi:custom" }, 20, false, undefined);
         expect(icon).toBe("mdi:custom");
     });
+
+    test.each([
+        ["signal-cellular-{state}", "20", "signal-cellular-20"],
+        ["signal-cellular-{state|abs()|greaterthan(69,outline)|greaterthan(59,1)|greaterthan(49,2)|greaterthan(2,3)}", "40", "signal-cellular-3"],
+        ["signal-cellular-{state|abs()|greaterthan(69,outline)|greaterthan(59,1)|greaterthan(49,2)|greaterthan(2,3)}", "55", "signal-cellular-2"],
+        ["signal-cellular-{state|abs()|greaterthan(69,outline)|greaterthan(59,1)|greaterthan(49,2)|greaterthan(2,3)}", "65", "signal-cellular-1"],
+        ["signal-cellular-{state|abs()|greaterthan(69,outline)|greaterthan(59,1)|greaterthan(49,2)|greaterthan(2,3)}", "75", "signal-cellular-outline"],
+    ])("returns dynamic icon", (configuredIcon: string, state: string, expectedResult: string) => {
+
+        const hassMock = new HomeAssistantMock();
+        hassMock.addEntity("Battery state", state);
+
+        let icon = getIcon({ entity: "battery_state", icon: configuredIcon }, Number(state), false, hassMock.hass);
+        expect(icon).toBe(expectedResult);
+    })
 });

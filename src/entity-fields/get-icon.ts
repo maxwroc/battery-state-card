@@ -1,5 +1,6 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { log } from "../utils";
+import { RichStringProcessor } from "../rich-string-processor";
 
 /**
  * Gets MDI icon class
@@ -16,6 +17,7 @@ export const getIcon = (config: IBatteryEntityConfig, level: number, isCharging:
 
     if (config.icon) {
         const attribPrefix = "attribute.";
+        // check if we should return the icon/string from the attribute value
         if (hass && config.icon.startsWith(attribPrefix)) {
             const attribName = config.icon.substr(attribPrefix.length);
             const val = hass.states[config.entity].attributes[attribName] as string | undefined;
@@ -27,7 +29,8 @@ export const getIcon = (config: IBatteryEntityConfig, level: number, isCharging:
             return val;
         }
 
-        return config.icon;
+        const processor = new RichStringProcessor(hass, config.entity);
+        return processor.process(config.icon);
     }
 
     if (isNaN(level) || level > 100 || level < 0) {
