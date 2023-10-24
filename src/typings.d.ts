@@ -77,6 +77,11 @@ interface IConvert {
      * Value replacement
      */
     to: string;
+
+    /**
+     * Entity state to display
+     */
+    display?: string;
 }
 
 /**

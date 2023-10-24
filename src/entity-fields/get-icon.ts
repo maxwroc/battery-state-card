@@ -10,7 +10,7 @@ import { RichStringProcessor } from "../rich-string-processor";
  * @param hass HomeAssistant state object
  * @returns Mdi icon string
  */
-export const getIcon = (config: IBatteryEntityConfig, level: number, isCharging: boolean, hass: HomeAssistant | undefined): string => {
+export const getIcon = (config: IBatteryEntityConfig, level: number | undefined, isCharging: boolean, hass: HomeAssistant | undefined): string => {
     if (isCharging && config.charging_state?.icon) {
         return config.charging_state.icon;
     }
@@ -33,7 +33,7 @@ export const getIcon = (config: IBatteryEntityConfig, level: number, isCharging:
         return processor.process(config.icon);
     }
 
-    if (isNaN(level) || level > 100 || level < 0) {
+    if (level === undefined || isNaN(level) || level > 100 || level < 0) {
         return "mdi:battery-unknown";
     }
 

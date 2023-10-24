@@ -10,7 +10,7 @@ describe("Colors", () => {
         [56, "var(--label-badge-green)"],
         [100, "var(--label-badge-green)"],
     ])("default steps", (batteryLevel: number, expectedColor: string) => {
-        const result = getColorForBatteryLevel({ entity: "", colors: undefined }, batteryLevel.toString(), false);
+        const result = getColorForBatteryLevel({ entity: "", colors: undefined }, batteryLevel, false);
 
         expect(result).toBe(expectedColor);
     })
@@ -32,7 +32,7 @@ describe("Colors", () => {
                 { value: 100, color: "green" }
             ]
         }
-        const result = getColorForBatteryLevel({ entity: "", colors: colorsConfig }, batteryLevel.toString(), false);
+        const result = getColorForBatteryLevel({ entity: "", colors: colorsConfig }, batteryLevel, false);
 
         expect(result).toBe(expectedColor);
     })
@@ -44,7 +44,7 @@ describe("Colors", () => {
         [75, "#7fff00"],
         [100, "#00ff00"],
     ])("gradient simple color list", (batteryLevel: number, expectedColor: string) => {
-        const result = getColorForBatteryLevel({ entity: "", colors: { steps: ["#ff0000", "#ffff00", "#00ff00"], gradient: true } }, batteryLevel.toString(), false);
+        const result = getColorForBatteryLevel({ entity: "", colors: { steps: ["#ff0000", "#ffff00", "#00ff00"], gradient: true } }, batteryLevel, false);
 
         expect(result).toBe(expectedColor);
     })
@@ -72,7 +72,7 @@ describe("Colors", () => {
             }
         }
 
-        const result = getColorForBatteryLevel(config, batteryLevel.toString(), false);
+        const result = getColorForBatteryLevel(config, batteryLevel, false);
 
         expect(result).toBe(expectedColor);
     })
@@ -85,7 +85,7 @@ describe("Colors", () => {
             }
         }
 
-        const result = getColorForBatteryLevel(config, "80", false);
+        const result = getColorForBatteryLevel(config, 80, false);
 
         expect(result).toBe("inherit");
     })

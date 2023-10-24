@@ -13,26 +13,33 @@ import { isNumber, log } from "../utils";
  * @param hass HomeAssistant state object
  * @returns Battery level
  */
- export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): string => {
+ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): IBatteryState => {
     const UnknownLevel = hass?.localize("state.default.unknown") || "Unknown";
-    let level: string;
+    let state: string;
+
+    const stringProcessor = new RichStringProcessor(hass, config.entity);
 
     if (config.value_override !== undefined) {
-        const proc = new RichStringProcessor(hass, config.entity);
-        return proc.process(config.value_override.toString());
+        const processedValue = stringProcessor.process(config.value_override.toString());
+        return {
+            state: processedValue,
+            level: isNumber(processedValue) ? Number(processedValue) : undefined
+        }
     }
 
     const entityData = hass?.states[config.entity];
 
     if (!entityData) {
-        return UnknownLevel;
+        return {
+            state: UnknownLevel
+        };
     }
 
     if (config.attribute) {
-        level = entityData.attributes[config.attribute];
-        if (level == undefined) {
+        state = entityData.attributes[config.attribute];
+        if (state == undefined) {
             log(`Attribute "${config.attribute}" doesn't exist on "${config.entity}" entity`);
-            level = UnknownLevel;
+            state = UnknownLevel;
         }
     }
     else {
@@ -42,45 +49,65 @@ import { isNumber, log } from "../utils";
             entityData.state
         ];
 
-        level = candidates.find(val => isNumber(val)) ||
+        state = candidates.find(val => isNumber(val)) ||
                 candidates.find(val => val !== null && val !== undefined)?.toString() ||
                 UnknownLevel
     }
 
+    let displayValue: string | undefined;
+
     // check if we should convert value eg. for binary sensors
     if (config.state_map) {
-        const convertedVal = config.state_map.find(s => s.from === level);
+        const convertedVal = config.state_map.find(s => s.from === state);
         if (convertedVal === undefined) {
-            if (!isNumber(level)) {
-                log(`Missing option for '${level}' in 'state_map.'`);
+            if (!isNumber(state)) {
+                log(`Missing option for '${state}' in 'state_map.'`);
             }
         }
         else {
-            level = convertedVal.to.toString();
+            state = convertedVal.to.toString();
+            if (convertedVal.display !== undefined) {
+                displayValue = stringProcessor.process(convertedVal.display);
+            }
         }
     }
 
     // trying to extract value from string e.g. "34 %"
-    if (!isNumber(level)) {
-        const match = stringValuePattern.exec(level);
+    if (!isNumber(state)) {
+        const match = stringValuePattern.exec(state);
         if (match != null) {
-            level = match[1];
+            state = match[1];
         }
     }
 
-    if (isNumber(level)) {
+    if (isNumber(state)) {
         if (config.multiplier) {
-            level = (config.multiplier * Number(level)).toString();
+            state = (config.multiplier * Number(state)).toString();
         }
 
         if (typeof config.round === "number") {
-            level = parseFloat(level).toFixed(config.round).toString();
+            state = parseFloat(state).toFixed(config.round).toString();
         }
     }
     else {
         // capitalize first letter
-        level = level.charAt(0).toUpperCase() + level.slice(1);
+        state = state.charAt(0).toUpperCase() + state.slice(1);
     }
 
-    return level;
+    return {
+        state: displayValue || state,
+        level: isNumber(state) ? Number(state) : undefined
+    };
+}
+
+interface IBatteryState {
+    /**
+     * Battery level
+     */
+    level?: number;
+
+    /**
+     * Battery state to display
+     */
+    state: string;
 }
