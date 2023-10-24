@@ -60,6 +60,7 @@ colors:
 ```
 
 ### Card config
+
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | type | string | **(required)** | v0.9.0 | Must be `custom:battery-state-entity` |
@@ -73,6 +74,7 @@ colors:
 +[common options](#common-options) (if specified they will be apllied to all entities)
 
 ### Entity object
+
 | Name | Type | Default | Since | Description |
 |:-----|:-----|:-----|:-----|:-----|
 | type | string | | v0.9.0 | Must be `custom:battery-state-entity` if used as entity row e.g. in entity-list card  |
@@ -85,6 +87,7 @@ colors:
  +[common options](#common-options) (if specified they will override the card-level ones)
 
 ### Common options
+
 These options can be specified both per-entity and at the top level (affecting all entities).
 
 | Name | Type | Default | Since | Description |
@@ -199,6 +202,7 @@ Operator is an optional property. If operator is not specified it depends on `va
 | `"matches"` | If value matches the one specified in `value` property. You can use wildcards (e.g. `"*_battery_level"`) or regular expression (must be prefixed and followed by slash e.g. `"/[a-z_]+_battery_level/"`)
 
 ### Tap-Action
+
 The definition is similar to the default [tap-action](https://www.home-assistant.io/lovelace/actions/#tap-action) in HomeAssistant.
 | Name | Type | Default | Description |
 |:-----|:-----|:-----|:-----|
@@ -210,10 +214,11 @@ The definition is similar to the default [tap-action](https://www.home-assistant
 
 ### Convert
 
-| Name | Type | Default | Description |
-|:-----|:-----|:-----|:-----|
-| from | any | **(required)** | Value to convert. Note it is type sensitive (eg. `false` != `"false"`)
-| to | any | **(required)** | Target value
+| Name | Type | Default | Since | Description |
+|:-----|:-----|:-----|:-----|:-----|
+| from | any | **(required)** | v1.1.0 | Value to convert. Note it is type sensitive (eg. `false` != `"false"`)
+| to | any | **(required)** | v1.1.0 | Target value
+| display | string |  | v3.0.0 | Override for displayed entity state (when the current entiy state matches the `from` value)
 
 ### Charging-state object
 
@@ -245,6 +250,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | min | number |  | v1.4.0 | Minimal battery level. Batteries below that level won't be assigned to this group.
 | max | number |  | v1.4.0 | Maximal battery level. Batteries above that level won't be assigned to this group.
 | entities | list(string) |  | v1.4.0 | List of endity ids
+
 ## Examples
 
 You can use this component as a card or as an entity (e.g. in `entities card`);
