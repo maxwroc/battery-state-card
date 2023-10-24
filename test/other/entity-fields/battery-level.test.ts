@@ -5,24 +5,27 @@ describe("Battery level", () => {
 
     test("is equal value_override setting when it is provided", () => {
         const hassMock = new HomeAssistantMock(true);
-        const level = getBatteryLevel({ entity: "any", value_override: "45" }, hassMock.hass); 
+        const { state, level } = getBatteryLevel({ entity: "any", value_override: "45" }, hassMock.hass); 
 
-        expect(level).toBe("45");
+        expect(level).toBe(45);
+        expect(state).toBe("45");
     });
 
     test("is 'Unknown' when entity not found and no localized string", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.hass.localize = () => <string><unknown>null;
-        const level = getBatteryLevel({ entity: "any" }, hassMock.hass); 
+        const { state, level } = getBatteryLevel({ entity: "any" }, hassMock.hass); 
 
-        expect(level).toBe("Unknown");
+        expect(level).toBeUndefined()
+        expect(state).toBe("Unknown");
     });
 
     test("is 'Unknown' localized string when entity not found", () => {
         const hassMock = new HomeAssistantMock(true);
-        const level = getBatteryLevel({ entity: "any" }, hassMock.hass); 
+        const { state, level } = getBatteryLevel({ entity: "any" }, hassMock.hass); 
 
-        expect(level).toBe("[state.default.unknown]");
+        expect(level).toBeUndefined()
+        expect(state).toBe("[state.default.unknown]");
     });
 
     test("is taken from attribute but attribute is missing", () => {
@@ -30,9 +33,10 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery_state: "45" });
 
-        const level = getBatteryLevel({ entity: "mocked_entity", attribute: "battery_state_missing" }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity", attribute: "battery_state_missing" }, hassMock.hass);
         
-        expect(level).toBe("[state.default.unknown]");
+        expect(level).toBeUndefined()
+        expect(state).toBe("[state.default.unknown]");
     });
 
     test("is taken from attribute", () => {
@@ -40,9 +44,10 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery_state: "45" });
 
-        const level = getBatteryLevel({ entity: "mocked_entity", attribute: "battery_state" }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity", attribute: "battery_state" }, hassMock.hass);
         
-        expect(level).toBe("45");
+        expect(level).toBe(45);
+        expect(state).toBe("45");
     });
 
     test("is taken from attribute - value includes percentage", () => {
@@ -50,9 +55,10 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery_state: "45%" });
 
-        const level = getBatteryLevel({ entity: "mocked_entity", attribute: "battery_state" }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity", attribute: "battery_state" }, hassMock.hass);
         
-        expect(level).toBe("45");
+        expect(level).toBe(45);
+        expect(state).toBe("45");
     });
 
     test("is taken from state - value includes percentage", () => {
@@ -60,9 +66,10 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "45%");
 
-        const level = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
         
-        expect(level).toBe("45");
+        expect(level).toBe(45);
+        expect(state).toBe("45");
     });
 
     test("is taken from dafault locations - attribute: battery_level", () => {
@@ -70,9 +77,10 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery_level: "45%" });
 
-        const level = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
         
-        expect(level).toBe("45");
+        expect(level).toBe(45);
+        expect(state).toBe("45");
     });
 
     test("is taken from dafault locations - attribute: battery", () => {
@@ -80,9 +88,10 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery: "45%" });
 
-        const level = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
         
-        expect(level).toBe("45");
+        expect(level).toBe(45);
+        expect(state).toBe("45");
     });
 
     test("is taken from dafault locations - non battery entity", () => {
@@ -90,9 +99,10 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery_level: "45%" });
 
-        const level = getBatteryLevel({ entity: "mocked_entity", non_battery_entity: true }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity", non_battery_entity: true }, hassMock.hass);
         
-        expect(level).toBe("OK");
+        expect(level).toBeUndefined();
+        expect(state).toBe("OK");
     });
 
     test("is taken from dafault locations - state", () => {
@@ -100,9 +110,10 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "45");
 
-        const level = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
         
-        expect(level).toBe("45");
+        expect(level).toBe(45);
+        expect(state).toBe("45");
     });
 
     test("is taken from dafault locations - numeric value cannot be found", () => {
@@ -110,9 +121,10 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK");
 
-        const level = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
         
-        expect(level).toBe("OK");
+        expect(level).toBeUndefined();
+        expect(state).toBe("OK");
     });
 
     test("multiplier applied", () => {
@@ -120,9 +132,10 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "0.9");
 
-        const level = getBatteryLevel({ entity: "mocked_entity", multiplier: 100 }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity", multiplier: 100 }, hassMock.hass);
         
-        expect(level).toBe("90");
+        expect(level).toBe(90);
+        expect(state).toBe("90");
     });
 
     test.each([
@@ -134,9 +147,9 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", entityState);
 
-        const level = getBatteryLevel({ entity: "mocked_entity", round }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity", round }, hassMock.hass);
         
-        expect(level).toBe(expectedResult);
+        expect(state).toBe(expectedResult);
     });
 
     test("first letter is capitalized", () => {
@@ -144,23 +157,28 @@ describe("Battery level", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "ok");
 
-        const level = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
         
-        expect(level).toBe("Ok");
+        expect(level).toBeUndefined();
+        expect(state).toBe("Ok");
     });
 
     test.each([
-        ["ok", "100"],
-        ["empty", "0"],
-        ["20", "20"],
+        ["ok", "100", 100, undefined],
+        ["empty", "0", 0, undefined],
+        ["20", "20", 20, undefined],
+        ["charge", "Empty", 0, "Empty"],
+        ["charge", "StateFromOtherEntity", 0, "{sensor.other_entity.state}"],
     ])
-    ("state map applied", (entityState: string, expectedResult: string) => {
+    ("state map applied", (entityState: string, expectedState: string, expectedLevel: number | undefined, display?: string) => {
         
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", entityState);
+        hassMock.addEntity("Other entity", "StateFromOtherEntity", undefined, "sensor");
 
-        const level = getBatteryLevel({ entity: "mocked_entity", state_map: [ { from: "ok", to: "100" }, { from: "empty", to: "0" } ] }, hassMock.hass);
+        const { state, level } = getBatteryLevel({ entity: "mocked_entity", state_map: [ { from: "ok", to: "100" }, { from: "empty", to: "0" }, { from: "charge", to: "0", display } ] }, hassMock.hass);
         
-        expect(level).toBe(expectedResult);
+        expect(level).toBe(expectedLevel);
+        expect(state).toBe(expectedState);
     });
 });

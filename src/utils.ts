@@ -19,7 +19,7 @@ export const log = (message: string, level: "warn" | "error" = "warn") => {
  */
 export const isNumber = (value: string | number): boolean =>
     {
-        return (value !== null && value !== '' && !isNaN(Number(value)))
+        return (value!== undefined && value !== null && value !== '' && !isNaN(Number(value)))
     }
 /**
  * Returns array of values regardles if given value is string array or null

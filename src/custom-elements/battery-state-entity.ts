@@ -69,8 +69,10 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
 
     async internalUpdate() {
         this.name = getName(this.config, this.hass);
-        this.state = getBatteryLevel(this.config, this.hass);
-        if (isNumber(this.state)) {
+        var { state, level} = getBatteryLevel(this.config, this.hass);
+        this.state = state;
+
+        if (level !== undefined) {
             this.unit = String.fromCharCode(160) + (this.config.unit || this.hass?.states[this.config.entity]?.attributes["unit_of_measurement"] || "%");
         }
         else {
@@ -79,8 +81,8 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
 
         const isCharging = getChargingState(this.config, this.state, this.hass);
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, isCharging);
-        this.icon = getIcon(this.config, Number(this.state), isCharging, this.hass);
-        this.iconColor = getColorForBatteryLevel(this.config, this.state, isCharging);
+        this.icon = getIcon(this.config, level, isCharging, this.hass);
+        this.iconColor = getColorForBatteryLevel(this.config, level, isCharging);
     }
 
     connectedCallback() {

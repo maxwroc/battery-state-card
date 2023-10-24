@@ -7,22 +7,20 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
  * @param isCharging Whether battery is in chargin mode
  * @returns Icon color
  */
- export const getColorForBatteryLevel = (config: IBatteryEntityConfig, batteryLevel: string, isCharging: boolean): string => {
-
-    const level = Number(batteryLevel);
+ export const getColorForBatteryLevel = (config: IBatteryEntityConfig, batteryLevel: number | undefined, isCharging: boolean): string => {
 
     if (isCharging && config.charging_state?.color) {
         return config.charging_state.color;
     }
 
-    if (isNaN(level) || level > 100 || level < 0) {
+    if (batteryLevel === undefined || isNaN(batteryLevel) || batteryLevel > 100 || batteryLevel < 0) {
         return defaultColor;
     }
 
     const colorSteps = safeGetConfigArrayOfObjects(config.colors?.steps, "color");
 
     if (config.colors?.gradient) {
-        return getGradientColors(colorSteps, level);
+        return getGradientColors(colorSteps, batteryLevel);
     }
 
     let thresholds: IColorSteps[] = defaultColorSteps;
@@ -34,7 +32,7 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
         });
     }
 
-    return thresholds.find(th => level <= th.value!)?.color || defaultColor;
+    return thresholds.find(th => batteryLevel <= th.value!)?.color || defaultColor;
 }
 
 /**
