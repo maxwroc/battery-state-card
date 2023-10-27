@@ -720,7 +720,7 @@ sort:
 colors:
   steps:
     - value: 0
-      color: var(--state-inactive-color)
+      color: inherit
     - value: 1
       color: var(--state-active-color)
 unit: null
