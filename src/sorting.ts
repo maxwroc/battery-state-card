@@ -1,5 +1,5 @@
 import { IBatteryCollection } from "./battery-provider";
-import { log, safeGetConfigArrayOfObjects } from "./utils";
+import { isNumber, log, safeGetConfigArrayOfObjects } from "./utils";
 
 /**
  * Sorts batteries by given criterias and returns their IDs
@@ -16,15 +16,43 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
         let result = 0;
         sortOptions.find(o => {
 
+            let valA: any;
+            let valB: any;
+
             switch(o.by) {
                 case "name":
-                    result = compareStrings(batteries[idA].name, batteries[idB].name);
+                    valA = batteries[idA].name;
+                    valB = batteries[idB].name;
                     break;
                 case "state":
-                    result = compareNumbers(batteries[idA].state, batteries[idB].state);
+                    valA = batteries[idA].state;
+                    valB = batteries[idB].state;
                     break;
                 default:
-                    log("Unknown sort field: " + o.by, "warn");
+                    if ((<string>o.by).startsWith("entity.")) {
+                        const pathChunks = (<string>o.by).split(".");
+                        pathChunks.shift();
+                        valA = pathChunks.reduce((acc, val, i) => acc === undefined ? undefined : acc[val], <any>batteries[idA].entityData);
+                        valB = pathChunks.reduce((acc, val, i) => acc === undefined ? undefined : acc[val], <any>batteries[idB].entityData);
+                    }
+                    else {
+                        log("Unknown sort field: " + o.by, "warn");
+                    }
+            }
+
+            if (isNumber(valA) || isNumber(valB)) {
+                result = compareNumbers(valA, valB);
+            }
+            else if (valA === undefined) {
+                if (valB === undefined) {
+                    result = 0;
+                }
+                else {
+                    result = -1;
+                }
+            }
+            else {
+                result = compareStrings(valA, valB);
             }
 
             if (o.desc) {
