@@ -93,9 +93,9 @@ const commandPattern = /(?<func>[a-z]+)\((?<params>[^\)]*)\)/;
 
 const availableProcessors: IMap<IProcessorCtor> = {
     "replace": (params) => {
-        const replaceDataChunks = params.split("=");
+        const replaceDataChunks = params.split(",");
         if (replaceDataChunks.length != 2) {
-            log("'replace' function param has to have single equal char");
+            log("'replace' function requires two params");
             return undefined;
         }
 
@@ -172,6 +172,16 @@ const availableProcessors: IMap<IProcessorCtor> = {
     },
     "abs": () => 
         val => Math.abs(Number(val)).toString(),
+    "equals": (params) => {
+        const chunks = params.split(",");
+        if (chunks.length != 2) {
+            log("[KString]equals function requires two parameters");
+            return val => val;
+        }
+
+        return val =>  val == chunks[0] ? chunks[1] : val;
+    },
+        
 }
 
 interface IProcessor {

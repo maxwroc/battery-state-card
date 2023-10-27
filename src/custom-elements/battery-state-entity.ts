@@ -61,6 +61,11 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     public action: IAction | undefined;
 
     /**
+     * Raw entity data
+     */
+    public entityData: IMap<string>;
+
+    /**
      * Entity CSS styles
      */
     public static get styles() {
@@ -68,11 +73,16 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     }
 
     async internalUpdate() {
+
+        this.entityData = <any>{
+            ...this.hass?.states[this.config.entity]
+        };
+
         this.name = getName(this.config, this.hass);
         var { state, level} = getBatteryLevel(this.config, this.hass);
         this.state = state;
 
-        if (level !== undefined) {
+        if (level !== undefined && this.config.unit !== "" && this.config.unit !== null) {
             this.unit = String.fromCharCode(160) + (this.config.unit || this.hass?.states[this.config.entity]?.attributes["unit_of_measurement"] || "%");
         }
         else {

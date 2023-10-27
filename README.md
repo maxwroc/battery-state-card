@@ -127,15 +127,16 @@ Keywords support simple functions to convert the values
 | Func | Example | Description |
 |:-----|:-----|:-----|
 | round(\[number\]) | `"{state\|round(2)}"` | Rounds the value to number of fractional digits. E.g. if state is 20.617 the output will be 20.62.
-| replace(\[old_string\]=\[new_string\]) | `"{attributes.friendly_name\|replace(Battery level=)}"` | Simple replace. E.g. if name contains "Battery level" string then it will be removed
+| replace(\[old_string\],\[new_string\]) | `"{attributes.friendly_name\|replace(Battery level,)}"` | Simple replace. E.g. if name contains "Battery level" string then it will be removed
 | multiply(\[number\]) | `"{state\|multiply(10)}"` | Multiplies the value by given number
 | greaterthan(\[threshold_number\],\[result_value\]) | `"{state\|greaterthan(10,100)}"` | Changes the value to a given one when the threshold is met. In the given example the value will be replaced to 100 when the current value is greater than 10
 | lessthan(\[threshold_number\],\[result_value\]) | `"{state\|lessthan(10,0)}"` | Changes the value to a given one when the threshold is met. In the given example the value will be replaced to 0 when the current value is less than 10
 | between(\[lower_threshold_number\],[upper_threshold_number\],\[result_value\]) | `"{state\|between(2,6,30)}"` | Changes the value to a given one when the value is between two given numbers. In the given example the value will be replaced to 30 when the current value is between 2 and 6
 | thresholds(\[number1\],\[number2\],...) | `"{state\|thresholds(22,89,200,450)}"` | Converts the value to percentage based on given thresholds. In the given example values will be converted in the following way 20=>0, 30=>25, 99=>50, 250=>75, 555=>100
 | abs() | `"{state\|abs()}"` | Produces the absolute value
+| equals(\[value\],\[result_value\]) | `"{state\|equals(on,1)}"` | Changes the value conditionally - whenever the initial value is equal the given one
 
-You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:=)|replace(%=)|round()} %"` and the end result will be "27"
+You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:,)|replace(%,)|round()} %"` and the end result will be "27"
 
 ### Sort object
 
@@ -144,6 +145,7 @@ You can execute functions one after another. For example if you have the value "
 | by | string | **(required)** | v3.0.0 | Field of the entity used to sort (`"state"` or `"name"`)
 | desc | boolean | `false` | v3.0.0 | Whether to sort in descending order
 
+
 Note: you can simplify this setting and use just use strings if you want to keep ascending order e.g.:
 
 ```yaml
@@ -151,6 +153,8 @@ sort:
   - "name"
   - "state"
 ```
+
+Note: the state and name values used for sorting are the ones you see rendered on the card (e.g. after state_map transformations). You can use raw entity values to sort by prefixing their names with `entity.`. E.g. `entity.last_changed` or `entity.attributes.battery_level` or `entity.state`
 
 ### Color settings
 
@@ -621,6 +625,8 @@ entities:
 
 ### Other use cases
 
+#### RSSI sensors (signal strength)
+
 ![image](https://github.com/maxwroc/battery-state-card/assets/8268674/40957377-d523-45d2-99ae-39325b5ddacc)
 ![image](https://github.com/maxwroc/battery-state-card/assets/8268674/477149f8-9d88-4858-b1f4-f7c615186845)
 
@@ -653,6 +659,9 @@ colors:
       value: 100
   gradient: true
 ```
+
+#### HDD temperatures
+
 ![image](https://user-images.githubusercontent.com/10567188/151678867-28bd47b9-fb66-42ed-a78a-390d55860634.png)
 
 ```yaml
@@ -690,6 +699,42 @@ entities:
   - entity: sensor.vidik_temperature
   - entity: sensor.exnas_d1_temperatures_temperature
 ```
+
+#### Motion sensors (sorted by state and last changed property)
+
+![image](https://github.com/maxwroc/battery-state-card/assets/8268674/cd9291bf-1804-4783-9436-622c4b63fe56)
+
+```yaml
+type: custom:battery-state-card
+secondary_info: '{last_changed}'
+icon: '{state|equals(off,mdi:motion-sensor-off)|equals(on,mdi:motion-sensor)}'
+filter:
+  include:
+    - name: attributes.device_class
+      value: motion
+sort:
+  - by: state
+    desc: true
+  - by: entity.last_changed
+    desc: true
+colors:
+  steps:
+    - value: 0
+      color: inherit
+    - value: 1
+      color: var(--state-active-color)
+unit: null
+state_map:
+  - from: 'off'
+    to: 0
+    display: Clear
+  - from: 'on'
+    to: 1
+    display: Detected
+collapse: 8
+
+```
+
 ## Installation
 
 Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following resource to your **lovelace** configuration (if you have yaml mode active)
@@ -741,7 +786,13 @@ Note: there is "undocumented" `value_override` property on the [entity object](#
 npm run test
 ```
 
-Tests in `card` and `entity` directory are e2e tests and run in Electron (headless) browser. All the other tests run in node env (hence they are much faster).
+Or (to see tests coverage report)
+
+```shell
+npm run test+coverage
+```
+
+Tests in `card` and `entity` directory are e2e tests which run in Electron (headless) browser. All the other tests run in node env (hence they are much faster).
 
 </details>
 

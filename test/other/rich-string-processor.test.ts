@@ -33,7 +33,7 @@ describe("RichStringProcessor", () => {
     });
 
     test.each([
-        ["{attributes.friendly_name|replace(motion=motion sensor)}", "Bedroom motion sensor"], // replacing part of the attribute value
+        ["{attributes.friendly_name|replace(motion,motion sensor)}", "Bedroom motion sensor"], // replacing part of the attribute value
     ])("replace function", (text: string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", "20.56", {}, "sensor");
@@ -48,7 +48,7 @@ describe("RichStringProcessor", () => {
         const motionEntity = hassMock.addEntity("Bedroom motion", "Value 20.56%", {}, "sensor");
         const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
 
-        const result = proc.process("{state|replace(Value =)|replace(%=)|round()}");
+        const result = proc.process("{state|replace(Value ,)|replace(%,)|round()}");
         expect(result).toBe("21");
     });
 
