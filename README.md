@@ -9,15 +9,6 @@
 
 Battery state card for [Home Assistant](https://github.com/home-assistant/home-assistant). It shows battery levels from connected devices (entities).
 
-# ⚠️ Warning ⚠️
-
-The below docs are for v3.0.0! I'm sorry for the confusion. 
-
-The old docs can be found here:
-https://github.com/maxwroc/battery-state-card/tree/v2.1.1
-
-The v3.0.0 release is coming in next few days! 
-
 ## Overview
 
 This card was inspired by [another great card](https://github.com/cbulock/lovelace-battery-entity) showing the battery states. I have decided to implement my own as there was no response for pull requests from author and I wanted to fix few things and also add couple new features.
