@@ -6,6 +6,7 @@ labels: bug
 assignees: ''
 
 ---
+<!-- Please double check what version of the card is loaded before you create a bug! You can do it by looking at the Developer Tools Console in your browser (Win-Chrome - F12 key) -->
 
 **Describe the bug**
 <!-- A clear and concise description of what the bug is. -->
