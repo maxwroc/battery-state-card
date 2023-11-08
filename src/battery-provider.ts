@@ -1,7 +1,8 @@
-import { getRegexFromString, log, safeGetConfigArrayOfObjects } from "./utils";
+import { log, safeGetConfigArrayOfObjects } from "./utils";
 import { HomeAssistant } from "custom-card-helpers";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 import { Filter } from "./filter";
+import { HomeAssistantExt } from "./type-extensions";
 
 /**
  * Properties which should be copied over to individual entities from the card
@@ -51,7 +52,7 @@ export class BatteryProvider {
         this.processExplicitEntities();
     }
 
-    async update(hass: HomeAssistant): Promise<void> {
+    async update(hass: HomeAssistantExt): Promise<void> {
         if (!this.initialized) {
             // groups and includes should be processed just once
             this.initialized = true;
@@ -183,7 +184,7 @@ export class BatteryProvider {
                 if (this.batteries[entity_id]) {
                     return;
                 }
-                
+
                 this.batteries[entity_id] = this.createBattery({ entity: entity_id });
             });
 

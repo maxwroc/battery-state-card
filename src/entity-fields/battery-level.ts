@@ -1,11 +1,11 @@
-import { HomeAssistant } from "custom-card-helpers/dist/types";
 import { RichStringProcessor } from "../rich-string-processor";
+import { HomeAssistantExt } from "../type-extensions";
 import { isNumber, log } from "../utils";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
  */
- const stringValuePattern = /\b([0-9]{1,3})\s?%/;
+const stringValuePattern = /\b([0-9]{1,3})\s?%/;
 
 /**
  * Getts battery level/state
@@ -13,7 +13,7 @@ import { isNumber, log } from "../utils";
  * @param hass HomeAssistant state object
  * @returns Battery level
  */
- export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): IBatteryState => {
+export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistantExt): IBatteryState => {
     const UnknownLevel = hass?.localize("state.default.unknown") || "Unknown";
     let state: string;
 
@@ -92,6 +92,10 @@ import { isNumber, log } from "../utils";
     else {
         // capitalize first letter
         state = state.charAt(0).toUpperCase() + state.slice(1);
+    }
+
+    if (!displayValue && state === entityData.state) {
+        //displayValue = hass.formatEntityState(entityData);
     }
 
     return {

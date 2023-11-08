@@ -1,7 +1,7 @@
-import { HomeAssistant } from "custom-card-helpers";
 import { BatteryStateCard } from "../src/custom-elements/battery-state-card";
 import { BatteryStateEntity } from "../src/custom-elements/battery-state-entity";
 import { LovelaceCard } from "../src/custom-elements/lovelace-card";
+import { HomeAssistantExt } from "../src/type-extensions";
 import { throttledCall } from "../src/utils";
 
 /**
@@ -70,7 +70,7 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
 
     private cards: LovelaceCard<any>[] = [];
 
-    public hass: HomeAssistant = <any>{
+    public hass: HomeAssistantExt = <any>{
         states: {},
         localize: jest.fn((key: string) => `[${key}]`)
     };

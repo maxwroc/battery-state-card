@@ -1,5 +1,5 @@
-import { HomeAssistant } from "custom-card-helpers";
 import { LitElement, TemplateResult } from "lit";
+import { HomeAssistantExt } from "../type-extensions";
 import { throttledCall } from "../utils";
 
 /**
@@ -10,7 +10,7 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
     /**
      * HomeAssistant object
      */
-    private _hass: HomeAssistant | undefined;
+    private _hass: HomeAssistantExt | undefined;
 
     /**
      * Component/card config
@@ -34,9 +34,9 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
 
     /**
      * Safe update triggering function
-     * 
-     * It happens quite often that setConfig or hassio setter are called few times 
-     * in the same execution path. We want to throttle such updates and handle just 
+     *
+     * It happens quite often that setConfig or hassio setter are called few times
+     * in the same execution path. We want to throttle such updates and handle just
      * the last one.
      */
     private triggerUpdate = throttledCall(async () => {
@@ -50,7 +50,7 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
     /**
      * HomeAssistant object setter
      */
-    set hass(hass: HomeAssistant | undefined) {
+    set hass(hass: HomeAssistantExt | undefined) {
         this._hass = hass;
         this.hassUpdated = true;
         this.triggerUpdate();
@@ -59,7 +59,7 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
     /**
      * HomeAssistant object getter
      */
-    get hass(): HomeAssistant | undefined {
+    get hass(): HomeAssistantExt | undefined {
         return this._hass;
     }
 
