@@ -1,7 +1,10 @@
 
+:host(.clickable), 
 .clickable {
     cursor: pointer;
 }
+
+
 
 .truncate {
     white-space: nowrap;
