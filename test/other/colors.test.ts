@@ -38,6 +38,28 @@ describe("Colors", () => {
     })
 
     test.each([
+        [-220, "red"],
+        [-80, "red"],
+        [-79.9999, "yellow"],
+        [-65, "yellow"],
+        [-50, "green"],
+        [0, "green"],
+        [100, "green"],
+    ])("custom steps config", (batteryLevel: number, expectedColor: string) => {
+
+        const colorsConfig: IColorSettings = {
+            steps: [
+                { value: -80, color: "red" },
+                { value: -65, color: "yellow" },
+                { value: 1000, color: "green" }
+            ]
+        }
+        const result = getColorForBatteryLevel({ entity: "", colors: colorsConfig }, batteryLevel, false);
+
+        expect(result).toBe(expectedColor);
+    })
+
+    test.each([
         [0, "#ff0000"],
         [25, "#ff7f00"],
         [50, "#ffff00"],
