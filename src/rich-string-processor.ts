@@ -181,7 +181,16 @@ const availableProcessors: IMap<IProcessorCtor> = {
 
         return val =>  val == chunks[0] ? chunks[1] : val;
     },
-        
+    "add": (params) => {
+        if (params === "") {
+            log("[KString]add function is missing parameter");
+            return val => val;
+        }
+
+        const addend = Number(params);
+
+        return val => isNaN(addend) ? val : (Number(val) + addend).toString();
+    }, 
 }
 
 interface IProcessor {
