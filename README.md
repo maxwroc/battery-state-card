@@ -4,8 +4,10 @@
 [![GitHub Release][releases-shield]][releases]
 [![GitHub All Releases][downloads-total-shield]][releases]
 [![hacs_badge][hacs-shield]][hacs]
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/maxwroc/battery-state-card/release-drafter.yml?label=tests)
+[![Coverage Status](https://coveralls.io/repos/github/maxwroc/battery-state-card/badge.svg?branch=master)](https://coveralls.io/github/maxwroc/battery-state-card?branch=master)
 [![Community Forum][forum-shield]][forum]
+
+<!-- ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/maxwroc/battery-state-card/release-drafter.yml?label=tests) -->
 
 Battery state card for [Home Assistant](https://github.com/home-assistant/home-assistant). It shows battery levels from connected devices (entities).
 
