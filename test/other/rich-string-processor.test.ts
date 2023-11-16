@@ -75,6 +75,20 @@ describe("RichStringProcessor", () => {
     });
 
     test.each([
+        ["Value {state|add(2)}", "20.56", "Value 22.56"], 
+        ["Value {state|add(-21.5)|round(2)}", "20.56", "Value -0.94"], 
+        ["Value {state|add(0)}", "20.56", "Value 20.56"],
+        ["Value {state|add()}", "20.56", "Value 20.56"],  // param missing
+    ])("add function", (text: string, state:string, expectedResult: string) => {
+        const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
+        const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
+        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+
+        const result = proc.process(text);
+        expect(result).toBe(expectedResult);
+    });
+
+    test.each([
         ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "1", "0"],
         ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "2", "50"],
         ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "5", "50"],
