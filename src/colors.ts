@@ -13,7 +13,7 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
         return config.charging_state.color;
     }
 
-    if (batteryLevel === undefined || isNaN(batteryLevel)) {
+    if (batteryLevel === undefined || isNaN(batteryLevel) || batteryLevel > 100 || batteryLevel < 0) {
         return defaultColor;
     }
 
