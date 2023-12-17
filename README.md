@@ -661,15 +661,16 @@ colors:
 type: custom:battery-state-card
 title: HDD temperatures
 icon: mdi:harddisk
-color_thresholds:
-  - value: 26
-    color: blue
-  - value: 36
-    color: green
-  - value: 45
-    color: yellow
-  - value: 60
-    color: red
+colors:
+  steps:
+    - value: 26
+      color: blue
+    - value: 36
+      color: green
+    - value: 45
+      color: yellow
+    - value: 60
+      color: red
 tap_action:
   action: more-info
 collapse: 3
