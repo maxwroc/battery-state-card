@@ -69,4 +69,18 @@ describe("Get name", () => {
 
         expect(name).toBe(expectedResult);
     });
+
+    test.each([
+        ["State in the name {state}%", "State in the name 45%"],
+        ["KString func {state|multiply(2)}%", "KString func 90%"],
+        ["KString other entity {sensor.other_entity.state}", "KString other entity CR2032"],
+    ])("KString in the name", (name: string, expectedResult: string) => {
+        const hassMock = new HomeAssistantMock(true);
+        hassMock.addEntity("My entity", "45");
+
+        hassMock.addEntity("Other entity", "CR2032", undefined, "sensor");
+
+        let result = getName({entity: "my_entity", name}, hassMock.hass);
+        expect(result).toBe(expectedResult);
+    })
 });

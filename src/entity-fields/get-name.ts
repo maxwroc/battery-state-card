@@ -1,5 +1,6 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { getRegexFromString, safeGetArray } from "../utils";
+import { RichStringProcessor } from "../rich-string-processor";
 
 
 /**
@@ -10,7 +11,8 @@ import { getRegexFromString, safeGetArray } from "../utils";
  */
 export const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined): string => {
     if (config.name) {
-        return config.name;
+        const proc = new RichStringProcessor(hass, config.entity);
+        return proc.process(config.name);
     }
 
     if (!hass) {
