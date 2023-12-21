@@ -128,6 +128,7 @@ Keywords support simple functions to convert the values
 | thresholds(\[number1\],\[number2\],...) | `"{state\|thresholds(22,89,200,450)}"` | Converts the value to percentage based on given thresholds. In the given example values will be converted in the following way 20=>0, 30=>25, 99=>50, 250=>75, 555=>100
 | abs() | `"{state\|abs()}"` | Produces the absolute value
 | equals(\[value\],\[result_value\]) | `"{state\|equals(on,1)}"` | Changes the value conditionally - whenever the initial value is equal the given one
+| reltime() | `"Changed: {last_changed\|reltime()}"` | Converts date to relative time e.g. "1 minute ago"
 
 You can execute functions one after another. For example if you have the value "Battery level: 26.543234%" and you want to extract and round the number then you can do the following: `"{attribute.battery_level|replace(Battery level:,)|replace(%,)|round()} %"` and the end result will be "27"
 

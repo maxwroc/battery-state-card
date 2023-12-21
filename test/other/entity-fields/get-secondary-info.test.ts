@@ -28,7 +28,16 @@ describe("Secondary info", () => {
         const secondaryInfoConfig = "{last_changed}";
         const result = getSecondaryInfo({ entity: entity.entity_id, secondary_info: secondaryInfoConfig }, hassMock.hass, false);
 
-        expect(result).toBeInstanceOf(Date);
-        expect(JSON.stringify(result).slice(1, -1)).toBe("2022-02-07T00:00:00.000Z");
+        expect(result).toBe("<rt>1644192000000</rt>");
+    })
+
+    test("Secondary info config not set'", () => { 
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("Motion sensor kitchen", "50", {}, "sensor");
+        entity.setLastChanged("2022-02-07");
+        const secondaryInfoConfig = "{last_changed}";
+        const result = getSecondaryInfo({ entity: entity.entity_id }, hassMock.hass, false);
+
+        expect(result).toBeNull();
     })
 })

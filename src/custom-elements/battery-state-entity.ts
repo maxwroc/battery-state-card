@@ -1,6 +1,6 @@
 import { css } from "lit";
 import { property } from "lit/decorators.js"
-import { isNumber, safeGetConfigObject } from "../utils";
+import { safeGetConfigObject } from "../utils";
 import { batteryHtml } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
@@ -28,7 +28,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
      * Secondary information displayed undreneath the name
      */
     @property({ attribute: false })
-    public secondaryInfo: string | Date;
+    public secondaryInfo: string;
 
     /**
      * Entity state / battery level

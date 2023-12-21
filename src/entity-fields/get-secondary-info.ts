@@ -9,7 +9,7 @@ import { isNumber } from "../utils";
  * @param isCharging Whther battery is in charging mode
  * @returns Secondary info text
  */
-export const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, isCharging: boolean): string | Date => {
+export const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, isCharging: boolean): string => {
     if (config.secondary_info) {
         const processor = new RichStringProcessor(hass, config.entity, {
             "charging": isCharging ? (config.charging_state?.secondary_info_text || "Charging") : "" // todo: think about i18n
@@ -24,7 +24,8 @@ export const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssista
         }
 
         const dateVal = Date.parse(result);
-        return isNaN(dateVal) ? result : new Date(dateVal);
+        // The RT tags will be converted to proper HA tags at the views layer
+        return isNaN(dateVal) ? result : "<rt>" + new Date(dateVal).getTime() + "</rt>";
     }
 
     return <any>null;

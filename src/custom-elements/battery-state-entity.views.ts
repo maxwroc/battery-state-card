@@ -1,15 +1,43 @@
 import { HomeAssistant } from "custom-card-helpers";
-import { html } from "lit";
+import { TemplateResult, html } from "lit";
 import { BatteryStateEntity } from "./battery-state-entity";
 
-export const secondaryInfo = (text?: string) => text && html`
-<div class="secondary">${text}</div>
-`;
+const relativeTimeTag = new RegExp("<rt>([^<]+)</rt>", "g");
 
-const secondaryInfoTime = (hass: HomeAssistant | undefined, time?: Date) => time && html`
-<div class="secondary">
-    <ha-relative-time .hass="${hass}" .datetime="${time}"></ha-relative-time>
-</div>
+/**
+ * Replaces temporary RT tages with proper HA "relative-time" ones
+ * 
+ * @param text Text to be processed
+ * @param hass HomeAssistant instance
+ * @returns Rendered templates
+ */
+const replaceTags = (text: string, hass?: HomeAssistant): TemplateResult[] => {
+
+    const result: TemplateResult[] = []
+
+    let matches: string[] | null = [];
+    let currentPos = 0;
+    while(matches = relativeTimeTag.exec(text)) {
+        const matchPos = text.indexOf(matches[0], currentPos);
+
+        if (matchPos != 0) {
+            result.push(html`${text.substring(currentPos, matchPos)}`);
+        }
+
+        result.push(html`<ha-relative-time .hass="${hass}" .datetime="${new Date(matches[1])}"></ha-relative-time>`);
+
+        currentPos += matchPos + matches[0].length;
+    }
+    
+    if (currentPos < text.length) {
+        result.push(html`${text.substring(currentPos, text.length)}`);
+    }
+
+    return result;
+}
+
+export const secondaryInfo = (text?: string, hass?: HomeAssistant) => text && html`
+<div class="secondary">${replaceTags(text, hass)}</div>
 `;
 
 export const icon = (icon?: string, color?: string) => icon && html`
@@ -25,7 +53,7 @@ export const batteryHtml = (model: BatteryStateEntity) => html`
 ${icon(model.icon, model.iconColor)}
 <div class="name truncate">
     ${model.name}
-    ${model.secondaryInfo instanceof Date ? secondaryInfoTime(model.hass, model.secondaryInfo) : secondaryInfo(model.secondaryInfo)}
+    ${secondaryInfo(model.secondaryInfo, model.hass)}
 </div>
 <div class="state">
     ${model.state}${model.unit}
