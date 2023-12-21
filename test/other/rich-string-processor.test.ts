@@ -169,8 +169,8 @@ describe("RichStringProcessor", () => {
     });
 
     test.each([
-        ["{state|reltime()}", new Date(2021, 7, 25).toJSON(), "<rt>1629846000000</rt>"],
-        ["Rel time: {state|reltime()}", new Date(2021, 7, 25).toJSON(), "Rel time: <rt>1629846000000</rt>"],
+        ["{state|reltime()}", new Date(2021, 7, 25).toUTCString(), "<rt>1629846000000</rt>"],
+        ["Rel time: {state|reltime()}", new Date(2021, 7, 25).toUTCString(), "Rel time: <rt>1629846000000</rt>"],
         ["Not date: {state|reltime()}", "this is not date", "Not date: this is not date"],
     ])("reltime function", (text: string, state:string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
