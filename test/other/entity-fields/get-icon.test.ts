@@ -61,4 +61,20 @@ describe("Get icon", () => {
         let icon = getIcon({ entity: "battery_state", icon: configuredIcon }, Number(state), false, hassMock.hass);
         expect(icon).toBe(expectedResult);
     })
+
+    test("icon from attribute", () => {
+        const hassMock = new HomeAssistantMock();
+        hassMock.addEntity("Battery state", "45", { icon: "mdi:attribute-icon" });
+
+        let icon = getIcon({ entity: "battery_state", icon: "attribute.icon" }, 45, false, hassMock.hass);
+        expect(icon).toBe("mdi:attribute-icon");
+    })
+
+    test("icon from attribute - attribute missing", () => {
+        const hassMock = new HomeAssistantMock();
+        hassMock.addEntity("Battery state", "45", { icon: "mdi:attribute-icon" });
+
+        let icon = getIcon({ entity: "battery_state", icon: "attribute.icon_non_existing" }, 45, false, hassMock.hass);
+        expect(icon).toBe("attribute.icon_non_existing");
+    })
 });

@@ -191,6 +191,18 @@ const availableProcessors: IMap<IProcessorCtor> = {
 
         return val => isNaN(addend) ? val : (Number(val) + addend).toString();
     }, 
+    "reltime": () => {
+        return val => {
+            const unixTime = Date.parse(val);
+            if (isNaN(unixTime)) {
+                log("[KString]value isn't a valid date: " + val);
+                return val;
+            }
+
+            // The RT tags will be converted to proper HA tags at the views layer
+            return `<rt>${unixTime}</rt>`
+        };
+    }
 }
 
 interface IProcessor {

@@ -3,7 +3,7 @@ import { IBatteryCollection } from "../battery-provider";
 import { IBatteryGroup } from "../grouping";
 import { BatteryStateCard } from "./battery-state-card";
 import { BatteryStateEntity } from "./battery-state-entity";
-import { icon, secondaryInfo } from "./battery-state-entity.views";
+import { icon } from "./battery-state-entity.views";
 
 const header = (text: string | undefined) => text && html`
 <div class="card-header">
@@ -22,7 +22,7 @@ export const collapsableWrapper = (model: IBatteryGroup, batteries: IBatteryColl
         ${icon(model.icon, model.iconColor)}
         <div class="name truncate">
             ${model.title}
-            ${secondaryInfo(model.secondaryInfo)}
+            ${model.secondaryInfo ? html`<div class="secondary">${model.secondaryInfo}</div>` : null}
         </div>
         <div class="chevron">&lsaquo;</div>
     </div>
