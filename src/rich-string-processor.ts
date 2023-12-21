@@ -200,7 +200,7 @@ const availableProcessors: IMap<IProcessorCtor> = {
             }
 
             // The RT tags will be converted to proper HA tags at the views layer
-            return `<rt>${unixTime}</rt>`
+            return `<rt>${val}</rt>`
         };
     }
 }

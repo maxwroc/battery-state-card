@@ -2,7 +2,7 @@ import { HomeAssistant } from "custom-card-helpers";
 import { TemplateResult, html } from "lit";
 import { BatteryStateEntity } from "./battery-state-entity";
 
-const relativeTimeTag = new RegExp("<rt>([0-9]+)</rt>", "g");
+const relativeTimeTag = new RegExp("<rt>([^<]+)</rt>", "g");
 
 /**
  * Replaces temporary RT tages with proper HA "relative-time" ones
@@ -24,7 +24,7 @@ const replaceTags = (text: string, hass?: HomeAssistant): TemplateResult[] => {
             result.push(html`${text.substring(currentPos, matchPos)}`);
         }
 
-        result.push(html`<ha-relative-time .hass="${hass}" .datetime="${new Date(Number(matches[1]))}"></ha-relative-time>`);
+        result.push(html`<ha-relative-time .hass="${hass}" .datetime="${new Date(matches[1])}"></ha-relative-time>`);
 
         currentPos += matchPos + matches[0].length;
     }
