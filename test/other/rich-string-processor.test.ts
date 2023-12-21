@@ -3,6 +3,22 @@ import { RichStringProcessor } from "../../src/rich-string-processor"
 import { HomeAssistantMock } from "../helpers"
 
 describe("RichStringProcessor", () => {
+
+    test.each([
+        [null, ""],
+        [undefined, ""],
+        ["", ""],
+        ["false", "false"],
+        ["0", "0"],
+    ])("missing text", (input: any, expected: string) => {
+        const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
+        const motionEntity = hassMock.addEntity("Bedroom motion", "50", {}, "sensor");
+        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+
+        const result = proc.process(input);
+        expect(result).toBe(expected);
+    })
+
     test.each([
         ["Value {state}, {last_updated}", "Value 20.56, 2021-04-05 15:11:35"], // few placeholders
         ["Value {state}, {attributes.charging_state}", "Value 20.56, Charging"], // attribute value
@@ -131,6 +147,32 @@ describe("RichStringProcessor", () => {
         ["{state|abs()}", "-64", "64"],
         ["{state|abs()}", "64", "64"],
     ])("abs function", (text: string, state:string, expectedResult: string) => {
+        const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
+        const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
+        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+
+        const result = proc.process(text);
+        expect(result).toBe(expectedResult);
+    });
+
+    test.each([
+        ["{state|equals(64,ok)}", "64", "ok"],
+        ["{state|equals(65,err)}", "64", "64"],
+        ["Not enough params {state|equals(64)}", "64", "Not enough params 64"],
+    ])("equals function", (text: string, state:string, expectedResult: string) => {
+        const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
+        const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
+        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+
+        const result = proc.process(text);
+        expect(result).toBe(expectedResult);
+    });
+
+    test.each([
+        ["{state|reltime()}", new Date(2021, 7, 25).toJSON(), "<rt>1629846000000</rt>"],
+        ["Rel time: {state|reltime()}", new Date(2021, 7, 25).toJSON(), "Rel time: <rt>1629846000000</rt>"],
+        ["Not date: {state|reltime()}", "this is not date", "Not date: this is not date"],
+    ])("reltime function", (text: string, state:string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
         const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);

@@ -20,8 +20,8 @@ const validEntityDomains = ["sensor", "binary_sensor"];
      * Replaces keywords in given string with the data
      */
     process(text: string): string {
-        if (text === "") {
-            return text;
+        if (!text) {
+            return "";
         }
 
         return text.replace(/\{([^\}]+)\}/g, (matchWithBraces, keyword) => this.replaceKeyword(keyword, matchWithBraces));
