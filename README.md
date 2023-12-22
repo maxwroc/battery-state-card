@@ -71,7 +71,7 @@ colors:
 | sort | list([Sort](#sort-object) \| string) |  | v3.0.0 | Sets the sorting options
 | collapse | number \| list([Group](#group-object)) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view)). Or list of entity/battery groups ([example](#battery-groups))
 | filter | [Filters](#filters) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
-| bulk_rename | list([Convert](#convert)) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
+| bulk_rename | list([Convert](#convert)) \| [BulkRename](#bulk-rename) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
 
 +[common options](#common-options) (if specified they will be apllied to all entities)
 
@@ -226,6 +226,13 @@ The definition is similar to the default [tap-action](https://www.home-assistant
 | from | any | **(required)** | v1.1.0 | Value to convert. Note it is type sensitive (eg. `false` != `"false"`)
 | to | any | **(required)** | v1.1.0 | Target value
 | display | string |  | v3.0.0 | Override for displayed entity state (when the current entiy state matches the `from` value)
+
+### Bulk rename
+
+| Name | Type | Default | Since | Description |
+|:-----|:-----|:-----|:-----|:-----|
+| rules | list([Convert](#convert)) |  | v3.1.0 | Rename rules applied for all entities
+| capitalize_first | bool | `true` | v3.1.0 | Whether to capitalize first letter ([example](#entity-filtering-and-bulk-renaming))
 
 ### Charging-state object
 
@@ -548,6 +555,27 @@ filter:
     - name: state # exclude entities above 99% of battery level
       value: 99
       operator: ">"
+```
+
+Bulk rename using BulkRename object to disable capitalizing the first letter of entity name (enabled by default)
+
+```yaml
+type: 'custom:battery-state-card'
+title: Filters
+sort: "state"
+bulk_rename:
+  rules:
+    - from: "Battery Level" # simple string replace (note: "to" is not required if you want to remove string)
+      to: "sensor"
+    - from: "/\\s(temperature|temp)\\s/" # regular expression
+      to: " temp. "
+  capitalize_first: false
+filter:
+  include: # filters for auto-adding
+    - name: entity_id # entities which id ends with "_battery_level"
+      value: "*_battery_level"
+    - name: attributes.device_class # and entities which device_class attribute equals "battery"
+      value: battery
 ```
 
 ### Secondary info
