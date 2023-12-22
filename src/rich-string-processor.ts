@@ -20,8 +20,8 @@ const validEntityDomains = ["sensor", "binary_sensor"];
      * Replaces keywords in given string with the data
      */
     process(text: string): string {
-        if (text === "") {
-            return text;
+        if (!text) {
+            return "";
         }
 
         return text.replace(/\{([^\}]+)\}/g, (matchWithBraces, keyword) => this.replaceKeyword(keyword, matchWithBraces));
@@ -181,7 +181,28 @@ const availableProcessors: IMap<IProcessorCtor> = {
 
         return val =>  val == chunks[0] ? chunks[1] : val;
     },
-        
+    "add": (params) => {
+        if (params === "") {
+            log("[KString]add function is missing parameter");
+            return val => val;
+        }
+
+        const addend = Number(params);
+
+        return val => isNaN(addend) ? val : (Number(val) + addend).toString();
+    }, 
+    "reltime": () => {
+        return val => {
+            const unixTime = Date.parse(val);
+            if (isNaN(unixTime)) {
+                log("[KString]value isn't a valid date: " + val);
+                return val;
+            }
+
+            // The RT tags will be converted to proper HA tags at the views layer
+            return `<rt>${val}</rt>`
+        };
+    }
 }
 
 interface IProcessor {

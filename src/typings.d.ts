@@ -84,6 +84,18 @@ interface IConvert {
     display?: string;
 }
 
+interface IBulkRename {
+    /**
+     * Rules for replacing one value by other
+     */
+    rules?: IConvert | IConvert[];
+
+    /**
+     * Whether to capitalize first letter
+     */
+    capitalize_first?: boolean
+}
+
 /**
  * Attribute
  */
@@ -226,7 +238,7 @@ interface IBatteryEntityConfig {
     /**
      * Rules for renaming entities/batteries
      */
-    bulk_rename?: IConvert | IConvert[];
+    bulk_rename?: IConvert | IConvert[] | IBulkRename;
 
     /**
      * Override for unit shown next to the value

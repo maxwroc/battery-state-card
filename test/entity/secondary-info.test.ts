@@ -68,5 +68,5 @@ test("Secondary info date value - renders relative time element", async () => {
     await cardElem.cardUpdated;
 
     const entity = new EntityElements(cardElem);
-    expect((<HTMLElement>entity.secondaryInfo?.firstChild).tagName).toBe("HA-RELATIVE-TIME");
+    expect((<HTMLElement>entity.secondaryInfo?.firstElementChild).tagName).toBe("HA-RELATIVE-TIME");
 });

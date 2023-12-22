@@ -28,7 +28,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
      * Secondary information displayed undreneath the name
      */
     @property({ attribute: false })
-    public secondaryInfo: string | Date;
+    public secondaryInfo: string;
 
     /**
      * Entity state / battery level

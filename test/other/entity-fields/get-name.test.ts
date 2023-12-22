@@ -69,4 +69,33 @@ describe("Get name", () => {
 
         expect(name).toBe(expectedResult);
     });
+
+    test.each([
+        ["State in the name {state}%", "State in the name 45%"],
+        ["KString func {state|multiply(2)}%", "KString func 90%"],
+        ["KString other entity {sensor.other_entity.state}", "KString other entity CR2032"],
+    ])("KString in the name", (name: string, expectedResult: string) => {
+        const hassMock = new HomeAssistantMock(true);
+        hassMock.addEntity("My entity", "45");
+
+        hassMock.addEntity("Other entity", "CR2032", undefined, "sensor");
+
+        let result = getName({entity: "my_entity", name}, hassMock.hass);
+        expect(result).toBe(expectedResult);
+    })
+
+    test.each([
+        ["Battery kitchen1", { from: "/Battery\\s?/", to: "" }, "Kitchen1"],
+        ["Battery kitchen2", { rules: { from: "/Battery\\s?/", to: "" } }, "Kitchen2"],
+        ["Battery kitchen3", { rules: { from: "/Battery\\s?/", to: "" }, capitalize_first: true }, "Kitchen3"],
+        ["Battery kitchen4", { rules: { from: "/Battery\\s?/", to: "" }, capitalize_first: false }, "kitchen4"],
+        ["battery kitchen5", { capitalize_first: false }, "battery kitchen5"],
+        ["battery kitchen6", undefined, "Battery kitchen6"],
+    ])("KString in the name", (entityName: string, renameRules: IBulkRename | IConvert | IConvert[] | undefined, expectedResult: string) => {
+        const hassMock = new HomeAssistantMock(true);
+        hassMock.addEntity("My entity", "45", { friendly_name: entityName });
+
+        let result = getName({entity: "my_entity", bulk_rename: renameRules}, hassMock.hass);
+        expect(result).toBe(expectedResult);
+    })
 });
