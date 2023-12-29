@@ -56,8 +56,8 @@ test("Secondary info date value - renders relative time element", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const flowerBattery = hass.addEntity("Flower sensor battery level", "80", {});
 
-    let dateString = JSON.stringify(new Date(2022, 1, 24, 23, 45, 55));
-    dateString = dateString.substring(1, dateString.length - 1); // removing quotes
+    let dateStringSerialized = JSON.stringify(new Date(2022, 1, 24, 23, 45, 55));
+    const dateString = dateStringSerialized.substring(1, dateStringSerialized.length - 1); // removing quotes
     flowerBattery.setLastUpdated(dateString);
 
     const cardElem = hass.addCard("battery-state-entity", {
@@ -68,5 +68,29 @@ test("Secondary info date value - renders relative time element", async () => {
     await cardElem.cardUpdated;
 
     const entity = new EntityElements(cardElem);
-    expect((<HTMLElement>entity.secondaryInfo?.firstElementChild).tagName).toBe("HA-RELATIVE-TIME");
+    const relTimeElem = <HTMLElement>entity.secondaryInfo?.firstElementChild;
+    expect(relTimeElem.tagName).toBe("HA-RELATIVE-TIME");
+    expect(JSON.stringify((<any>relTimeElem).datetime)).toBe(dateStringSerialized);
 });
+
+// test("Secondary info date value - renders relative time element with text", async () => {
+//     const hass = new HomeAssistantMock<BatteryStateEntity>();
+//     const flowerBattery = hass.addEntity("Flower sensor battery level", "80", {});
+
+//     const date = new Date(2022, 1, 24, 23, 45, 55);
+//     let dateString = JSON.stringify(date);
+//     dateString = dateString.substring(1, dateString.length - 1); // removing quotes
+//     flowerBattery.setLastUpdated(dateString);
+
+//     const cardElem = hass.addCard("battery-state-entity", {
+//         entity: flowerBattery.entity_id,
+//         secondary_info: "Last updated: {last_updated}",
+//     });
+
+//     await cardElem.cardUpdated;
+
+//     const entity = new EntityElements(cardElem);
+//     const relTimeElem = <HTMLElement>entity.secondaryInfo?.firstElementChild;
+//     expect(relTimeElem.tagName).toBe("HA-RELATIVE-TIME");
+//     expect((<any>relTimeElem).datetime).toBe(date);
+// });

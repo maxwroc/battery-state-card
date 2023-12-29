@@ -24,8 +24,6 @@ const replaceTags = (text: string, hass?: HomeAssistant): TemplateResult[] => {
             result.push(html`${text.substring(currentPos, matchPos)}`);
         }
 
-        console.log(matches);
-
         result.push(html`<ha-relative-time .hass="${hass}" .datetime="${new Date(matches[1])}"></ha-relative-time>`);
 
         currentPos += matchPos + matches[0].length;
