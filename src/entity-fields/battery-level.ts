@@ -24,7 +24,8 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
         const processedValue = stringProcessor.process(config.value_override.toString());
         return {
             state: processedValue,
-            level: isNumber(processedValue) ? Number(processedValue) : undefined
+            level: isNumber(processedValue) ? Number(processedValue) : undefined,
+            unit: getUnit(processedValue, undefined, config, hass),
         }
     }
 
@@ -101,14 +102,32 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
 
         // assuming it is a number followed by unit
         [displayValue, unit] = formattedState.split(" ", 2);
-        unit = String.fromCharCode(160) + unit;
+        unit = unit;
     }
 
     return {
         state: displayValue || state,
         level: isNumber(state) ? Number(state) : undefined,
-        unit_override: unit,
+        unit: getUnit(state, unit, config, hass),
     };
+}
+
+const getUnit = (state: string, unit: string | undefined, config: IBatteryEntityConfig, hass?: HomeAssistantExt): string | undefined => {
+    if (config.unit) {
+        // config unit override
+        unit = config.unit
+    }
+    else {
+        // default unit
+        unit = unit || hass?.states[config.entity]?.attributes["unit_of_measurement"] || "%"
+    }
+
+    if (!isNumber(state)) {
+        // for non numeric states unit should not be rendered
+        unit = undefined;
+    }
+
+    return unit;
 }
 
 interface IBatteryState {
@@ -125,5 +144,5 @@ interface IBatteryState {
     /**
      * Unit override
      */
-    unit_override?: string
+    unit?: string
 }

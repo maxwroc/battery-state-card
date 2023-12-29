@@ -21,8 +21,9 @@
     "release": "rollup --environment RELEASE -c",
     "watch": "rollup -c --watch",
     "test": "jest",
-    "test+coverage": "jest --coverage --testPathPattern=test/other",
-    "test+coverage+all": "jest --coverage",
+    "test+integration": "jest --testPathPattern=test/entity",
+    "test+coverage": "jest --coverage",
+    "test+coverage+unit": "jest --coverage --testPathPattern=test/other",
     "test+debug": "SET DEBUG_MODE=1&&jest"
   },
   "jest": {

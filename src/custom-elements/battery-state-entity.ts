@@ -79,16 +79,10 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         };
 
         this.name = getName(this.config, this.hass);
-        var { state, level, unit_override} = getBatteryLevel(this.config, this.hass);
+        var { state, level, unit} = getBatteryLevel(this.config, this.hass);
         this.state = state;
-
-        if (unit_override === undefined && level !== undefined && this.config.unit !== "" && this.config.unit !== null) {
-            this.unit = String.fromCharCode(160) + (this.config.unit || this.hass?.states[this.config.entity]?.attributes["unit_of_measurement"] || "%");
-        }
-        else {
-            this.unit = unit_override;
-        }
-
+        this.unit = unit;
+        
         const isCharging = getChargingState(this.config, this.state, this.hass);
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, isCharging);
         this.icon = getIcon(this.config, level, isCharging, this.hass);

@@ -56,6 +56,8 @@ ${icon(model.icon, model.iconColor)}
     ${secondaryInfo(model.secondaryInfo, model.hass)}
 </div>
 <div class="state">
-    ${model.state}${model.unit}
+    ${model.state}${unit(model.unit)}
 </div>
 `;
+
+const unit = (unit: string | undefined) => unit && html`&nbsp;${unit}`;
