@@ -25,7 +25,7 @@ export const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssista
 
         const dateVal = Date.parse(result);
         // The RT tags will be converted to proper HA tags at the views layer
-        return isNaN(dateVal) ? result : "<rt>" + new Date(dateVal).getTime() + "</rt>";
+        return isNaN(dateVal) ? result : `<rt>${result}</rt>`;
     }
 
     return <any>null;

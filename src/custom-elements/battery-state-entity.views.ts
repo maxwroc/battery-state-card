@@ -24,8 +24,6 @@ const replaceTags = (text: string, hass?: HomeAssistant): TemplateResult[] => {
             result.push(html`${text.substring(currentPos, matchPos)}`);
         }
 
-        console.log(matches);
-
         result.push(html`<ha-relative-time .hass="${hass}" .datetime="${new Date(matches[1])}"></ha-relative-time>`);
 
         currentPos += matchPos + matches[0].length;
@@ -58,6 +56,8 @@ ${icon(model.icon, model.iconColor)}
     ${secondaryInfo(model.secondaryInfo, model.hass)}
 </div>
 <div class="state">
-    ${model.state}${model.unit}
+    ${model.state}${unit(model.unit)}
 </div>
 `;
+
+const unit = (unit: string | undefined) => unit && html`&nbsp;${unit}`;
