@@ -32,7 +32,7 @@ jobs:
         run: npm run release
 
       - name: Test
-        run: npm run test+coverage
+        run: npm run test+coverage+all
         
       - name: Coveralls
         uses: coverallsapp/github-action@v1.1.2
