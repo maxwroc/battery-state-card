@@ -16,6 +16,7 @@ const stringValuePattern = /\b([0-9]{1,3})\s?%/;
 export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistantExt): IBatteryState => {
     const UnknownLevel = hass?.localize("state.default.unknown") || "Unknown";
     let state: string;
+    let unit: string | undefined;
 
     const stringProcessor = new RichStringProcessor(hass, config.entity);
 
@@ -94,13 +95,19 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
         state = state.charAt(0).toUpperCase() + state.slice(1);
     }
 
-    if (!displayValue && state === entityData.state) {
-        //displayValue = hass.formatEntityState(entityData);
+    // check if HA should format the value
+    if (config.default_state_formatting !== false && !displayValue && state === entityData.state) {
+        const formattedState = hass.formatEntityState(entityData);
+
+        // assuming it is a number followed by unit
+        [displayValue, unit] = formattedState.split(" ", 2);
+        unit = String.fromCharCode(160) + unit;
     }
 
     return {
         state: displayValue || state,
-        level: isNumber(state) ? Number(state) : undefined
+        level: isNumber(state) ? Number(state) : undefined,
+        unit_override: unit,
     };
 }
 
@@ -114,4 +121,9 @@ interface IBatteryState {
      * Battery state to display
      */
     state: string;
+
+    /**
+     * Unit override
+     */
+    unit_override?: string
 }

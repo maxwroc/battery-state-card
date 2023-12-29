@@ -249,6 +249,11 @@ interface IBatteryEntityConfig {
      * Whether the entity is not a battery entity
      */
     non_battery_entity?: boolean;
+
+    /**
+     * Whether to allow HA to format the state value
+     */
+    default_state_formatting?: boolean;
 }
 
 interface IBatteryCardConfig {

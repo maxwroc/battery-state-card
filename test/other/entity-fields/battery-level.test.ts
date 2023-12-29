@@ -181,4 +181,24 @@ describe("Battery level", () => {
         expect(level).toBe(expectedLevel);
         expect(state).toBe(expectedState);
     });
+
+    test.each([
+        [undefined, "45", "dbm", { state: "[45]", level: 45, unit_override: String.fromCharCode(160) + "[dbm]" }], // test default when the setting is not set in the config
+        [true, "45", "dbm", { state: "[45]", level: 45, unit_override: String.fromCharCode(160) + "[dbm]" }], // test when the setting is explicitly true
+        [false, "45", "dbm", { state: "45", level: 45, unit_override: undefined }], // test when the setting is turned off
+        [true, "45", "dbm", { state: "56", level: 56, unit_override: undefined }, [ { from: "45", to: "56" } ]], // test when the state was changed by state_map
+        [true, "45", "dbm", { state: "33", level: 45, unit_override: undefined }, [ { from: "45", to: "45", display: "33" } ]], // test when the display value was changed by state_map
+    ])
+    ("default HA formatting ", (defaultStateFormatting: boolean | undefined, entityState: string, unitOfMeasurement: string, expected: { state: string, level: number, unit_override?: string }, stateMap: IConvert[] | undefined = undefined) => {
+        
+        const hassMock = new HomeAssistantMock(true);
+        hassMock.addEntity("Mocked entity", entityState);
+        hassMock.mockFunc("formatEntityState", (entityData: any) => `[${entityData.state}] [${unitOfMeasurement}]`);
+
+        const { state, level, unit_override } = getBatteryLevel({ entity: "mocked_entity", default_state_formatting: defaultStateFormatting, state_map: stateMap }, hassMock.hass);
+        
+        expect(level).toBe(expected.level);
+        expect(state).toBe(expected.state);
+        expect(unit_override).toBe(expected.unit_override);
+    });
 });
