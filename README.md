@@ -201,7 +201,7 @@ Operator is an optional property. If operator is not specified it depends on `va
 * if `value` property is set but above conditions are not met the operator is "`=`"
 
 | Name | Since | Type |
-|:-----|:-----|
+|:-----|:-----|:-----|
 | `"exists"` | v1.3.0 | It checks if field is present (e.g. to match entities having particular attribute regardless of the attribute value). It doesn't require `value` to be specified.
 | `"not_exists"` | v3.1.0 | It checks if field is not present (e.g. to match entities without particular attribute). It doesn't require `value` to be specified.
 | `"="` | v1.3.0 | If value equals the one specified in `value` property.
