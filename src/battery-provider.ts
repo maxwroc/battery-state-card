@@ -1,12 +1,13 @@
-import { getRegexFromString, log, safeGetConfigArrayOfObjects } from "./utils";
+import { log, safeGetConfigArrayOfObjects } from "./utils";
 import { HomeAssistant } from "custom-card-helpers";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 import { Filter } from "./filter";
+import { HomeAssistantExt } from "./type-extensions";
 
 /**
  * Properties which should be copied over to individual entities from the card
  */
-const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ "tap_action", "state_map", "charging_state", "secondary_info", "colors", "bulk_rename", "icon", "round", "unit", "value_override", "non_battery_entity" ];
+const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ "tap_action", "state_map", "charging_state", "secondary_info", "colors", "bulk_rename", "icon", "round", "unit", "value_override", "non_battery_entity", "default_state_formatting" ];
 
 /**
  * Class responsible for intializing Battery view models based on given configuration.
@@ -23,6 +24,9 @@ export class BatteryProvider {
      */
     private exclude: Filter[] | undefined;
 
+    /**
+     * Collection of battery HTML elements.
+     */
     private batteries: IBatteryCollection = {};
 
     /**
@@ -51,7 +55,7 @@ export class BatteryProvider {
         this.processExplicitEntities();
     }
 
-    async update(hass: HomeAssistant): Promise<void> {
+    async update(hass: HomeAssistantExt): Promise<void> {
         if (!this.initialized) {
             // groups and includes should be processed just once
             this.initialized = true;
@@ -183,7 +187,7 @@ export class BatteryProvider {
                 if (this.batteries[entity_id]) {
                     return;
                 }
-                
+
                 this.batteries[entity_id] = this.createBattery({ entity: entity_id });
             });
 

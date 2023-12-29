@@ -1,11 +1,11 @@
-import { HomeAssistant } from "custom-card-helpers/dist/types";
 import { RichStringProcessor } from "../rich-string-processor";
+import { HomeAssistantExt } from "../type-extensions";
 import { isNumber, log } from "../utils";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
  */
- const stringValuePattern = /\b([0-9]{1,3})\s?%/;
+const stringValuePattern = /\b([0-9]{1,3})\s?%/;
 
 /**
  * Getts battery level/state
@@ -13,9 +13,10 @@ import { isNumber, log } from "../utils";
  * @param hass HomeAssistant state object
  * @returns Battery level
  */
- export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistant): IBatteryState => {
+export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistantExt): IBatteryState => {
     const UnknownLevel = hass?.localize("state.default.unknown") || "Unknown";
     let state: string;
+    let unit: string | undefined;
 
     const stringProcessor = new RichStringProcessor(hass, config.entity);
 
@@ -94,9 +95,19 @@ import { isNumber, log } from "../utils";
         state = state.charAt(0).toUpperCase() + state.slice(1);
     }
 
+    // check if HA should format the value
+    if (config.default_state_formatting !== false && !displayValue && state === entityData.state) {
+        const formattedState = hass.formatEntityState(entityData);
+
+        // assuming it is a number followed by unit
+        [displayValue, unit] = formattedState.split(" ", 2);
+        unit = String.fromCharCode(160) + unit;
+    }
+
     return {
         state: displayValue || state,
-        level: isNumber(state) ? Number(state) : undefined
+        level: isNumber(state) ? Number(state) : undefined,
+        unit_override: unit,
     };
 }
 
@@ -110,4 +121,9 @@ interface IBatteryState {
      * Battery state to display
      */
     state: string;
+
+    /**
+     * Unit override
+     */
+    unit_override?: string
 }
