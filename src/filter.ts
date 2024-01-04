@@ -1,4 +1,4 @@
-import { getRegexFromString, log } from "./utils";
+import { getRegexFromString, log, toNumber } from "./utils";
 
 /**
  * Functions to check if filter condition is met
@@ -7,11 +7,11 @@ const operatorHandlers: { [key in FilterOperator]: (val: string | number | undef
     "exists": val => val !== undefined,
     "not_exists": val => val === undefined,
     "contains": (val, searchString) => val !== undefined && val.toString().indexOf(searchString!.toString()) != -1,
-    "=": (val, expectedVal) => val == expectedVal,
-    ">": (val, expectedVal) => Number(val) > Number(expectedVal),
-    "<": (val, expectedVal) => Number(val) < Number(expectedVal),
-    ">=": (val, expectedVal) => Number(val) >= Number(expectedVal),
-    "<=": (val, expectedVal) => Number(val) <= Number(expectedVal),
+    "=": (val, expectedVal) => toNumber(val) == toNumber(expectedVal),
+    ">": (val, expectedVal) => toNumber(val) > toNumber(expectedVal),
+    "<": (val, expectedVal) => toNumber(val) < toNumber(expectedVal),
+    ">=": (val, expectedVal) => toNumber(val) >= toNumber(expectedVal),
+    "<=": (val, expectedVal) => toNumber(val) <= toNumber(expectedVal),
     "matches": (val, pattern) => {
         if (val === undefined) {
             return false;

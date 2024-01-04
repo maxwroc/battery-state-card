@@ -17,10 +17,28 @@ export const log = (message: string, level: "warn" | "error" = "warn") => {
  * Checks whether given value is a number
  * @param val String value to check
  */
-export const isNumber = (value: string | number): boolean =>
-    {
-        return (value!== undefined && value !== null && value !== '' && !isNaN(Number(value)))
+export const isNumber = (value: string | number | undefined): boolean => {
+    if (value === undefined) {
+        return false;
     }
+
+    if (typeof(value) == "string") {
+        // trying to solve decimal number formatting in some langs
+        value = value.replace(",", ".");
+    }
+
+    return (value!== undefined && value !== null && value !== '' && !isNaN(Number(value)))
+}
+
+export const toNumber = (value: string | number | undefined): number => {
+    if (typeof(value) == "string") {
+        // trying to solve decimal number formatting in some langs
+        value = value.replace(",", ".");
+    }
+
+    return Number(value);
+}
+
 /**
  * Returns array of values regardles if given value is string array or null
  * @param val Value to process
