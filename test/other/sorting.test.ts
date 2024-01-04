@@ -78,6 +78,24 @@ describe("Entity sorting", () => {
 
         expect(sortedIds).toStrictEqual(expectedOrder);
     });
+
+    test.each([
+        ["state", "38", "38,5", "38,4", ["a_sensor", "c_sensor", "b_sensor"]],
+        ["state", "38", "99,5", "99,4", ["a_sensor", "c_sensor", "b_sensor"]],
+        ["state", "38", "99,4", "99,44", ["a_sensor", "b_sensor", "c_sensor"]],
+        ["state", "38", "99.4", "99.44", ["a_sensor", "b_sensor", "c_sensor"]],
+    ])("Decimals separated by comma", (sort: string, stateA: string | undefined, stateB: string | undefined, stateC: string | undefined, expectedOrder: string[]) => {
+
+        let testBatteries = [
+            createBattery("a Sensor", stateA),
+            createBattery("b Sensor", stateB),
+            createBattery("c Sensor", stateC),
+        ];
+
+        const sortedIds = getIdsOfSortedBatteries({ entities: [], sort }, convertToCollection(testBatteries));
+
+        expect(sortedIds).toStrictEqual(expectedOrder);
+    });
 });
 
 const createBattery = (name: string, state: string | undefined, last_changed?: string | undefined) => {
