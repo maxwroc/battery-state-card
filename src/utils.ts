@@ -30,6 +30,11 @@ export const isNumber = (value: string | number | undefined): boolean => {
     return (value!== undefined && value !== null && value !== '' && !isNaN(Number(value)))
 }
 
+/**
+ * Converts string representation of the number to the actual JS number
+ * @param value String value to convert
+ * @returns Result number
+ */
 export const toNumber = (value: string | number | undefined): number => {
     if (typeof(value) == "string") {
         // trying to solve decimal number formatting in some langs
