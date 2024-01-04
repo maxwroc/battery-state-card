@@ -98,6 +98,13 @@ describe("Filter", () => {
         ["45", <FilterOperator>"<=", "46", true],
         ["some longer text", <FilterOperator>"contains", "longer", true],
         ["some longer text", <FilterOperator>"contains", "loonger", false],
+        // decimals
+        ["45.0", <FilterOperator>"=", "45", true],
+        ["45,0", <FilterOperator>"=", "45", true],
+        ["44.1", <FilterOperator>">", "44", true],
+        ["44,1", <FilterOperator>">", "44", true],
+        ["44", <FilterOperator>"<", "44.1", true],
+        ["44", <FilterOperator>"<", "44,1", true],
     ])("matching functions return correct results", (state: string | undefined, operator: FilterOperator | undefined, value: string | number, expectedIsVlid: boolean) => {
         const hassMock = new HomeAssistantMock();
 
