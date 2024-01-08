@@ -1,4 +1,4 @@
-import { getRegexFromString, log, toNumber } from "./utils";
+import { getRegexFromString, isNumber, log, toNumber } from "./utils";
 
 /**
  * Functions to check if filter condition is met
@@ -7,7 +7,7 @@ const operatorHandlers: { [key in FilterOperator]: (val: string | number | undef
     "exists": val => val !== undefined,
     "not_exists": val => val === undefined,
     "contains": (val, searchString) => val !== undefined && val.toString().indexOf(searchString!.toString()) != -1,
-    "=": (val, expectedVal) => toNumber(val) == toNumber(expectedVal),
+    "=": (val, expectedVal) => isNumber(val) || isNumber(expectedVal) ? toNumber(val) == toNumber(expectedVal) : val == expectedVal,
     ">": (val, expectedVal) => toNumber(val) > toNumber(expectedVal),
     "<": (val, expectedVal) => toNumber(val) < toNumber(expectedVal),
     ">=": (val, expectedVal) => toNumber(val) >= toNumber(expectedVal),
