@@ -172,8 +172,8 @@ describe("Battery level", () => {
         ["ok", "100", 100, "%", undefined],
         ["empty", "0", 0, "%", undefined],
         ["20", "20", 20, "%", undefined],
-        // ["charge", "Empty", 0, undefined, "Empty"],
-        // ["charge", "StateFromOtherEntity", 0, undefined, "{sensor.other_entity.state}"],
+        ["charge", "Empty", 0, undefined, "Empty"],
+        ["charge", "StateFromOtherEntity", 0, undefined, "{sensor.other_entity.state}"],
     ])
     ("state map applied", (entityState: string, expectedState: string, expectedLevel: number | undefined, expectedUnit: string | undefined, display?: string) => {
         
