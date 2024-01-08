@@ -6,7 +6,6 @@ labels: bug
 assignees: ''
 
 ---
-<!-- Please double check what version of the card is loaded before you create a bug! You can do it by looking at the Developer Tools Console in your browser (Win-Chrome - F12 key) -->
 
 **Describe the bug**
 <!-- A clear and concise description of what the bug is. -->
@@ -24,9 +23,14 @@ assignees: ''
 
 ```
 
+**Dev console errors**
+<!-- Please open dev console in your browser and check whether errors appear which seems to be related to the card -->
+
 **Screenshots**
 <!-- If applicable, add screenshots to help explain your problem. -->
 
 **Version**
 <!-- What is the version of the card? -->
+<!-- The best and most reliable way to check the version is to look at the Developer Tools Console in your browser (Win-Chrome - F12 key) -->
+
 <!-- If regression happened after updating Home assistant please add HA version as well. -->
