@@ -172,8 +172,8 @@ describe("Battery level", () => {
         ["ok", "100", 100, "%", undefined],
         ["empty", "0", 0, "%", undefined],
         ["20", "20", 20, "%", undefined],
-        ["charge", "Empty", 0, "%", "Empty"],
-        ["charge", "StateFromOtherEntity", 0, "%", "{sensor.other_entity.state}"],
+        ["charge", "Empty", 0, undefined, "Empty"],
+        ["charge", "StateFromOtherEntity", 0, undefined, "{sensor.other_entity.state}"],
     ])
     ("state map applied", (entityState: string, expectedState: string, expectedLevel: number | undefined, expectedUnit: string | undefined, display?: string) => {
         
@@ -189,17 +189,17 @@ describe("Battery level", () => {
     });
 
     test.each([
-        [undefined, "45", "dbm", { state: "[45]", level: 45, unit: "[dbm]" }], // test default when the setting is not set in the config
-        [true, "45", "dbm", { state: "[45]", level: 45, unit: "[dbm]" }], // test when the setting is explicitly true
+        [undefined, "45", "dbm", { state: "45", level: 45, unit: "[dbm]" }], // test default when the setting is not set in the config
+        [true, "45", "dbm", { state: "45", level: 45, unit: "[dbm]" }], // test when the setting is explicitly true
         [false, "45", "dbm", { state: "45", level: 45, unit: "%" }], // test when the setting is turned off
         [true, "45", "dbm", { state: "56", level: 56, unit: "%" }, [ { from: "45", to: "56" } ]], // test when the state was changed by state_map
-        [true, "45", "dbm", { state: "33", level: 45, unit: "%" }, [ { from: "45", to: "45", display: "33" } ]], // test when the display value was changed by state_map
+        [true, "45", "dbm", { state: "Low", level: 45, unit: undefined }, [ { from: "45", to: "45", display: "Low" } ]], // test when the display value was changed by state_map
     ])
-    ("default HA formatting ", (defaultStateFormatting: boolean | undefined, entityState: string, unitOfMeasurement: string, expected: { state: string, level: number, unit?: string }, stateMap: IConvert[] | undefined = undefined) => {
+    ("default HA formatting", (defaultStateFormatting: boolean | undefined, entityState: string, unitOfMeasurement: string, expected: { state: string, level: number, unit?: string }, stateMap: IConvert[] | undefined = undefined) => {
         
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", entityState);
-        hassMock.mockFunc("formatEntityState", (entityData: any) => `[${entityData.state}] [${unitOfMeasurement}]`);
+        hassMock.mockFunc("formatEntityState", (entityData: any) => `${entityData.state} [${unitOfMeasurement}]`);
 
         const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity", default_state_formatting: defaultStateFormatting, state_map: stateMap }, hassMock.hass);
         
