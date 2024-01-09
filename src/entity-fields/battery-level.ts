@@ -45,15 +45,15 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
         }
     }
     else {
-        const candidates: string[] = [
+        const candidates: (string | number | undefined)[] = [
             config.non_battery_entity ? null: entityData.attributes.battery_level,
             config.non_battery_entity ? null: entityData.attributes.battery,
             entityData.state
         ];
 
-        state = candidates.find(val => isNumber(val)) ||
+        state = candidates.find(val => isNumber(val))?.toString() ||
                 candidates.find(val => val !== null && val !== undefined)?.toString() ||
-                UnknownLevel
+                UnknownLevel;
     }
 
     let displayValue: string | undefined;

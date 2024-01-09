@@ -235,4 +235,21 @@ describe("Battery level", () => {
 
         expect(unit).toBe(expectedUnit);
     })
+
+    test.each([
+        ["45", {}, "45"],
+        [46, {}, "46"],
+        ["ok", { battery_level: "47" }, "47"],
+        ["ok", { battery_level: 48 }, "48"],
+        ["ok", { battery: "49" }, "49"],
+        ["ok", { battery: 50 }, "50"],
+    ])("state value coming from default places", (entityState: string | number, entityAttributes: IMap<string | number>, expectedState: string) => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("Mocked entity", <any>entityState, entityAttributes);
+
+        const { state } = getBatteryLevel({ entity: entity.entity_id, default_state_formatting: false, unit: undefined}, hassMock.hass);
+
+        expect(typeof(state)).toBe("string");
+        expect(state).toBe(expectedState);
+    })
 });
