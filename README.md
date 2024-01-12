@@ -47,6 +47,9 @@ filter:
   include:
     - name: "attributes.device_class"
       value: "battery"
+  exclude:
+    - name: "entity_id"
+      value: "binary_sensor.*"
 sort:
   by: "state"
 collapse: 8

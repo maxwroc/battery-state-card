@@ -8,6 +8,7 @@ import sharedStyles from "./shared.css"
 import cardStyles from "./battery-state-card.css"
 import { getIdsOfSortedBatteries } from "../sorting";
 import { safeGetConfigArrayOfObjects } from "../utils";
+import defaultConfig from "../default-config";
 
 
 /**
@@ -55,7 +56,8 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
         if (this.batteryProvider == undefined || configUpdated) {
             // checking whether we should apply default config
             if (Object.keys(this.config).length == 1) {
-                this.config = getDefaultConfig();
+                // cloning default config
+                this.config = { ... defaultConfig };
             }
 
             this.batteryProvider = new BatteryProvider(this.config);
@@ -123,27 +125,5 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
 
         // +1 to account header
         return size + 1;
-    }
-}
-
-const getDefaultConfig = () => <IBatteryStateCardConfig>{
-    sort: {
-        by: "state"
-    },
-    collapse: 8,
-    filter: {
-        include: [{
-            name: "attributes.device_class",
-            value: "battery"
-        }]
-    },
-    secondary_info: "{last_changed}",
-    bulk_rename: [
-        { from: " Battery" },
-        { from: " level" },
-    ],
-    colors: {
-        steps: [ "#ff0000", "#ffff00", "#00ff00" ],
-        gradient: true,
     }
 }
