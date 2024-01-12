@@ -5,11 +5,11 @@ describe("Secondary info", () => {
 
     test("Unsupported entity domain", () => {
         const hassMock = new HomeAssistantMock(true);
-        const entity = hassMock.addEntity("Motion sensor kitchen", "50", {}, "device_tracker");
+        const entity = hassMock.addEntity("Motion sensor kitchen", "50", {}, "water");
         const secondaryInfoConfig = "{" + entity.entity_id + "}";
         const result = getSecondaryInfo({ entity: "any", secondary_info: secondaryInfoConfig }, hassMock.hass, false);
 
-        expect(result).toBe("{device_tracker.motion_sensor_kitchen}");
+        expect(result).toBe("{water.motion_sensor_kitchen}");
     })
 
     test("Other entity state (number)", () => { 
@@ -28,7 +28,7 @@ describe("Secondary info", () => {
         const secondaryInfoConfig = "{last_changed}";
         const result = getSecondaryInfo({ entity: entity.entity_id, secondary_info: secondaryInfoConfig }, hassMock.hass, false);
 
-        expect(result).toBe("<rt>1644192000000</rt>");
+        expect(result).toBe("<rt>2022-02-07</rt>");
     })
 
     test("Secondary info config not set'", () => { 

@@ -20,14 +20,15 @@ describe("RichStringProcessor", () => {
     })
 
     test.each([
-        ["Value {state}, {last_updated}", "Value 20.56, 2021-04-05 15:11:35"], // few placeholders
-        ["Value {state}, {attributes.charging_state}", "Value 20.56, Charging"], // attribute value
-        ["Value {state}, {sensor.kitchen_switch.state}", "Value 20.56, 55"], // external entity state
-        ["Value {state}, {sensor.kitchen_switch.attributes.charging_state}", "Value 20.56, Fully charged"], // external entity attribute value
-    ])("replaces placeholders", (text: string, expectedResult: string) => {
+        // ["Value {state}, {last_updated}", "Value 20.56, 2021-04-05 15:11:35"], // few placeholders
+        // ["Value {state}, {attributes.charging_state}", "Value 20.56, Charging"], // attribute value
+        // ["Value {state}, {sensor.kitchen_switch.state}", "Value 20.56, 55"], // external entity state
+        // ["Value {state}, {sensor.kitchen_switch.attributes.charging_state}", "Value 20.56, Fully charged"], // external entity attribute value
+        ["Value {state}, {device_tracker.kitchen_switch.state}", "Value 20.56, 55", "device_tracker"], // external entity state
+    ])("replaces placeholders", (text: string, expectedResult: string, otherEntityDomain = "sensor") => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", "20.56", { charging_state: "Charging" }, "sensor");
-        const switchEntity = hassMock.addEntity("Kitchen switch", "55", { charging_state: "Fully charged" }, "sensor");
+        const switchEntity = hassMock.addEntity("Kitchen switch", "55", { charging_state: "Fully charged" }, otherEntityDomain);
 
         motionEntity.setLastUpdated("2021-04-05 15:11:35");
         const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);

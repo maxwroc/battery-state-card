@@ -151,7 +151,7 @@ type FilterGroups = "exclude" | "include";
 /**
  * Supprted filter operators
  */
-type FilterOperator = "exists" | "=" | ">" | "<" | ">=" | "<=" | "contains" | "matches";
+type FilterOperator = "exists" | "not_exists" | "=" | ">" | "<" | ">=" | "<=" | "contains" | "matches";
 
 /**
  * Filter object
@@ -170,7 +170,7 @@ interface IFilter {
     /**
      * Value to compare with the extracted one
      */
-    value: string | number;
+    value?: string | number;
 }
 
 interface IBatteryEntityConfig {

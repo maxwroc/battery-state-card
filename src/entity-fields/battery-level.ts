@@ -24,7 +24,8 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
         const processedValue = stringProcessor.process(config.value_override.toString());
         return {
             state: processedValue,
-            level: isNumber(processedValue) ? Number(processedValue) : undefined
+            level: isNumber(processedValue) ? Number(processedValue) : undefined,
+            unit: getUnit(processedValue, undefined, undefined, config, hass),
         }
     }
 
@@ -44,15 +45,15 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
         }
     }
     else {
-        const candidates: string[] = [
+        const candidates: (string | number | undefined)[] = [
             config.non_battery_entity ? null: entityData.attributes.battery_level,
             config.non_battery_entity ? null: entityData.attributes.battery,
             entityData.state
         ];
 
-        state = candidates.find(val => isNumber(val)) ||
+        state = candidates.find(val => isNumber(val))?.toString() ||
                 candidates.find(val => val !== null && val !== undefined)?.toString() ||
-                UnknownLevel
+                UnknownLevel;
     }
 
     let displayValue: string | undefined;
@@ -100,15 +101,33 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
         const formattedState = hass.formatEntityState(entityData);
 
         // assuming it is a number followed by unit
-        [displayValue, unit] = formattedState.split(" ", 2);
-        unit = String.fromCharCode(160) + unit;
+        [state, unit] = formattedState.split(" ", 2);
+        unit = unit;
     }
 
     return {
         state: displayValue || state,
         level: isNumber(state) ? Number(state) : undefined,
-        unit_override: unit,
+        unit: getUnit(state, displayValue, unit, config, hass),
     };
+}
+
+const getUnit = (state: string, displayValue: string | undefined, unit: string | undefined, config: IBatteryEntityConfig, hass?: HomeAssistantExt): string | undefined => {
+    if (config.unit) {
+        // config unit override
+        unit = config.unit
+    }
+    else {
+        // default unit
+        unit = unit || hass?.states[config.entity]?.attributes["unit_of_measurement"] || "%"
+    }
+
+    if (!isNumber(state) || (displayValue && !isNumber(displayValue))) {
+        // for non numeric states unit should not be rendered
+        unit = undefined;
+    }
+
+    return unit;
 }
 
 interface IBatteryState {
@@ -125,5 +144,5 @@ interface IBatteryState {
     /**
      * Unit override
      */
-    unit_override?: string
+    unit?: string
 }

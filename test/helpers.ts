@@ -26,6 +26,15 @@ export class CardElements {
         return this.card.shadowRoot!.querySelectorAll(".card-content > * > battery-state-entity").length;
     }
 
+    get items(): EntityElements[] {
+        const result: EntityElements[] = [];
+        for (let index = 0; index < this.itemsCount; index++) {
+            result.push(this.item(index));
+        }
+
+        return result;
+    }
+
     item(index: number) {
         const entity = this.card.shadowRoot!.querySelectorAll<BatteryStateEntity>(".card-content > * > battery-state-entity")[index];
         if (!entity) {

@@ -200,14 +200,15 @@ Operator is an optional property. If operator is not specified it depends on `va
 * if `value` starts and ends with shalsh "`/`" or if it contains wildcard "`*`" the operator is `matches`
 * if `value` property is set but above conditions are not met the operator is "`=`"
 
-| Name | Type |
-|:-----|:-----|
-| `"exists"` | It just checks if value is present (e.g. to match entities having particular attribute regardless of the attribute value). It doesn't require `value` to be specified.
-| `"="` | If value equals the one specified in `value` property.
-| `">"` | If value is greater than one specified in `value` property. Possible variant: `">="`. Value must be numeric type.
-| `"<"` | If value is lower than one specified in `value` property. Possible variant: `"<="`. Value must be numeric type.
-| `"contains"` | If value contains the one specified in `value` property
-| `"matches"` | If value matches the one specified in `value` property. You can use wildcards (e.g. `"*_battery_level"`) or regular expression (must be prefixed and followed by slash e.g. `"/[a-z_]+_battery_level/"`)
+| Name | Since | Type |
+|:-----|:-----|:-----|
+| `"exists"` | v1.3.0 | It checks if field is present (e.g. to match entities having particular attribute regardless of the attribute value). It doesn't require `value` to be specified.
+| `"not_exists"` | v3.1.0 | It checks if field is not present (e.g. to match entities without particular attribute). It doesn't require `value` to be specified.
+| `"="` | v1.3.0 | If value equals the one specified in `value` property.
+| `">"` | v1.3.0 | If value is greater than one specified in `value` property. Possible variant: `">="`. Value must be numeric type.
+| `"<"` | v1.3.0 | If value is lower than one specified in `value` property. Possible variant: `"<="`. Value must be numeric type.
+| `"contains"` | v1.3.0 | If value contains the one specified in `value` property
+| `"matches"` | v1.3.0 | If value matches the one specified in `value` property. You can use wildcards (e.g. `"*_battery_level"`) or regular expression (must be prefixed and followed by slash e.g. `"/[a-z_]+_battery_level/"`)
 
 ### Tap-Action
 

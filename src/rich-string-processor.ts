@@ -1,7 +1,34 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { log } from "./utils";
 
-const validEntityDomains = ["sensor", "binary_sensor"];
+const validEntityDomains = [
+    "automation",
+    "binary_sensor",
+    "button",
+    "calendar",
+    "camera",
+    "climate",
+    "device_tracker",
+    "group",
+    "input_boolean",
+    "input_datetime",
+    "input_number",
+    "input_select",
+    "input_text",
+    "light",
+    "media_player",
+    "number",
+    "person",
+    "remote",
+    "scene",
+    "script",
+    "select",
+    "sensor", 
+    "switch",
+    "update",
+    "weather",
+    "zone",
+];
 
 /**
  * Class for processing keyword strings
