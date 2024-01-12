@@ -1,6 +1,5 @@
-import { log } from "./utils";
+import { log, toNumber } from "./utils";
 import { IBatteryCollection, IBatteryCollectionItem } from "./battery-provider";
-import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 
 export interface IBatteryGroup {
     title?: string;
@@ -87,7 +86,7 @@ const getGroupIndex = (config: IGroupConfig[], battery: IBatteryCollectionItem, 
             return false
         }
 
-        const level = isNaN(Number(battery.state)) ? 0 : Number(battery.state);
+        const level = isNaN(toNumber(battery.state)) ? 0 : toNumber(battery.state);
 
         return level >= group.min! && level <= group.max!;
     });
@@ -152,14 +151,14 @@ const getEnrichedText = (text: string, group: IBatteryGroup, batteries: IBattery
     text = text.replace(/\{[a-z]+\}/g, keyword => {
         switch (keyword) {
             case "{min}":
-                return group.batteryIds.reduce((agg, id) => agg > Number(batteries[id].state) ? Number(batteries[id].state) : agg, 100).toString();
+                return group.batteryIds.reduce((agg, id) => agg > toNumber(batteries[id].state) ? toNumber(batteries[id].state) : agg, 100).toString();
             case "{max}":
-                return group.batteryIds.reduce((agg, id) => agg < Number(batteries[id].state) ? Number(batteries[id].state) : agg, 0).toString();
+                return group.batteryIds.reduce((agg, id) => agg < toNumber(batteries[id].state) ? toNumber(batteries[id].state) : agg, 0).toString();
             case "{count}":
                 return group.batteryIds.length.toString();
             case "{range}":
-                const min = group.batteryIds.reduce((agg, id) => agg > Number(batteries[id].state) ? Number(batteries[id].state) : agg, 100).toString();
-                const max = group.batteryIds.reduce((agg, id) => agg < Number(batteries[id].state) ? Number(batteries[id].state) : agg, 0).toString();
+                const min = group.batteryIds.reduce((agg, id) => agg > toNumber(batteries[id].state) ? toNumber(batteries[id].state) : agg, 100).toString();
+                const max = group.batteryIds.reduce((agg, id) => agg < toNumber(batteries[id].state) ? toNumber(batteries[id].state) : agg, 0).toString();
                 return min == max ? min : min + "-" + max;
             default:
                 return keyword;
