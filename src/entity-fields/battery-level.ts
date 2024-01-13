@@ -1,6 +1,6 @@
 import { RichStringProcessor } from "../rich-string-processor";
 import { HomeAssistantExt } from "../type-extensions";
-import { isNumber, log } from "../utils";
+import { isNumber, log, toNumber } from "../utils";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
@@ -38,7 +38,7 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
     }
 
     if (config.attribute) {
-        state = entityData.attributes[config.attribute];
+        state = entityData.attributes[config.attribute]?.toString();
         if (state == undefined) {
             log(`Attribute "${config.attribute}" doesn't exist on "${config.entity}" entity`);
             state = UnknownLevel;
@@ -84,7 +84,7 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
 
     if (isNumber(state)) {
         if (config.multiplier) {
-            state = (config.multiplier * Number(state)).toString();
+            state = (config.multiplier * toNumber(state)).toString();
         }
 
         if (typeof config.round === "number") {
