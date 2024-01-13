@@ -1,4 +1,4 @@
-import { css, html } from "lit";
+import { css } from "lit";
 import { property } from "lit/decorators.js"
 import { safeGetConfigObject } from "../utils";
 import { batteryHtml } from "./battery-state-entity.views";
