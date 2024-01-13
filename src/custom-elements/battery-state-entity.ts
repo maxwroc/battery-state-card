@@ -73,7 +73,6 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     }
 
     async internalUpdate() {
-
         this.entityData = <any>{
             ...this.hass?.states[this.config.entity]
         };
@@ -101,8 +100,11 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         this.setupAction(false);
     }
 
-    render() {
+    internalRender() {
         return batteryHtml(this);
+    }
+
+    onError(): void {
     }
 
     /**
