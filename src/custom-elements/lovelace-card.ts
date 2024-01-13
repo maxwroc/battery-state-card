@@ -1,11 +1,18 @@
-import { LitElement, TemplateResult } from "lit";
+import { LitElement, TemplateResult, html } from "lit";
 import { HomeAssistantExt } from "../type-extensions";
 import { throttledCall } from "../utils";
+import { property } from "lit/decorators.js"
 
 /**
  * Lovelace UI component/card base
  */
 export abstract class LovelaceCard<TConfig> extends LitElement {
+
+    /**
+     * Error
+     */
+    @property({ attribute: false })
+    public error: Error | undefined;
 
     /**
      * HomeAssistant object
@@ -40,7 +47,19 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
      * the last one.
      */
     private triggerUpdate = throttledCall(async () => {
-        await this.internalUpdate(this.configUpdated, this.hassUpdated);
+
+        try {
+            await this.internalUpdate(this.configUpdated, this.hassUpdated);
+            this.error = undefined;
+        }
+        catch (e: unknown) {
+            if (typeof e === "string") {
+                this.error = { message: e, name: "" };
+            }
+            else if (e instanceof Error) {
+                this.error = e;
+            }
+        }
 
         if (this.configUpdated) {
             // always rerender when config has changed
@@ -94,5 +113,40 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
      */
     abstract internalUpdate(config: boolean, hass:boolean): Promise<void>;
 
-    abstract render(): TemplateResult<1>;
+    /**
+     * Gets the rendered card HTML template
+     */
+    abstract internalRender(): TemplateResult<1>;
+
+    render(): TemplateResult<1> {
+        if (this.error) {
+
+            // calling render just for the sake of letting the card know about the error
+            this.internalRender();
+
+            return errorHtml(this.tagName, "Exception: " + this.error.message, this.error.stack);
+        }
+
+        return this.internalRender();
+    }
 }
+
+const errorHtml = (cardName: string, message: string, content: string | undefined) => html`
+<ha-alert alert-type="error" title="${cardName}">
+    <p>
+        <strong>${message}</strong>
+    <p>
+    <ol>
+        <li>
+            Please check if the problem was reported already<br />
+            Click <a target="_blank" href="https://github.com/maxwroc/battery-state-card/issues?q=is%3Aissue+is%3Aopen+${encodeURIComponent(message)}">here</a> to search
+        </li>
+        <li>
+            If it wasn't please consider creating one<br />
+            Click <a target="_blank" href="https://github.com/maxwroc/battery-state-card/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=${encodeURIComponent(message)}">here</a> to create<br />
+            Please copy-paste the below stack trace.
+        </li>
+    </ol>
+    <pre>${content}</pre>
+</ha-alert>
+`;

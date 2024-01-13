@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css, html } from "lit";
 import { property } from "lit/decorators.js"
 import { safeGetConfigObject } from "../utils";
 import { batteryHtml } from "./battery-state-entity.views";
@@ -73,7 +73,6 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     }
 
     async internalUpdate() {
-
         this.entityData = <any>{
             ...this.hass?.states[this.config.entity]
         };
@@ -101,8 +100,8 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         this.setupAction(false);
     }
 
-    render() {
-        return batteryHtml(this);
+    internalRender() {
+        return this.error ? html`` : batteryHtml(this);
     }
 
     /**
