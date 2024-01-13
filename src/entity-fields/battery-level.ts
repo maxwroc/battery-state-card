@@ -24,7 +24,7 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
         const processedValue = stringProcessor.process(config.value_override.toString());
         return {
             state: processedValue,
-            level: isNumber(processedValue) ? Number(processedValue) : undefined,
+            level: isNumber(processedValue) ? toNumber(processedValue) : undefined,
             unit: getUnit(processedValue, undefined, undefined, config, hass),
         }
     }
@@ -107,7 +107,7 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
 
     return {
         state: displayValue || state,
-        level: isNumber(state) ? Number(state) : undefined,
+        level: isNumber(state) ? toNumber(state) : undefined,
         unit: getUnit(state, displayValue, unit, config, hass),
     };
 }
