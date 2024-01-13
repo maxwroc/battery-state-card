@@ -209,8 +209,6 @@ export class BatteryProvider {
         const filters = this.exclude;
         const toBeRemoved: string[] = [];
 
-
-
         Object.keys(this.batteries).forEach((entityId) => {
             const battery = this.batteries[entityId];
             let isHidden = false;
