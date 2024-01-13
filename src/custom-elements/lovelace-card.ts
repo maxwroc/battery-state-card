@@ -41,6 +41,12 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
      */
     private triggerUpdate = throttledCall(async () => {
         await this.internalUpdate(this.configUpdated, this.hassUpdated);
+
+        if (this.configUpdated) {
+            // always rerender when config has changed
+            this.requestUpdate();
+        }
+
         this.configUpdated = false;
         this.hassUpdated = false;
         this.updateNotifyQueue.forEach(n => n());
