@@ -101,7 +101,10 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     }
 
     internalRender() {
-        return this.error ? html`` : batteryHtml(this);
+        return batteryHtml(this);
+    }
+
+    onError(): void {
     }
 
     /**

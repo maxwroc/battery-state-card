@@ -88,7 +88,7 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
     }
 
     internalRender(): TemplateResult<1> {
-        if (this.list.length == 0 && this.groups.length == 0 && !this.error) {
+        if (this.list.length == 0 && this.groups.length == 0) {
             // if there are no entities to show we don't want to render anything
             this.style.display = "none";
             return html``;
@@ -96,7 +96,11 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
         
         this.style.removeProperty("display");
 
-        return this.error ? html`` : cardHtml(this);
+        return cardHtml(this);
+    }
+
+    onError(): void {
+        this.style.removeProperty("display");
     }
 
     /**

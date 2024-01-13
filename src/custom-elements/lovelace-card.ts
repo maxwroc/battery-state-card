@@ -114,16 +114,18 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
     abstract internalUpdate(config: boolean, hass:boolean): Promise<void>;
 
     /**
-     * Gets the rendered card HTML template
+     * Handler called when render was triggered and updated HTML template is required
      */
     abstract internalRender(): TemplateResult<1>;
 
+    /**
+     * Handler called when exception was caught to let know the card
+     */
+    abstract onError(): void;
+
     render(): TemplateResult<1> {
         if (this.error) {
-
-            // calling render just for the sake of letting the card know about the error
-            this.internalRender();
-
+            this.onError();
             return errorHtml(this.tagName, "Exception: " + this.error.message, this.error.stack);
         }
 
