@@ -249,7 +249,15 @@ describe("Battery level", () => {
 
         const { state } = getBatteryLevel({ entity: entity.entity_id, default_state_formatting: false, unit: undefined}, hassMock.hass);
 
-        expect(typeof(state)).toBe("string");
         expect(state).toBe(expectedState);
+    })
+    
+    test("number in the attribute value", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("Mocked entity", "OK", { custom_attribute: 2 });
+
+        const { state } = getBatteryLevel({ entity: entity.entity_id, attribute: "custom_attribute"}, hassMock.hass);
+
+        expect(state).toBe("2");
     })
 });
