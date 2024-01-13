@@ -194,12 +194,13 @@ describe("Battery level", () => {
         [false, "45", "dbm", { state: "45", level: 45, unit: "%" }], // test when the setting is turned off
         [true, "45", "dbm", { state: "56", level: 56, unit: "%" }, [ { from: "45", to: "56" } ]], // test when the state was changed by state_map
         [true, "45", "dbm", { state: "Low", level: 45, unit: undefined }, [ { from: "45", to: "45", display: "Low" } ]], // test when the display value was changed by state_map
+        [true, "45.4", "dbm", { state: "45,4", level: 45.4, unit: "[dbm]" }, undefined, ","], // test when default HA formatting returns state with comma as decimal point
     ])
-    ("default HA formatting", (defaultStateFormatting: boolean | undefined, entityState: string, unitOfMeasurement: string, expected: { state: string, level: number, unit?: string }, stateMap: IConvert[] | undefined = undefined) => {
+    ("default HA formatting", (defaultStateFormatting: boolean | undefined, entityState: string, unitOfMeasurement: string, expected: { state: string, level: number, unit?: string }, stateMap: IConvert[] | undefined = undefined, decimalPoint: string = ".") => {
         
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", entityState);
-        hassMock.mockFunc("formatEntityState", (entityData: any) => `${entityData.state} [${unitOfMeasurement}]`);
+        hassMock.mockFunc("formatEntityState", (entityData: any) => `${entityData.state.replace(".", decimalPoint)} [${unitOfMeasurement}]`);
 
         const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity", default_state_formatting: defaultStateFormatting, state_map: stateMap }, hassMock.hass);
         

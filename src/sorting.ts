@@ -1,5 +1,5 @@
 import { IBatteryCollection } from "./battery-provider";
-import { isNumber, log, safeGetConfigArrayOfObjects } from "./utils";
+import { isNumber, log, safeGetConfigArrayOfObjects, toNumber } from "./utils";
 
 /**
  * Sorts batteries by given criterias and returns their IDs
@@ -76,8 +76,8 @@ import { isNumber, log, safeGetConfigArrayOfObjects } from "./utils";
  * @returns Comparison result
  */
  const compareNumbers = (a: string, b: string): number => {
-    let aNum = Number(a);
-    let bNum = Number(b);
+    let aNum = toNumber(a);
+    let bNum = toNumber(b);
     aNum = isNaN(aNum) ? -1 : aNum;
     bNum = isNaN(bNum) ? -1 : bNum;
     return aNum - bNum;
