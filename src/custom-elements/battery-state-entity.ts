@@ -12,6 +12,7 @@ import { getChargingState } from "../entity-fields/charging-state";
 import { getBatteryLevel } from "../entity-fields/battery-level";
 import { getName } from "../entity-fields/get-name";
 import { getIcon } from "../entity-fields/get-icon";
+import { DeviceRegistryEntry } from "../type-extensions";
 
 /**
  * Battery entity element
@@ -63,7 +64,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     /**
      * Raw entity data
      */
-    public entityData: IMap<string>;
+    public entityData: IMap<any>;
 
     /**
      * Entity CSS styles
@@ -77,13 +78,19 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
             ...this.hass?.states[this.config.entity]
         };
 
-        this.name = getName(this.config, this.hass);
-        var { state, level, unit} = getBatteryLevel(this.config, this.hass);
+        if (this.config.extend_entity_data !== false) {
+            this.extendEntityData();
+        }
+
+        var { state, level, unit} = getBatteryLevel(this.config, this.hass, this.entityData);
         this.state = state;
         this.unit = unit;
         
         const isCharging = getChargingState(this.config, this.state, this.hass);
-        this.secondaryInfo = getSecondaryInfo(this.config, this.hass, isCharging);
+        this.entityData["charging"] = isCharging ? (this.config.charging_state?.secondary_info_text || "Charging") : "" // todo: think about i18n
+
+        this.name = getName(this.config, this.hass, this.entityData);
+        this.secondaryInfo = getSecondaryInfo(this.config, this.hass, this.entityData);
         this.icon = getIcon(this.config, level, isCharging, this.hass);
         this.iconColor = getColorForBatteryLevel(this.config, level, isCharging);
     }
@@ -133,6 +140,25 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
                 this.classList.remove("clickable");
                 this.removeEventListener("click", this.action);
                 this.action = undefined;
+            }
+        }
+    }
+
+    private extendEntityData() {
+
+        if (!this.hass) {
+            return;
+        }
+
+        const entityDisplayEntry = this.hass.entities[this.config.entity];
+
+        if (entityDisplayEntry) {
+            this.entityData["display"] = entityDisplayEntry;
+            this.entityData["device"] = entityDisplayEntry.device_id ? this.hass.devices[entityDisplayEntry.device_id] : undefined;
+
+            const area_id = entityDisplayEntry.area_id || (<DeviceRegistryEntry>this.entityData["device"]).area_id;
+            if (area_id) {
+                this.entityData["area"] = this.hass.areas[area_id];
             }
         }
     }

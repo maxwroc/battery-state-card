@@ -254,6 +254,11 @@ interface IBatteryEntityConfig {
      * Whether to allow HA to format the state value
      */
     default_state_formatting?: boolean;
+
+    /**
+     * Whether to add display/device/area data
+     */
+    extend_entity_data?: boolean,
 }
 
 interface IBatteryCardConfig {

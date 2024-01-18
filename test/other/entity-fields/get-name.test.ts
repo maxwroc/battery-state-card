@@ -4,13 +4,13 @@ import { HomeAssistantMock } from "../../helpers";
 describe("Get name", () => {
     test("returns name from the config", () => {
         const hassMock = new HomeAssistantMock(true);
-        let name = getName({ entity: "test", name: "Entity name" }, hassMock.hass)
+        let name = getName({ entity: "test", name: "Entity name" }, hassMock.hass, {})
 
         expect(name).toBe("Entity name");
     });
 
     test("returns entity id when name and hass is missing", () => {
-        let name = getName({ entity: "sensor.my_entity_id" }, undefined)
+        let name = getName({ entity: "sensor.my_entity_id" }, undefined, {})
 
         expect(name).toBe("sensor.my_entity_id");
     });
@@ -19,14 +19,14 @@ describe("Get name", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("My entity", "45", { friendly_name: "My entity name" });
 
-        let name = getName({ entity: "my_entity" }, hassMock.hass);
+        let name = getName({ entity: "my_entity" }, hassMock.hass, {});
 
         expect(name).toBe("My entity name");
     });
 
     test("returns entity id when entity not found in hass", () => {
         const hassMock = new HomeAssistantMock(true);
-        let name = getName({ entity: "my_entity_missing" }, hassMock.hass);
+        let name = getName({ entity: "my_entity_missing" }, hassMock.hass, {});
 
         expect(name).toBe("my_entity_missing");
     });
@@ -35,7 +35,7 @@ describe("Get name", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("My entity", "45", { friendly_name: undefined });
 
-        let name = getName({ entity: "my_entity" }, hassMock.hass);
+        let name = getName({ entity: "my_entity" }, hassMock.hass, {});
 
         expect(name).toBe("my_entity");
     });
@@ -50,7 +50,7 @@ describe("Get name", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("My entity", "45", { friendly_name: entityName });
 
-        let name = getName({ entity: "my_entity", bulk_rename: renameRules }, hassMock.hass);
+        let name = getName({ entity: "my_entity", bulk_rename: renameRules }, hassMock.hass, {});
 
         expect(name).toBe(expectedResult);
     });
@@ -65,7 +65,7 @@ describe("Get name", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("My entity", "45", { friendly_name: entityName });
 
-        let name = getName({ entity: "my_entity", bulk_rename: renameRules }, hassMock.hass);
+        let name = getName({ entity: "my_entity", bulk_rename: renameRules }, hassMock.hass, {});
 
         expect(name).toBe(expectedResult);
     });
@@ -76,11 +76,11 @@ describe("Get name", () => {
         ["KString other entity {sensor.other_entity.state}", "KString other entity CR2032"],
     ])("KString in the name", (name: string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock(true);
-        hassMock.addEntity("My entity", "45");
+        const mockEntity = hassMock.addEntity("My entity", "45");
 
         hassMock.addEntity("Other entity", "CR2032", undefined, "sensor");
 
-        let result = getName({entity: "my_entity", name}, hassMock.hass);
+        let result = getName({entity: mockEntity.entity_id, name}, hassMock.hass, hassMock.hass.states[mockEntity.entity_id]);
         expect(result).toBe(expectedResult);
     })
 
@@ -95,7 +95,7 @@ describe("Get name", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("My entity", "45", { friendly_name: entityName });
 
-        let result = getName({entity: "my_entity", bulk_rename: renameRules}, hassMock.hass);
+        let result = getName({entity: "my_entity", bulk_rename: renameRules}, hassMock.hass, {});
         expect(result).toBe(expectedResult);
     })
 });

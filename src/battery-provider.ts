@@ -7,7 +7,21 @@ import { HomeAssistantExt } from "./type-extensions";
 /**
  * Properties which should be copied over to individual entities from the card
  */
-const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ "tap_action", "state_map", "charging_state", "secondary_info", "colors", "bulk_rename", "icon", "round", "unit", "value_override", "non_battery_entity", "default_state_formatting" ];
+const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ 
+    "bulk_rename", 
+    "charging_state", 
+    "colors", 
+    "default_state_formatting",
+    "extend_entity_data",
+    "icon", 
+    "non_battery_entity", 
+    "round",  
+    "secondary_info", 
+    "state_map", 
+    "tap_action", 
+    "value_override", 
+    "unit",
+];
 
 /**
  * Class responsible for intializing Battery view models based on given configuration.

@@ -6,14 +6,12 @@ import { isNumber } from "../utils";
  * Gets secondary info text
  * @param config Entity config
  * @param hass HomeAssistant state object
- * @param isCharging Whther battery is in charging mode
+ * @param entidyData Entity data
  * @returns Secondary info text
  */
-export const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, isCharging: boolean): string => {
+export const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, entityData: IMap<any> | undefined): string => {
     if (config.secondary_info) {
-        const processor = new RichStringProcessor(hass, config.entity, {
-            "charging": isCharging ? (config.charging_state?.secondary_info_text || "Charging") : "" // todo: think about i18n
-        });
+        const processor = new RichStringProcessor(hass, entityData);
 
         let result = processor.process(config.secondary_info);
 
