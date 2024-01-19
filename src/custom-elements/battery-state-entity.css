@@ -2,3 +2,6 @@
     display: flex;
     align-items: center;
 }
+:host > ha-alert {
+    flex: 1 0 auto;
+}

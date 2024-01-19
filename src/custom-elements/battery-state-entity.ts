@@ -1,7 +1,7 @@
 import { css } from "lit";
 import { property } from "lit/decorators.js"
 import { safeGetConfigObject } from "../utils";
-import { batteryHtml } from "./battery-state-entity.views";
+import { batteryHtml, debugOutput } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
 import entityStyles from "./battery-state-entity.css";
@@ -82,6 +82,14 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
             this.extendEntityData();
         }
 
+        if (this.config.debug === true || this.config.debug === this.config.entity) {
+            console.log(this.entityData);
+            this.alert = {
+                title: `Debug: ${this.config.entity}`,
+                content: debugOutput(JSON.stringify(this.entityData, null, 2)),
+            }
+        }
+
         var { state, level, unit} = getBatteryLevel(this.config, this.hass, this.entityData);
         this.state = state;
         this.unit = unit;
@@ -119,7 +127,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
      * @param enable Whether to enable/add the tap action
      */
     private setupAction(enable: boolean = true) {
-        if (enable) {
+        if (enable && !this.error && !this.alert) {
             let tapAction = this.config.tap_action || "more-info";
             if (tapAction != "none" && !this.action) {
                 this.action = evt => {

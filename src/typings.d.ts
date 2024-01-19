@@ -259,6 +259,11 @@ interface IBatteryEntityConfig {
      * Whether to add display/device/area data
      */
     extend_entity_data?: boolean,
+
+    /**
+     * Whether to print the debug output
+     */
+    debug?: string | boolean,
 }
 
 interface IBatteryCardConfig {

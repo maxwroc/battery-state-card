@@ -11,6 +11,7 @@ const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [
     "bulk_rename", 
     "charging_state", 
     "colors", 
+    "debug",
     "default_state_formatting",
     "extend_entity_data",
     "icon", 
