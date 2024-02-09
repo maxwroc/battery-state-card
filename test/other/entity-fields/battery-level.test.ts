@@ -267,6 +267,7 @@ describe("Battery level", () => {
         ["66%", { state: "66", level: 66, unit: "%" }],
         ["-77lqi", { state: "-77", level: -77, unit: "lqi" }],
         ["-88.8lqi", { state: "-88.8", level: -88.8, unit: "lqi" }],
+        ["99", { state: "99", level: 99, unit: "%" }],
     ])
     ("default HA formatting - various formatted states", (formattedResult: string, expected: { state: string, level: number, unit?: string }) => {
         
