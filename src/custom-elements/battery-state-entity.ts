@@ -83,7 +83,6 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         }
 
         if (this.config.debug === true || this.config.debug === this.config.entity) {
-            console.log(this.entityData);
             this.alert = {
                 title: `Debug: ${this.config.entity}`,
                 content: debugOutput(JSON.stringify(this.entityData, null, 2)),

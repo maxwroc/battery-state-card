@@ -272,10 +272,10 @@ describe("Battery level", () => {
     ("default HA formatting - various formatted states", (formattedResult: string, expected: { state: string, level: number, unit?: string }) => {
         
         const hassMock = new HomeAssistantMock(true);
-        hassMock.addEntity("Mocked entity", "45");
+        const entity = hassMock.addEntity("Mocked entity", "45");
         hassMock.mockFunc("formatEntityState", () => formattedResult);
 
-        const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass);
+        const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
         
         expect(level).toBe(expected.level);
         expect(state).toBe(expected.state);
