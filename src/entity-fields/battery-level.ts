@@ -7,6 +7,12 @@ import { isNumber, log, toNumber } from "../utils";
  */
 const stringValuePattern = /\b([0-9]{1,3})\s?%/;
 
+
+/**
+ * HA formatted state pattern
+ */
+const formattedStatePattern = /(-?[0-9,.]+)\s?(.*)/;
+
 /**
  * Getts battery level/state
  * @param config Entity config
@@ -98,9 +104,11 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistan
     if (config.default_state_formatting !== false && !displayValue && state === entityData.state && hass) {
         const formattedState = hass.formatEntityState(entityData);
 
-        // assuming it is a number followed by unit
-        [state, unit] = formattedState.split(" ", 2);
-        unit = unit;
+        const matches = formattedState.match(formattedStatePattern);
+        if (matches != null) {
+            state = matches[1];
+            unit = matches[2] || unit;
+        }
     }
 
     return {
