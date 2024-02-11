@@ -2,7 +2,7 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
 import { HomeAssistant } from "custom-card-helpers";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 import { Filter } from "./filter";
-import { HomeAssistantExt } from "./type-extensions";
+import { EntityRegistryDisplayEntry, HomeAssistantExt } from "./type-extensions";
 
 /**
  * Properties which should be copied over to individual entities from the card
@@ -217,6 +217,11 @@ export class BatteryProvider {
      */
     private processExcludes() {
         if (this.exclude == undefined) {
+            Object.keys(this.batteries).forEach((entityId) => {
+                const battery = this.batteries[entityId];
+                battery.isHidden = (<EntityRegistryDisplayEntry>battery.entityData?.display)?.hidden;
+            });
+
             return;
         }
 
@@ -244,7 +249,7 @@ export class BatteryProvider {
 
             // we keep the view model to keep updating it
             // it might be shown/not-hidden next time
-            battery.isHidden = isHidden;
+            battery.isHidden = isHidden || (<EntityRegistryDisplayEntry>battery.entityData?.display)?.hidden;
         });
 
         toBeRemoved.forEach(entityId => delete this.batteries[entityId]);
