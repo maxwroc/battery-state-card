@@ -66,6 +66,11 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     public entityData: IMap<string>;
 
     /**
+     * Numeric representation of the state
+     */
+    public stateNumeric: number | undefined;
+
+    /**
      * Entity CSS styles
      */
     public static get styles() {
@@ -81,6 +86,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         var { state, level, unit} = getBatteryLevel(this.config, this.hass);
         this.state = state;
         this.unit = unit;
+        this.stateNumeric = level;
         
         const isCharging = getChargingState(this.config, this.state, this.hass);
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, isCharging);
