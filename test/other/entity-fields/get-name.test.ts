@@ -40,6 +40,15 @@ describe("Get name", () => {
         expect(name).toBe("my_entity");
     });
 
+    test("doesn't throw when name is empty", () => {
+        const hassMock = new HomeAssistantMock(true);
+        hassMock.addEntity("My entity", "45", { friendly_name: "Battery" });
+
+        let name = getName({ entity: "my_entity", bulk_rename: [{ from: "Battery", to: "" }] }, hassMock.hass);
+
+        expect(name).toBe("");
+    });
+
     test.each(
         [
             ["Kitchen temperature battery", { from: "battery", to: "bat" }, "Kitchen temperature bat"],
