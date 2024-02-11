@@ -46,7 +46,7 @@ const validEntityDomains = [
             return "";
         }
 
-        return text.replace(/\{([^\}]+)\}/g, (matchWithBraces, keyword) => this.replaceKeyword(keyword, matchWithBraces));
+        return text.replace(/\{([^\}]+)\}/g, (matchWithBraces, keyword) => this.replaceKeyword(keyword, ""));
     }
 
     /**
