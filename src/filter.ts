@@ -1,4 +1,4 @@
-import { getRegexFromString, isNumber, log, toNumber } from "./utils";
+import { getRegexFromString, getValueFromObject, isNumber, log, toNumber } from "./utils";
 
 /**
  * Functions to check if filter condition is met
@@ -49,34 +49,30 @@ export class Filter {
 
     /**
      * Checks whether entity meets the filter conditions.
-     * @param entity Hass entity
+     * @param entityData Hass entity data
      * @param state State override - battery state/level
      */
-    isValid(entity: any, state?: string): boolean {
-        const val = this.getValue(entity, state);
+    isValid(entityData: any, state?: string): boolean {
+        const val = this.getValue(entityData, state);
         return this.meetsExpectations(val);
     }
 
     /**
      * Gets the value to validate.
-     * @param entity Hass entity
+     * @param entityData Hass entity data
      * @param state State override - battery state/level
      */
-    private getValue(entity: any, state?: string): string | undefined {
+    private getValue(entityData: any, state?: string): string | undefined {
         if (!this.config.name) {
             log("Missing filter 'name' property");
             return;
-        }
-
-        if (this.config.name.indexOf("attributes.") == 0) {
-            return entity.attributes[this.config.name.substr(11)];
         }
 
         if (this.config.name == "state" && state !== undefined) {
             return state;
         }
 
-        return (<any>entity)[this.config.name];
+        return getValueFromObject(entityData, this.config.name);
     }
 
     /**
