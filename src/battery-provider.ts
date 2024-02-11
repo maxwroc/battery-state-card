@@ -78,8 +78,6 @@ export class BatteryProvider {
             this.processIncludes(hass);
         }
 
-        this.processExcludes(hass);
-
         const updateComplete = Object.keys(this.batteries).map(id => {
             const battery = this.batteries[id];
             battery.hass = hass;
@@ -87,6 +85,8 @@ export class BatteryProvider {
         });
 
         await Promise.all(updateComplete);
+
+        this.processExcludes();
     }
 
     /**
@@ -214,9 +214,8 @@ export class BatteryProvider {
 
     /**
      * Removes or hides batteries based on filter.exclude config.
-     * @param hass Home Assistant instance
      */
-    private processExcludes(hass: HomeAssistant) {
+    private processExcludes() {
         if (this.exclude == undefined) {
             return;
         }
@@ -228,9 +227,8 @@ export class BatteryProvider {
             const battery = this.batteries[entityId];
             let isHidden = false;
             for (let filter of filters) {
-                const entityState = hass.states[entityId];
                 // we want to show batteries for which entities are missing in HA
-                if (entityState !== undefined && filter.isValid(entityState, battery.state)) {
+                if (filter.isValid(battery.entityData, battery.state)) {
                     if (filter.is_permanent) {
                         // permanent filters have conditions based on static values so we can safely
                         // remove such battery to avoid updating them unnecessarily
