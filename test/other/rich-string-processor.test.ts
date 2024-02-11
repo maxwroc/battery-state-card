@@ -13,17 +13,17 @@ describe("RichStringProcessor", () => {
     ])("missing text", (input: any, expected: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", "50", {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, {});
 
         const result = proc.process(input);
         expect(result).toBe(expected);
     })
 
     test.each([
-        // ["Value {state}, {last_updated}", "Value 20.56, 2021-04-05 15:11:35"], // few placeholders
-        // ["Value {state}, {attributes.charging_state}", "Value 20.56, Charging"], // attribute value
-        // ["Value {state}, {sensor.kitchen_switch.state}", "Value 20.56, 55"], // external entity state
-        // ["Value {state}, {sensor.kitchen_switch.attributes.charging_state}", "Value 20.56, Fully charged"], // external entity attribute value
+        ["Value {state}, {last_updated}", "Value 20.56, 2021-04-05 15:11:35"], // few placeholders
+        ["Value {state}, {attributes.charging_state}", "Value 20.56, Charging"], // attribute value
+        ["Value {state}, {sensor.kitchen_switch.state}", "Value 20.56, 55"], // external entity state
+        ["Value {state}, {sensor.kitchen_switch.attributes.charging_state}", "Value 20.56, Fully charged"], // external entity attribute value
         ["Value {state}, {device_tracker.kitchen_switch.state}", "Value 20.56, 55", "device_tracker"], // external entity state
     ])("replaces placeholders", (text: string, expectedResult: string, otherEntityDomain = "sensor") => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
@@ -31,7 +31,7 @@ describe("RichStringProcessor", () => {
         const switchEntity = hassMock.addEntity("Kitchen switch", "55", { charging_state: "Fully charged" }, otherEntityDomain);
 
         motionEntity.setLastUpdated("2021-04-05 15:11:35");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, hassMock.hass.states[motionEntity.entity_id]);
 
         const result = proc.process(text);
         expect(result).toBe(expectedResult);
@@ -43,7 +43,7 @@ describe("RichStringProcessor", () => {
     ])("round function", (text: string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", "20.56", {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, hassMock.hass.states[motionEntity.entity_id]);
 
         const result = proc.process(text);
         expect(result).toBe(expectedResult);
@@ -54,7 +54,7 @@ describe("RichStringProcessor", () => {
     ])("replace function", (text: string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", "20.56", {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, hassMock.hass.states[motionEntity.entity_id]);
 
         const result = proc.process(text);
         expect(result).toBe(expectedResult);
@@ -63,7 +63,7 @@ describe("RichStringProcessor", () => {
     test("couple functions for the same placeholder", () => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", "Value 20.56%", {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, hassMock.hass.states[motionEntity.entity_id]);
 
         const result = proc.process("{state|replace(Value ,)|replace(%,)|round()}");
         expect(result).toBe("21");
@@ -72,7 +72,13 @@ describe("RichStringProcessor", () => {
     test("using custom data", () => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", "Value 20.56%", {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id, { is_charging: "Charging" });
+
+        const entityData = {
+            ...hassMock.hass.states[motionEntity.entity_id],
+            "is_charging": "Charging",
+        }
+
+        const proc = new RichStringProcessor(hassMock.hass, entityData);
 
         const result = proc.process("{is_charging}");
         expect(result).toBe("Charging");
@@ -85,7 +91,7 @@ describe("RichStringProcessor", () => {
     ])("multiply function", (text: string, state:string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, hassMock.hass.states[motionEntity.entity_id]);
 
         const result = proc.process(text);
         expect(result).toBe(expectedResult);
@@ -99,7 +105,7 @@ describe("RichStringProcessor", () => {
     ])("add function", (text: string, state:string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, hassMock.hass.states[motionEntity.entity_id]);
 
         const result = proc.process(text);
         expect(result).toBe(expectedResult);
@@ -119,7 +125,7 @@ describe("RichStringProcessor", () => {
     ])("greater, lessthan, between functions", (text: string, state:string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, hassMock.hass.states[motionEntity.entity_id]);
 
         const result = proc.process(text);
         expect(result).toBe(expectedResult);
@@ -138,7 +144,7 @@ describe("RichStringProcessor", () => {
     ])("threshold function", (text: string, state:string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, hassMock.hass.states[motionEntity.entity_id]);
 
         const result = proc.process(text);
         expect(result).toBe(expectedResult);
@@ -150,7 +156,7 @@ describe("RichStringProcessor", () => {
     ])("abs function", (text: string, state:string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, hassMock.hass.states[motionEntity.entity_id]);
 
         const result = proc.process(text);
         expect(result).toBe(expectedResult);
@@ -163,7 +169,7 @@ describe("RichStringProcessor", () => {
     ])("equals function", (text: string, state:string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, hassMock.hass.states[motionEntity.entity_id]);
 
         const result = proc.process(text);
         expect(result).toBe(expectedResult);
@@ -176,7 +182,7 @@ describe("RichStringProcessor", () => {
     ])("reltime function", (text: string, state:string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
         const motionEntity = hassMock.addEntity("Bedroom motion", state, {}, "sensor");
-        const proc = new RichStringProcessor(hassMock.hass, motionEntity.entity_id);
+        const proc = new RichStringProcessor(hassMock.hass, hassMock.hass.states[motionEntity.entity_id]);
 
         const result = proc.process(text);
         expect(result).toBe(expectedResult);

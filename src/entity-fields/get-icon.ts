@@ -29,7 +29,7 @@ export const getIcon = (config: IBatteryEntityConfig, level: number | undefined,
             return val;
         }
 
-        const processor = new RichStringProcessor(hass, config.entity);
+        const processor = new RichStringProcessor(hass, { ...hass?.states[config.entity] });
         return processor.process(config.icon);
     }
 

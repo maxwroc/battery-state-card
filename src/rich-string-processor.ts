@@ -35,12 +35,7 @@ const validEntityDomains = [
  */
  export class RichStringProcessor {
 
-    private entityData: IMap<string> = {};
-
-    constructor(private hass: HomeAssistant | undefined, private entityId: string, private customData?: IMap<string>) {
-        this.entityData = <any>{
-            ...hass?.states[entityId]
-        }
+    constructor(private hass: HomeAssistant | undefined, private entityData: IMap<any> | undefined) {
     }
 
     /**
@@ -51,7 +46,7 @@ const validEntityDomains = [
             return "";
         }
 
-        return text.replace(/\{([^\}]+)\}/g, (matchWithBraces, keyword) => this.replaceKeyword(keyword, matchWithBraces));
+        return text.replace(/\{([^\}]+)\}/g, (matchWithBraces, keyword) => this.replaceKeyword(keyword, ""));
     }
 
     /**
@@ -88,17 +83,12 @@ const validEntityDomains = [
         }
 
         const chunks = dataSource.split(".");
-        let data = <any>this.entityData;
+        let data = { ...<any>this.entityData };
 
         if (validEntityDomains.includes(chunks[0])) {
             data = {
                 ...this.hass?.states[chunks.splice(0, 2).join(".")]
             };
-        }
-
-        data = {
-            ...data,
-            ...this.customData
         }
 
         for (let i = 0; i < chunks.length; i++) {

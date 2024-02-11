@@ -9,9 +9,9 @@ import { RichStringProcessor } from "../rich-string-processor";
  * @param hass HomeAssistant state object
  * @returns Battery name
  */
-export const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined): string => {
+export const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, entityData: IMap<any> | undefined): string => {
     if (config.name) {
-        const proc = new RichStringProcessor(hass, config.entity);
+        const proc = new RichStringProcessor(hass, entityData);
         return proc.process(config.name);
     }
 
@@ -42,7 +42,7 @@ export const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | unde
 
     name = applyRenames(name, renameRules);
 
-    if (capitalizeFirstLetter) {
+    if (capitalizeFirstLetter && name !== "") {
         name = name[0].toLocaleUpperCase() + name.substring(1);
     }
 

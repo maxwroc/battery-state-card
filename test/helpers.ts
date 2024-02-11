@@ -1,7 +1,7 @@
 import { BatteryStateCard } from "../src/custom-elements/battery-state-card";
 import { BatteryStateEntity } from "../src/custom-elements/battery-state-entity";
 import { LovelaceCard } from "../src/custom-elements/lovelace-card";
-import { HomeAssistantExt } from "../src/type-extensions";
+import { DeviceRegistryEntry, EntityRegistryDisplayEntry, HomeAssistantExt, AreaRegistryEntry } from "../src/type-extensions";
 import { throttledCall } from "../src/utils";
 
 /**
@@ -210,6 +210,9 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
             setLastChanged: (val: string) => {
                 entity.last_changed = val;
                 this.throttledUpdate();
+            },
+            setProperty: <K extends keyof HaEntityPropertyToTypeMap>(name: K, val: HaEntityPropertyToTypeMap[K]) => {
+                (<any>entity)[name] = val;
             }
         };
 
@@ -242,4 +245,11 @@ interface IEntityMock {
     setAttributes(attribs: IEntityAttributes): IEntityMock;
     setLastUpdated(val: string): void;
     setLastChanged(val: string): void;
+    setProperty<K extends keyof HaEntityPropertyToTypeMap>(name: K, val: HaEntityPropertyToTypeMap[K]): void;
+}
+
+interface HaEntityPropertyToTypeMap {
+    "display": EntityRegistryDisplayEntry,
+    "device": DeviceRegistryEntry,
+    "area": AreaRegistryEntry,
 }

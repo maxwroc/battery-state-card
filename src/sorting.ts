@@ -25,10 +25,9 @@ import { isNumber, log, safeGetConfigArrayOfObjects, toNumber } from "./utils";
                     valB = batteries[idB].name;
                     break;
                 case "state":
-                    // not a perfect solution but we try to fix numer formatting in some countries/langs
-                    // where decimals are separated by comma
-                    valA = batteries[idA].state?.replace(",", ".");
-                    valB = batteries[idB].state?.replace(",", ".");
+                    // always prefer numeric state for sorting
+                    valA = batteries[idA].stateNumeric == undefined ? batteries[idA].state : batteries[idA].stateNumeric;
+                    valB = batteries[idB].stateNumeric == undefined ? batteries[idB].state : batteries[idB].stateNumeric;
                     break;
                 default:
                     if ((<string>o.by).startsWith("entity.")) {
