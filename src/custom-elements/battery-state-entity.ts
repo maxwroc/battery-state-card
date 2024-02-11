@@ -157,7 +157,10 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         }
     }
 
-    private extendEntityData() {
+    /**
+     * Adds display, device and area objects to entityData
+     */
+    private extendEntityData(): void {
 
         if (!this.hass) {
             return;
@@ -167,11 +170,13 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
 
         if (entityDisplayEntry) {
             this.entityData["display"] = entityDisplayEntry;
-            this.entityData["device"] = entityDisplayEntry.device_id ? this.hass.devices[entityDisplayEntry.device_id] : undefined;
+            this.entityData["device"] = entityDisplayEntry.device_id 
+                ? this.hass.devices && this.hass.devices[entityDisplayEntry.device_id] 
+                : undefined;
 
-            const area_id = entityDisplayEntry.area_id || (<DeviceRegistryEntry>this.entityData["device"]).area_id;
+            const area_id = entityDisplayEntry.area_id || (<DeviceRegistryEntry>this.entityData["device"])?.area_id;
             if (area_id) {
-                this.entityData["area"] = this.hass.areas[area_id];
+                this.entityData["area"] = this.hass.areas && this.hass.areas[area_id];
             }
         }
     }

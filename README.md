@@ -107,6 +107,7 @@ These options can be specified both per-entity and at the top level (affecting a
 | value_override | [KString](#keyword-string-kstring) |  | v3.0.0 | Allows to override the battery level value. Note: when used the `multiplier`, `round`, `state_map` setting is ignored
 | non_battery_entity | boolean | `false` | v3.0.0 | Disables default battery state sources e.g. "battery_level" attribute
 | default_state_formatting | bollean | `true` | v3.1.0 | Can be used to disable default state formatting e.g. entity display precission setting
+| debug | boolean \| string | `false` | v3.2.0 | Whether to show debug otuput (all available entity data). You can use entity_id if you want to debug specific one.
 
 ### Keyword string (KString)
 
