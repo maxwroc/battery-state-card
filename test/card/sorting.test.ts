@@ -33,7 +33,7 @@ describe("Entities correctly sorted", () => {
 
     test.each([
         ["state", ["50%", "90%", "40%"], "40 %, 50 %, 90 %"],
-    ])("when HA state formatting returns various results", async (sort: ISimplifiedArray<ISortOption>, formattedStates: string[], expectedOrder: string) => {
+    ])("when HA state formatting returns various result formats", async (sort: ISimplifiedArray<ISortOption>, formattedStates: string[], expectedOrder: string) => {
 
         const hass = new HomeAssistantMock<BatteryStateCard>();
         const entities = formattedStates.map((state, i) => {
