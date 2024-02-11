@@ -64,7 +64,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     /**
      * Raw entity data
      */
-    public entityData: IMap<any>;
+    public entityData: IMap<any> = {};
 
     /**
      * Numeric representation of the state
