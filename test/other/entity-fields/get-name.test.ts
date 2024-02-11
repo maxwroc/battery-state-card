@@ -44,7 +44,7 @@ describe("Get name", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("My entity", "45", { friendly_name: "Battery" });
 
-        let name = getName({ entity: "my_entity", bulk_rename: [{ from: "Battery", to: "" }] }, hassMock.hass);
+        let name = getName({ entity: "my_entity", bulk_rename: [{ from: "Battery", to: "" }] }, hassMock.hass, {});
 
         expect(name).toBe("");
     });
