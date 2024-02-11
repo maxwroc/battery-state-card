@@ -803,6 +803,7 @@ After clicking on show/hide you will see the entity data which is available for 
 
 <details>
   <summary>Click to see example output</summary>
+
 ```json
 {
   "entity_id": "sensor.owl_energy_signal_strength",
