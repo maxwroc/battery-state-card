@@ -19,7 +19,14 @@ assignees: ''
 **YAML configuration**
 ```yaml
 
-# please paste here your card config
+# please paste here your card config (before backticks below; do not remove them)
+
+```
+
+***Entity debug data***
+<!-- Add "debug: true" in your card configuration and paste below entity data from the debug output -->
+
+```json
 
 ```
 
@@ -32,5 +39,6 @@ assignees: ''
 **Version**
 <!-- What is the version of the card? -->
 <!-- The best and most reliable way to check the version is to look at the Developer Tools Console in your browser (Win-Chrome - F12 key) -->
+<!-- The other way to check it is to add "debug: true" in card config and expand debug output - version can be foud there -->
 
 <!-- If regression happened after updating Home assistant please add HA version as well. -->

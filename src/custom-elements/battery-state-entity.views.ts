@@ -67,7 +67,7 @@ export const debugOutput = (content: string) => {
     const actions = [{ 
         text: "Show / hide", 
         action: (e: MouseEvent) => { 
-            const debugContent = (<HTMLElement>e.currentTarget)?.parentElement?.parentElement?.querySelector("pre");
+            const debugContent = <HTMLElement>(<HTMLElement>e.currentTarget)?.parentElement?.parentElement?.querySelector(".debug_expand");
             if (debugContent) {
                 debugContent.style.display = debugContent.style.display === "none" ? "block" : "none";
             }
@@ -82,5 +82,8 @@ export const debugOutput = (content: string) => {
     }
 
     return html`<div>${actions.length && html`${ actions.map(a => html`[<a href="javascript:void(0);" @click="${(e: MouseEvent) => a.action(e)}">${a.text}</a>] `) }`}</div>
-    <pre style="user-select: all; display: none;">${content}</pre>`
+    <div class="debug_expand" style="display: none;">
+    <p>Version: [VI]{version}[/VI]</p>
+    <pre style="user-select: all">${content}</pre>
+    </div>`
 };
