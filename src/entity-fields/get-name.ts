@@ -42,7 +42,7 @@ export const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | unde
 
     name = applyRenames(name, renameRules);
 
-    if (capitalizeFirstLetter) {
+    if (capitalizeFirstLetter && name !== "") {
         name = name[0].toLocaleUpperCase() + name.substring(1);
     }
 
