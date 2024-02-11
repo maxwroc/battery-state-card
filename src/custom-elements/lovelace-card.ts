@@ -15,6 +15,12 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
     public error: Error | undefined;
 
     /**
+     * Warning
+     */
+    @property({ attribute: false })
+    public alert: { type?: "error" | "warning", title?: string, content?: TemplateResult | string } | undefined;
+
+    /**
      * HomeAssistant object
      */
     private _hass: HomeAssistantExt | undefined;
@@ -47,6 +53,8 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
      * the last one.
      */
     private triggerUpdate = throttledCall(async () => {
+
+        this.alert = undefined;
 
         try {
             await this.internalUpdate(this.configUpdated, this.hassUpdated);
@@ -127,6 +135,10 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
         if (this.error) {
             this.onError();
             return errorHtml(this.tagName, "Exception: " + this.error.message, this.error.stack);
+        }
+
+        if (this.alert) {
+            return html`<ha-alert alert-type="${this.alert.type || "warning"}" title="${this.alert.title || this.tagName}">${this.alert.content}</ha-alert>`;
         }
 
         return this.internalRender();

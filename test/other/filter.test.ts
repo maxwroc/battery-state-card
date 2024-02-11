@@ -50,6 +50,7 @@ describe("Filter", () => {
         ["Bedroom motion", "*_battery_level", false],
         ["Bedroom motion", "/BEDroom_motion/", false],
         ["Bedroom motion", "/BEDroom_motion/i", true],
+        ["sensor.bot_outside_power_battery", "sensor.*bot_*battery", true],
     ])("matches func returns correct results", (entityName: string, filterValue: string, expectedIsVlid: boolean) => {
         const hassMock = new HomeAssistantMock();
 

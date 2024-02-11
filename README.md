@@ -107,6 +107,7 @@ These options can be specified both per-entity and at the top level (affecting a
 | value_override | [KString](#keyword-string-kstring) |  | v3.0.0 | Allows to override the battery level value. Note: when used the `multiplier`, `round`, `state_map` setting is ignored
 | non_battery_entity | boolean | `false` | v3.0.0 | Disables default battery state sources e.g. "battery_level" attribute
 | default_state_formatting | bollean | `true` | v3.1.0 | Can be used to disable default state formatting e.g. entity display precission setting
+| debug | boolean \| string | `false` | v3.2.0 | Whether to show debug otuput (all available entity data). You can use entity_id if you want to debug specific one.
 
 ### Keyword string (KString)
 
@@ -780,6 +781,92 @@ resources:
   - url: /local/battery-state-card.js
     type: module
 ```
+
+## Troubleshooting
+
+You can turn on the debug output via `debug` setting. It can be turned on for all of the entities:
+
+```yaml
+debug: true
+```
+
+Or single entity by specifying entity_id:
+```yaml
+debug: sensor.owl_energy_signal_strength
+```
+
+![image](https://github.com/maxwroc/battery-state-card/assets/8268674/04a2b1c8-662a-4067-9231-1d8314914ed3)
+
+Note: "Copy to clipboard" is available only if you access your HA via https.
+
+After clicking on show/hide you will see the entity data which is available for the card to process.
+
+<details>
+  <summary>Click to see example output</summary>
+```json
+{
+  "entity_id": "sensor.owl_energy_signal_strength",
+  "state": "-72",
+  "attributes": {
+    "state_class": "measurement",
+    "event": "115a011a32e20100000172000031bbc85d69",
+    "unit_of_measurement": "dBm",
+    "assumed_state": true,
+    "device_class": "signal_strength",
+    "friendly_name": "Owl energy Signal strength"
+  },
+  "context": {
+    "id": "01HPC8X76DDZ4D3XK5BMH8KKFW",
+    "parent_id": null,
+    "user_id": null
+  },
+  "last_changed": "2024-02-11T14:24:59.597Z",
+  "last_updated": "2024-02-11T14:24:59.597Z",
+  "display": {
+    "entity_id": "sensor.owl_energy_signal_strength",
+    "device_id": "91b4ffe9a73db4d1ee9482d0e7d94a84",
+    "platform": "rfxtrx",
+    "entity_category": "diagnostic",
+    "name": "Signal strength"
+  },
+  "device": {
+    "area_id": "outside",
+    "configuration_url": null,
+    "config_entries": [
+      "2c67d4fe27613df1b3de59a1f042dc5c"
+    ],
+    "connections": [],
+    "disabled_by": null,
+    "entry_type": null,
+    "hw_version": null,
+    "id": "91b4ffe9a73db4d1ee9482d0e7d94a84",
+    "identifiers": [
+      [
+        "rfxtrx",
+        "5a",
+        "1",
+        "32:e2"
+      ]
+    ],
+    "manufacturer": null,
+    "model": "ELEC2, CM119/160",
+    "name_by_user": "Owl energy",
+    "name": "ELEC2, CM119/160 32:e2",
+    "serial_number": null,
+    "sw_version": null,
+    "via_device_id": null
+  },
+  "area": {
+    "aliases": [],
+    "area_id": "outside",
+    "name": "Outside",
+    "picture": null
+  }
+}
+```
+</details>
+
+When you look at the entity data you can for example figure out what you can display using KString e.g. `Area: {area.name}, Device: {device.name_by_user}`
 
 ## Development
 <details>

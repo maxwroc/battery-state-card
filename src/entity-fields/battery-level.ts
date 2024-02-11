@@ -19,12 +19,12 @@ const formattedStatePattern = /(-?[0-9,.]+)\s?(.*)/;
  * @param hass HomeAssistant state object
  * @returns Battery level
  */
-export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistantExt): IBatteryState => {
+export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistantExt | undefined, entityData: IMap<any> | undefined): IBatteryState => {
     const UnknownLevel = hass?.localize("state.default.unknown") || "Unknown";
     let state: string;
     let unit: string | undefined;
 
-    const stringProcessor = new RichStringProcessor(hass, config.entity);
+    const stringProcessor = new RichStringProcessor(hass, entityData);
 
     if (config.value_override !== undefined) {
         const processedValue = stringProcessor.process(config.value_override.toString());
@@ -34,8 +34,6 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
             unit: getUnit(processedValue, undefined, undefined, config, hass),
         }
     }
-
-    const entityData = hass?.states[config.entity];
 
     if (!entityData) {
         return {
@@ -103,7 +101,7 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
     }
 
     // check if HA should format the value
-    if (config.default_state_formatting !== false && !displayValue && state === entityData.state) {
+    if (config.default_state_formatting !== false && !displayValue && state === entityData.state && hass) {
         const formattedState = hass.formatEntityState(entityData);
 
         const matches = formattedState.match(formattedStatePattern);
