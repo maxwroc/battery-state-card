@@ -26,7 +26,7 @@ export const collapsableWrapper = (model: IBatteryGroup, batteries: IBatteryColl
         </div>
         <div class="chevron">&lsaquo;</div>
     </div>
-    <div style="max-height: ${Object.keys(batteries).length * 50}px">
+    <div style="max-height: ${Object.keys(batteries).length * 50}px" class="groupItems">
         ${model.batteryIds.map(id => batteryWrapper(batteries[id]))}
     </div>
 </div>

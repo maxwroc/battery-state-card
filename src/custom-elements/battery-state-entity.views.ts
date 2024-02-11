@@ -61,3 +61,29 @@ ${icon(model.icon, model.iconColor)}
 `;
 
 const unit = (unit: string | undefined) => unit && html`&nbsp;${unit}`;
+
+export const debugOutput = (content: string) => {
+
+    const actions = [{ 
+        text: "Show / hide", 
+        action: (e: MouseEvent) => { 
+            const debugContent = <HTMLElement>(<HTMLElement>e.currentTarget)?.parentElement?.parentElement?.querySelector(".debug_expand");
+            if (debugContent) {
+                debugContent.style.display = debugContent.style.display === "none" ? "block" : "none";
+            }
+        } 
+    }];
+
+    if (navigator.clipboard) {
+        actions.push({
+            text: "Copy to clipboard",
+            action: () => navigator.clipboard.writeText(content),
+        });
+    }
+
+    return html`<div>${actions.length && html`${ actions.map(a => html`[<a href="javascript:void(0);" @click="${(e: MouseEvent) => a.action(e)}">${a.text}</a>] `) }`}</div>
+    <div class="debug_expand" style="display: none;">
+    <p>Version: [VI]{version}[/VI]</p>
+    <pre style="user-select: all">${content}</pre>
+    </div>`
+};

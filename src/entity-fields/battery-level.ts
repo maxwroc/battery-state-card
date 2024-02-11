@@ -1,11 +1,17 @@
 import { RichStringProcessor } from "../rich-string-processor";
 import { HomeAssistantExt } from "../type-extensions";
-import { isNumber, log } from "../utils";
+import { isNumber, log, toNumber } from "../utils";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
  */
 const stringValuePattern = /\b([0-9]{1,3})\s?%/;
+
+
+/**
+ * HA formatted state pattern
+ */
+const formattedStatePattern = /(-?[0-9,.]+)\s?(.*)/;
 
 /**
  * Getts battery level/state
@@ -13,23 +19,21 @@ const stringValuePattern = /\b([0-9]{1,3})\s?%/;
  * @param hass HomeAssistant state object
  * @returns Battery level
  */
-export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssistantExt): IBatteryState => {
+export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistantExt | undefined, entityData: IMap<any> | undefined): IBatteryState => {
     const UnknownLevel = hass?.localize("state.default.unknown") || "Unknown";
     let state: string;
     let unit: string | undefined;
 
-    const stringProcessor = new RichStringProcessor(hass, config.entity);
+    const stringProcessor = new RichStringProcessor(hass, entityData);
 
     if (config.value_override !== undefined) {
         const processedValue = stringProcessor.process(config.value_override.toString());
         return {
             state: processedValue,
-            level: isNumber(processedValue) ? Number(processedValue) : undefined,
+            level: isNumber(processedValue) ? toNumber(processedValue) : undefined,
             unit: getUnit(processedValue, undefined, undefined, config, hass),
         }
     }
-
-    const entityData = hass?.states[config.entity];
 
     if (!entityData) {
         return {
@@ -38,22 +42,22 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
     }
 
     if (config.attribute) {
-        state = entityData.attributes[config.attribute];
+        state = entityData.attributes[config.attribute]?.toString();
         if (state == undefined) {
             log(`Attribute "${config.attribute}" doesn't exist on "${config.entity}" entity`);
             state = UnknownLevel;
         }
     }
     else {
-        const candidates: string[] = [
+        const candidates: (string | number | undefined)[] = [
             config.non_battery_entity ? null: entityData.attributes.battery_level,
             config.non_battery_entity ? null: entityData.attributes.battery,
             entityData.state
         ];
 
-        state = candidates.find(val => isNumber(val)) ||
+        state = candidates.find(val => isNumber(val))?.toString() ||
                 candidates.find(val => val !== null && val !== undefined)?.toString() ||
-                UnknownLevel
+                UnknownLevel;
     }
 
     let displayValue: string | undefined;
@@ -84,7 +88,7 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
 
     if (isNumber(state)) {
         if (config.multiplier) {
-            state = (config.multiplier * Number(state)).toString();
+            state = (config.multiplier * toNumber(state)).toString();
         }
 
         if (typeof config.round === "number") {
@@ -97,17 +101,19 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass?: HomeAssista
     }
 
     // check if HA should format the value
-    if (config.default_state_formatting !== false && !displayValue && state === entityData.state) {
+    if (config.default_state_formatting !== false && !displayValue && state === entityData.state && hass) {
         const formattedState = hass.formatEntityState(entityData);
 
-        // assuming it is a number followed by unit
-        [state, unit] = formattedState.split(" ", 2);
-        unit = unit;
+        const matches = formattedState.match(formattedStatePattern);
+        if (matches != null) {
+            state = matches[1];
+            unit = matches[2] || unit;
+        }
     }
 
     return {
         state: displayValue || state,
-        level: isNumber(state) ? Number(state) : undefined,
+        level: isNumber(state) ? toNumber(state) : undefined,
         unit: getUnit(state, displayValue, unit, config, hass),
     };
 }

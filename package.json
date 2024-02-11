@@ -1,6 +1,6 @@
 {
   "name": "battery-state-card",
-  "version": "3.1.2",
+  "version": "3.2.0",
   "description": "Battery State card for Home Assistant",
   "main": "dist/battery-state-card.js",
   "author": "Max Chodorowski",
@@ -21,7 +21,7 @@
     "release": "rollup --environment RELEASE -c",
     "watch": "rollup -c --watch",
     "test": "jest",
-    "test+integration": "jest --testPathPattern=test/entity",
+    "test+integration": "jest --testPathPattern=\"test/(entity|card)\"",
     "test+coverage": "jest --coverage",
     "test+coverage+unit": "jest --coverage --testPathPattern=test/other",
     "test+debug": "SET DEBUG_MODE=1&&jest"

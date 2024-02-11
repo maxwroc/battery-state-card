@@ -146,3 +146,26 @@ export const getRegexFromString = (ruleVal: string): RegExp | null => {
 
     return null;
 }
+
+/**
+ * Extracts value for given path from the object
+ * @param dataObject Object to extract data from
+ * @param path Path to the value
+ * @returns Value from the path
+ */
+export const getValueFromObject = (dataObject: any, path: string): string | undefined => {
+    const chunks = path.split(".");
+
+    for (let i = 0; i < chunks.length; i++) {
+        dataObject = dataObject[chunks[i]];
+        if (dataObject === undefined) {
+            break;
+        }
+    }
+
+    if (typeof dataObject == "object") {
+        dataObject = JSON.stringify(dataObject);
+    }
+
+    return dataObject === undefined ? undefined : dataObject.toString();
+}

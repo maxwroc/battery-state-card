@@ -64,3 +64,35 @@ test("Include via entity_id and exclude via state - empty result", async () => {
     // we expect to not have any content
     expect(cardElem.shadowRoot!.childElementCount).toBe(0);
 });
+
+
+test.each([
+    [false, 1],
+    [true, 0],
+])("Entity filtered based on hidden state", async (isHidden: boolean, numOfRenderedEntities: number) => {
+
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    const entity = hass.addEntity("Bedroom motion battery level", "90");
+    entity.setProperty("display", { entity_id: "", hidden: isHidden })
+
+    const cardElem = hass.addCard("battery-state-card", {
+        title: "Header",
+        filter: {
+            include: [
+                {
+                    name: "entity_id",
+                    value: "*_battery_level"
+                }
+            ],
+            exclude: [],
+        },
+        entities: []
+    });
+
+    // waiting for card to be updated/rendered
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+    
+    expect(card.itemsCount).toBe(numOfRenderedEntities);
+});

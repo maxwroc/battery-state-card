@@ -1,5 +1,5 @@
 import { IBatteryCollection } from "./battery-provider";
-import { isNumber, log, safeGetConfigArrayOfObjects } from "./utils";
+import { isNumber, log, safeGetConfigArrayOfObjects, toNumber } from "./utils";
 
 /**
  * Sorts batteries by given criterias and returns their IDs
@@ -25,10 +25,9 @@ import { isNumber, log, safeGetConfigArrayOfObjects } from "./utils";
                     valB = batteries[idB].name;
                     break;
                 case "state":
-                    // not a perfect solution but we try to fix numer formatting in some countries/langs
-                    // where decimals are separated by comma
-                    valA = batteries[idA].state?.replace(",", ".");
-                    valB = batteries[idB].state?.replace(",", ".");
+                    // always prefer numeric state for sorting
+                    valA = batteries[idA].stateNumeric == undefined ? batteries[idA].state : batteries[idA].stateNumeric;
+                    valB = batteries[idB].stateNumeric == undefined ? batteries[idB].state : batteries[idB].stateNumeric;
                     break;
                 default:
                     if ((<string>o.by).startsWith("entity.")) {
@@ -76,8 +75,8 @@ import { isNumber, log, safeGetConfigArrayOfObjects } from "./utils";
  * @returns Comparison result
  */
  const compareNumbers = (a: string, b: string): number => {
-    let aNum = Number(a);
-    let bNum = Number(b);
+    let aNum = toNumber(a);
+    let bNum = toNumber(b);
     aNum = isNaN(aNum) ? -1 : aNum;
     bNum = isNaN(bNum) ? -1 : bNum;
     return aNum - bNum;

@@ -1,7 +1,7 @@
 import { BatteryStateCard } from "../src/custom-elements/battery-state-card";
 import { BatteryStateEntity } from "../src/custom-elements/battery-state-entity";
 import { LovelaceCard } from "../src/custom-elements/lovelace-card";
-import { HomeAssistantExt } from "../src/type-extensions";
+import { DeviceRegistryEntry, EntityRegistryDisplayEntry, HomeAssistantExt, AreaRegistryEntry } from "../src/type-extensions";
 import { throttledCall } from "../src/utils";
 
 /**
@@ -26,6 +26,28 @@ export class CardElements {
         return this.card.shadowRoot!.querySelectorAll(".card-content > * > battery-state-entity").length;
     }
 
+    get groupsCount() {
+        return this.card.shadowRoot!.querySelectorAll(".card-content > .expandWrapper").length;
+    }
+
+    get items(): EntityElements[] {
+        const result: EntityElements[] = [];
+        for (let index = 0; index < this.itemsCount; index++) {
+            result.push(this.item(index));
+        }
+
+        return result;
+    }
+
+    get groups(): GroupElement[] {
+        const result: GroupElement[] = [];
+        for (let index = 0; index < this.groupsCount; index++) {
+            result.push(this.group(index));
+        }
+
+        return result;
+    }
+
     item(index: number) {
         const entity = this.card.shadowRoot!.querySelectorAll<BatteryStateEntity>(".card-content > * > battery-state-entity")[index];
         if (!entity) {
@@ -34,23 +56,35 @@ export class CardElements {
 
         return new EntityElements(entity);
     }
+
+    group(index: number) {
+        const group = this.card.shadowRoot!.querySelectorAll<BatteryStateEntity>(".card-content > .expandWrapper")[index];
+        if (!group) {
+            throw new Error("Group element not found: " + index);
+        }
+
+        return new GroupElement(group);
+    }
 }
 
 export class EntityElements {
-    constructor(private card: BatteryStateEntity) {
 
+    private root: HTMLElement;
+
+    constructor(private card: BatteryStateEntity, isShadowRoot: boolean = true) {
+        this.root = isShadowRoot ? <any>card.shadowRoot! : card;
     }
 
     get iconName() {
-        return this.card.shadowRoot?.querySelector("ha-icon")?.getAttribute("icon")
+        return this.root.querySelector("ha-icon")?.getAttribute("icon");
     }
 
     get nameText() {
-        return this.card.shadowRoot?.querySelector(".name")?.textContent?.trim();
+        return this.root.querySelector(".name")?.textContent?.trim();
     }
 
     get secondaryInfo() {
-        return this.card.shadowRoot?.querySelector(".secondary");
+        return this.root.querySelector(".secondary");
     }
 
     get secondaryInfoText() {
@@ -58,10 +92,42 @@ export class EntityElements {
     }
 
     get stateText() {
-        return this.card.shadowRoot?.querySelector(".state")
+        return this.root.querySelector(".state")
             ?.textContent
             ?.trim()
             .replace(String.fromCharCode(160), " "); // replace non breakable space
+    }
+}
+
+export class GroupElement extends EntityElements {
+    constructor(private elem: HTMLElement) {
+        super(<BatteryStateEntity>elem.querySelector(".toggler"), false);
+    }
+    
+    private get batteryNodes(): NodeListOf<BatteryStateEntity> {
+        return this.elem.querySelectorAll<BatteryStateEntity>(".groupItems > * > battery-state-entity");
+    }
+
+    get itemsCount() {
+        return this.batteryNodes.length;
+    }
+    
+    get items(): EntityElements[] {
+        const result: EntityElements[] = [];
+        for (let index = 0; index < this.itemsCount; index++) {
+            result.push(this.item(index));
+        }
+
+        return result;
+    }
+
+    item(index: number): EntityElements {
+        const entity = this.batteryNodes[index];
+        if (!entity) {
+            throw new Error("Card element not found: " + index);
+        }
+
+        return new EntityElements(entity);
     }
 }
 
@@ -144,6 +210,9 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
             setLastChanged: (val: string) => {
                 entity.last_changed = val;
                 this.throttledUpdate();
+            },
+            setProperty: <K extends keyof HaEntityPropertyToTypeMap>(name: K, val: HaEntityPropertyToTypeMap[K]) => {
+                (<any>entity)[name] = val;
             }
         };
 
@@ -176,4 +245,11 @@ interface IEntityMock {
     setAttributes(attribs: IEntityAttributes): IEntityMock;
     setLastUpdated(val: string): void;
     setLastChanged(val: string): void;
+    setProperty<K extends keyof HaEntityPropertyToTypeMap>(name: K, val: HaEntityPropertyToTypeMap[K]): void;
+}
+
+interface HaEntityPropertyToTypeMap {
+    "display": EntityRegistryDisplayEntry,
+    "device": DeviceRegistryEntry,
+    "area": AreaRegistryEntry,
 }

@@ -2,12 +2,27 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
 import { HomeAssistant } from "custom-card-helpers";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 import { Filter } from "./filter";
-import { HomeAssistantExt } from "./type-extensions";
+import { EntityRegistryDisplayEntry, HomeAssistantExt } from "./type-extensions";
 
 /**
  * Properties which should be copied over to individual entities from the card
  */
-const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ "tap_action", "state_map", "charging_state", "secondary_info", "colors", "bulk_rename", "icon", "round", "unit", "value_override", "non_battery_entity", "default_state_formatting" ];
+const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ 
+    "bulk_rename", 
+    "charging_state", 
+    "colors", 
+    "debug",
+    "default_state_formatting",
+    "extend_entity_data",
+    "icon", 
+    "non_battery_entity", 
+    "round",  
+    "secondary_info", 
+    "state_map", 
+    "tap_action", 
+    "value_override", 
+    "unit",
+];
 
 /**
  * Class responsible for intializing Battery view models based on given configuration.
@@ -63,8 +78,6 @@ export class BatteryProvider {
             this.processIncludes(hass);
         }
 
-        this.processExcludes(hass);
-
         const updateComplete = Object.keys(this.batteries).map(id => {
             const battery = this.batteries[id];
             battery.hass = hass;
@@ -72,6 +85,8 @@ export class BatteryProvider {
         });
 
         await Promise.all(updateComplete);
+
+        this.processExcludes();
     }
 
     /**
@@ -199,25 +214,26 @@ export class BatteryProvider {
 
     /**
      * Removes or hides batteries based on filter.exclude config.
-     * @param hass Home Assistant instance
      */
-    private processExcludes(hass: HomeAssistant) {
+    private processExcludes() {
         if (this.exclude == undefined) {
+            Object.keys(this.batteries).forEach((entityId) => {
+                const battery = this.batteries[entityId];
+                battery.isHidden = (<EntityRegistryDisplayEntry>battery.entityData?.display)?.hidden;
+            });
+
             return;
         }
 
         const filters = this.exclude;
         const toBeRemoved: string[] = [];
 
-
-
         Object.keys(this.batteries).forEach((entityId) => {
             const battery = this.batteries[entityId];
             let isHidden = false;
             for (let filter of filters) {
-                const entityState = hass.states[entityId];
                 // we want to show batteries for which entities are missing in HA
-                if (entityState !== undefined && filter.isValid(entityState, battery.state)) {
+                if (filter.isValid(battery.entityData, battery.state)) {
                     if (filter.is_permanent) {
                         // permanent filters have conditions based on static values so we can safely
                         // remove such battery to avoid updating them unnecessarily
@@ -233,7 +249,7 @@ export class BatteryProvider {
 
             // we keep the view model to keep updating it
             // it might be shown/not-hidden next time
-            battery.isHidden = isHidden;
+            battery.isHidden = isHidden || (<EntityRegistryDisplayEntry>battery.entityData?.display)?.hidden;
         });
 
         toBeRemoved.forEach(entityId => delete this.batteries[entityId]);
