@@ -118,4 +118,19 @@ describe("Filter", () => {
 
         expect(isValid).toBe(expectedIsVlid);
     })
+
+    test.each([
+        [{ state: "45", device: { name: "Device name" } }, "path.missing", "Device name", false],
+        [{ state: "45", device: { name: "Device name" } }, "device.name", "Device name", true],
+        [{ state: "45", device: { name: "Device name" } }, "device.name", "Device other name", false],
+        [{ state: "45", device: { name: "Device name", manufacturer: { name: "Contoso" } } }, "device.manufacturer", "Contoso", false],
+        [{ state: "45", device: { name: "Device name", manufacturer: { name: "Contoso" } } }, "device.manufacturer.name", "Contoso", true],
+    ])("filter based on nested entity data", (entityData: any, filterName: string, filterValue: string, expectedIsValid: boolean) => {
+        const hassMock = new HomeAssistantMock();
+
+        const filter = new Filter({ name: filterName, value: filterValue });
+        const isValid = filter.isValid(entityData, "45");
+
+        expect(isValid).toBe(expectedIsValid);
+    })
 });
