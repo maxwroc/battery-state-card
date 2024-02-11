@@ -50,7 +50,7 @@ export interface DeviceRegistryEntry {
   configuration_url: string | null;
 }
 
-interface AreaRegistryEntry {
+export interface AreaRegistryEntry {
   area_id: string;
   name: string;
   picture: string | null;
