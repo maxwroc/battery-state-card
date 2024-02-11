@@ -163,7 +163,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
             return;
         }
 
-        const entityDisplayEntry = this.hass.entities[this.config.entity];
+        const entityDisplayEntry = this.hass.entities && this.hass.entities[this.config.entity];
 
         if (entityDisplayEntry) {
             this.entityData["display"] = entityDisplayEntry;
