@@ -153,7 +153,7 @@ const errorHtml = (cardName: string, message: string, content: string | undefine
     <ol>
         <li>
             Please check if the problem was reported already<br />
-            Click <a target="_blank" href="https://github.com/maxwroc/battery-state-card/issues?q=is%3Aissue+is%3Aopen+${encodeURIComponent(message)}">here</a> to search
+            Click <a target="_blank" href="https://github.com/maxwroc/battery-state-card/issues?q=is%3Aissue+${encodeURIComponent(message)}">here</a> to search
         </li>
         <li>
             If it wasn't please consider creating one<br />
