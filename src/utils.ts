@@ -163,7 +163,7 @@ export const getValueFromObject = (dataObject: any, path: string): string | numb
         }
     }
 
-    if (typeof dataObject == "object") {
+    if (dataObject !== null && typeof dataObject == "object") {
         dataObject = JSON.stringify(dataObject);
     }
 
