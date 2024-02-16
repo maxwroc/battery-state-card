@@ -15,11 +15,7 @@ export const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | unde
         return proc.process(config.name);
     }
 
-    if (!hass) {
-        return config.entity;
-    }
-
-    let name = hass.states[config.entity]?.attributes.friendly_name;
+    let name = entityData?.attributes?.friendly_name;
 
     // when we have failed to get the name we just return entity id
     if (!name) {

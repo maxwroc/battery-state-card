@@ -195,6 +195,12 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
                 return entity;
             },
             setAttributes: (attribs: IEntityAttributes) => {
+
+                if (attribs === null) {
+                    this.hass.states[entity.entity_id].attributes = <any>undefined;
+                    return entity;
+                }
+
                 this.hass.states[entity.entity_id].attributes = {
                     ...this.hass.states[entity.entity_id].attributes,
                     ...attribs
@@ -242,7 +248,7 @@ interface IEntityMock {
     readonly entity_id: string;
     readonly state: string;
     setState(state: string): IEntityMock;
-    setAttributes(attribs: IEntityAttributes): IEntityMock;
+    setAttributes(attribs: IEntityAttributes | null): IEntityMock;
     setLastUpdated(val: string): void;
     setLastChanged(val: string): void;
     setProperty<K extends keyof HaEntityPropertyToTypeMap>(name: K, val: HaEntityPropertyToTypeMap[K]): void;
