@@ -264,6 +264,11 @@ interface IBatteryEntityConfig {
      * Whether to print the debug output
      */
     debug?: string | boolean,
+
+    /**
+     * Whether to respect HA entity visibility setting
+     */
+    respect_visibility_setting?: boolean,
 }
 
 interface IBatteryCardConfig {
