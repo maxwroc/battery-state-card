@@ -12,7 +12,7 @@ import { getChargingState } from "../entity-fields/charging-state";
 import { getBatteryLevel } from "../entity-fields/battery-level";
 import { getName } from "../entity-fields/get-name";
 import { getIcon } from "../entity-fields/get-icon";
-import { DeviceRegistryEntry } from "../type-extensions";
+import { DeviceRegistryEntry, EntityRegistryDisplayEntry } from "../type-extensions";
 
 /**
  * Battery entity element
@@ -62,6 +62,11 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     public action: IAction | undefined;
 
     /**
+     * Whether entity should not be shown
+     */
+    public isHidden: boolean | undefined;
+
+    /**
      * Raw entity data
      */
     public entityData: IMap<any> = {};
@@ -85,6 +90,9 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
 
         if (this.config.extend_entity_data !== false) {
             this.extendEntityData();
+
+            // make sure entity is visible when it should be shown
+            this.showEntity();
         }
 
         if (this.config.debug === true || this.config.debug === this.config.entity) {
@@ -125,6 +133,20 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     }
 
     onError(): void {
+    }
+
+    hideEntity(): void {
+        this.isHidden = true;
+    }
+
+    showEntity(): void {
+        if (this.config.respect_visibility_setting !== false && (<EntityRegistryDisplayEntry>this.entityData?.display)?.hidden) {
+            // When entity is marked as hidden in the UI we should respect it
+            this.isHidden = true;
+            return;
+        }
+
+        this.isHidden = false;
     }
 
     /**
