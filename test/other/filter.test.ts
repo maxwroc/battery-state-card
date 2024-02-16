@@ -119,15 +119,15 @@ describe("Filter", () => {
         expect(isValid).toBe(expectedIsVlid);
     })
     test.each([
-        // [44, <FilterOperator>"<", "44,1", true],
-        // [44, <FilterOperator>">", "44.1", false],
-        // [true, <FilterOperator>"=", "false", false],
-        // [true, <FilterOperator>"=", "true", false],
-        // [true, <FilterOperator>"=", true, true],
-        // [true, undefined, true, true],
-        // [false, undefined, true, false],
-        // [true, undefined, false, false],
-        // [true, undefined, null, false],
+        [44, <FilterOperator>"<", "44,1", true],
+        [44, <FilterOperator>">", "44.1", false],
+        [true, <FilterOperator>"=", "false", false],
+        [true, <FilterOperator>"=", "true", false],
+        [true, <FilterOperator>"=", true, true],
+        [true, undefined, true, true],
+        [false, undefined, true, false],
+        [true, undefined, false, false],
+        [true, undefined, null, false],
         [null, undefined, null, true],
     ])("non mixed types of values", (attributeValue: FilterValueType, operator: FilterOperator | undefined, value: FilterValueType, expectedIsVlid: boolean) => {
         const hassMock = new HomeAssistantMock();
