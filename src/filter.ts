@@ -3,17 +3,17 @@ import { getRegexFromString, getValueFromObject, isNumber, log, toNumber } from 
 /**
  * Functions to check if filter condition is met
  */
-const operatorHandlers: { [key in FilterOperator]: (val: string | number | undefined, expectedVal: string | number | undefined) => boolean } = {
+const operatorHandlers: { [key in FilterOperator]: (val: FilterValueType, expectedVal: FilterValueType) => boolean } = {
     "exists": val => val !== undefined,
     "not_exists": val => val === undefined,
-    "contains": (val, searchString) => val !== undefined && val.toString().indexOf(searchString!.toString()) != -1,
+    "contains": (val, searchString) => val !== undefined && val !== null && val.toString().indexOf(searchString!.toString()) != -1,
     "=": (val, expectedVal) => isNumber(val) || isNumber(expectedVal) ? toNumber(val) == toNumber(expectedVal) : val == expectedVal,
     ">": (val, expectedVal) => toNumber(val) > toNumber(expectedVal),
     "<": (val, expectedVal) => toNumber(val) < toNumber(expectedVal),
     ">=": (val, expectedVal) => toNumber(val) >= toNumber(expectedVal),
     "<=": (val, expectedVal) => toNumber(val) <= toNumber(expectedVal),
     "matches": (val, pattern) => {
-        if (val === undefined) {
+        if (val === undefined || val === null) {
             return false;
         }
 
@@ -62,7 +62,7 @@ export class Filter {
      * @param entityData Hass entity data
      * @param state State override - battery state/level
      */
-    private getValue(entityData: any, state?: string): string | undefined {
+    private getValue(entityData: any, state?: string): FilterValueType {
         if (!this.config.name) {
             log("Missing filter 'name' property");
             return;
@@ -79,12 +79,15 @@ export class Filter {
      * Checks whether value meets the filter conditions.
      * @param val Value to validate
      */
-    private meetsExpectations(val: string | number | undefined): boolean {
+    private meetsExpectations(val: FilterValueType): boolean {
 
         let operator = this.config.operator;
         if (!operator) {
             if (this.config.value === undefined) {
                 operator = "exists";
+            }
+            else if (this.config.value === null) {
+                operator = "=";
             }
             else {
                 const expectedVal = this.config.value.toString();

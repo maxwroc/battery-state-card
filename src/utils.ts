@@ -17,8 +17,8 @@ export const log = (message: string, level: "warn" | "error" = "warn") => {
  * Checks whether given value is a number
  * @param val String value to check
  */
-export const isNumber = (value: string | number | undefined): boolean => {
-    if (value === undefined) {
+export const isNumber = (value: string | number | boolean | null | undefined): boolean => {
+    if (value === undefined || value === null || typeof value === "boolean") {
         return false;
     }
 
@@ -27,7 +27,7 @@ export const isNumber = (value: string | number | undefined): boolean => {
         value = value.replace(",", ".");
     }
 
-    return (value!== undefined && value !== null && value !== '' && !isNaN(Number(value)))
+    return value !== '' && !isNaN(Number(value));
 }
 
 /**
@@ -35,7 +35,7 @@ export const isNumber = (value: string | number | undefined): boolean => {
  * @param value String value to convert
  * @returns Result number
  */
-export const toNumber = (value: string | number | undefined): number => {
+export const toNumber = (value: string | number | boolean | null | undefined): number => {
     if (typeof(value) == "string") {
         // trying to solve decimal number formatting in some langs
         value = value.replace(",", ".");
@@ -153,7 +153,7 @@ export const getRegexFromString = (ruleVal: string): RegExp | null => {
  * @param path Path to the value
  * @returns Value from the path
  */
-export const getValueFromObject = (dataObject: any, path: string): string | undefined => {
+export const getValueFromObject = (dataObject: any, path: string): string | number | boolean | null | undefined => {
     const chunks = path.split(".");
 
     for (let i = 0; i < chunks.length; i++) {
@@ -167,5 +167,5 @@ export const getValueFromObject = (dataObject: any, path: string): string | unde
         dataObject = JSON.stringify(dataObject);
     }
 
-    return dataObject === undefined ? undefined : dataObject.toString();
+    return dataObject;
 }
