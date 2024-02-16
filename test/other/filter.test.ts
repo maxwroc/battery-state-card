@@ -118,6 +118,27 @@ describe("Filter", () => {
 
         expect(isValid).toBe(expectedIsVlid);
     })
+    test.each([
+        [44, <FilterOperator>"<", "44,1", true],
+        [44, <FilterOperator>">", "44.1", false],
+        [true, <FilterOperator>"=", "false", false],
+        [true, <FilterOperator>"=", "true", false],
+        [true, <FilterOperator>"=", true, true],
+        [true, undefined, true, true],
+        [false, undefined, true, false],
+        [true, undefined, false, false],
+        [true, undefined, null, false],
+        [null, undefined, null, true],
+    ])("non mixed types of values", (attributeValue: FilterValueType, operator: FilterOperator | undefined, value: FilterValueType, expectedIsVlid: boolean) => {
+        const hassMock = new HomeAssistantMock();
+
+        const entity = hassMock.addEntity("Entity name", "ok", { entity_attrib: attributeValue });
+
+        const filter = new Filter({ name: "attributes.entity_attrib", operator, value });
+        const isValid = filter.isValid(entity);
+
+        expect(isValid).toBe(expectedIsVlid);
+    })
 
     test.each([
         [{ state: "45", device: { name: "Device name" } }, "path.missing", "Device name", false],

@@ -154,6 +154,11 @@ type FilterGroups = "exclude" | "include";
 type FilterOperator = "exists" | "not_exists" | "=" | ">" | "<" | ">=" | "<=" | "contains" | "matches";
 
 /**
+ * Allowed filter value types
+ */
+type FilterValueType  = string | number | boolean | null | undefined;
+
+/**
  * Filter object
  */
 interface IFilter {
@@ -170,7 +175,7 @@ interface IFilter {
     /**
      * Value to compare with the extracted one
      */
-    value?: string | number;
+    value?: FilterValueType;
 }
 
 interface IBatteryEntityConfig {
