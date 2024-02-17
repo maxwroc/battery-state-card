@@ -84,6 +84,16 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     }
 
     async internalUpdate() {
+
+        if (!this.hass?.states[this.config.entity]) {
+            this.alert = {
+                type: "warning",
+                title: this.hass?.localize("ui.panel.lovelace.warning.entity_not_found", "entity", this.config.entity) || `Entity not available: ${this.config.entity}`,
+            }
+
+            return;
+        }
+
         this.entityData = <any>{
             ...this.hass?.states[this.config.entity]
         };

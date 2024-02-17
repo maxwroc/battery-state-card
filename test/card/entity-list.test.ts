@@ -52,3 +52,27 @@ test("Entities as objects with custom settings", async () => {
     expect(card.item(0).nameText).toBe("Entity 1");
     expect(card.item(1).nameText).toBe("Entity 2");
 });
+
+test("Missing entity", async () => {
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    const motionSensor = hass.addEntity("Bedroom motion battery level", "90");
+
+    const cardElem = hass.addCard("battery-state-card", {
+        title: "Header",
+        entities: [ // array of entity IDs
+            {
+                entity: motionSensor.entity_id + "_missing",
+            },
+        ]
+    });
+
+    // waiting for card to be updated/rendered
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+
+    expect(card.itemsCount).toBe(1);
+    expect(card.item(0).isAlert).toBeTruthy();
+    expect(card.item(0).alertType).toBe("warning");
+    expect(card.item(0).alertTitle).toBe("[ui.panel.lovelace.warning.entity_not_found, entity, bedroom_motion_battery_level_missing]");
+});
