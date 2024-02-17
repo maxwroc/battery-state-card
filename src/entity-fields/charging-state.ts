@@ -8,12 +8,7 @@ import { log, safeGetArray } from "../utils";
  * @param hass HomeAssistant state object
  * @returns Whether battery is in chargin mode
  */
- export const getChargingState = (config: IBatteryEntityConfig, state: string, hass?: HomeAssistant): boolean => {
-
-    if (!hass) {
-        return false;
-    }
-
+ export const getChargingState = (config: IBatteryEntityConfig, state: string, hass: HomeAssistant): boolean => {
     const chargingConfig = config.charging_state;
     if (!chargingConfig) {
         return getDefaultChargingState(config, hass);

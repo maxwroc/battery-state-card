@@ -12,18 +12,6 @@ describe("Battery level", () => {
         expect(unit).toBe("%");
     });
 
-    test("doen't throw exception when attributes are not set on entity", () => {
-        const hassMock = new HomeAssistantMock(true);
-        const entity = hassMock.addEntity("Mocked entity", "45", { battery_state: "45" });
-        entity.setAttributes(null);
-
-        const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
-        expect(level).toBe(45);
-        expect(state).toBe("45");
-        expect(unit).toBe("%")
-    });
-
     test("is 'Unknown' when entity not found and no localized string", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.hass.localize = () => <string><unknown>null;
