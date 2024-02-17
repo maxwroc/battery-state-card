@@ -19,7 +19,7 @@ const formattedStatePattern = /(-?[0-9,.]+)\s?(.*)/;
  * @param hass HomeAssistant state object
  * @returns Battery level
  */
-export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistantExt | undefined, entityData: IMap<any> | undefined): IBatteryState => {
+export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistantExt, entityData: IMap<any> | undefined): IBatteryState => {
     const UnknownLevel = hass?.localize("state.default.unknown") || "Unknown";
     let state: string;
     let unit: string | undefined;

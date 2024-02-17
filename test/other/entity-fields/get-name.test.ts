@@ -3,14 +3,13 @@ import { HomeAssistantMock } from "../../helpers";
 
 describe("Get name", () => {
     test("returns name from the config", () => {
-        const hassMock = new HomeAssistantMock(true);
-        let name = getName({ entity: "test", name: "Entity name" }, hassMock.hass, {})
+        let name = getName({ entity: "test", name: "Entity name" }, new HomeAssistantMock(true).hass, {})
 
         expect(name).toBe("Entity name");
     });
 
     test("returns entity id when friendly_name is missing", () => {
-        let name = getName({ entity: "sensor.my_entity_id" }, undefined, { attributes: {} })
+        let name = getName({ entity: "sensor.my_entity_id" }, new HomeAssistantMock(true).hass, { attributes: {} })
 
         expect(name).toBe("sensor.my_entity_id");
     });

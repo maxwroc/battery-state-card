@@ -95,7 +95,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         }
 
         this.entityData = <any>{
-            ...this.hass?.states[this.config.entity]
+            ...this.hass.states[this.config.entity]
         };
 
         if (this.config.extend_entity_data !== false) {

@@ -9,7 +9,7 @@ import { RichStringProcessor } from "../rich-string-processor";
  * @param hass HomeAssistant state object
  * @returns Battery name
  */
-export const getName = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, entityData: IMap<any>): string => {
+export const getName = (config: IBatteryEntityConfig, hass: HomeAssistant, entityData: IMap<any>): string => {
     if (config.name) {
         const proc = new RichStringProcessor(hass, entityData);
         return proc.process(config.name);
