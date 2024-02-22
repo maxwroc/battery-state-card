@@ -10,7 +10,7 @@ import { RichStringProcessor } from "../rich-string-processor";
  * @param hass HomeAssistant state object
  * @returns Mdi icon string
  */
-export const getIcon = (config: IBatteryEntityConfig, level: number | undefined, isCharging: boolean, hass: HomeAssistant | undefined): string => {
+export const getIcon = (config: IBatteryEntityConfig, level: number | undefined, isCharging: boolean, hass: HomeAssistant): string => {
     if (isCharging && config.charging_state?.icon) {
         return config.charging_state.icon;
     }
@@ -18,7 +18,7 @@ export const getIcon = (config: IBatteryEntityConfig, level: number | undefined,
     if (config.icon) {
         const attribPrefix = "attribute.";
         // check if we should return the icon/string from the attribute value
-        if (hass && config.icon.startsWith(attribPrefix)) {
+        if (config.icon.startsWith(attribPrefix)) {
             const attribName = config.icon.substr(attribPrefix.length);
             const val = hass.states[config.entity].attributes[attribName] as string | undefined;
             if (!val) {
@@ -29,7 +29,7 @@ export const getIcon = (config: IBatteryEntityConfig, level: number | undefined,
             return val;
         }
 
-        const processor = new RichStringProcessor(hass, { ...hass?.states[config.entity] });
+        const processor = new RichStringProcessor(hass, { ...hass.states[config.entity] });
         return processor.process(config.icon);
     }
 

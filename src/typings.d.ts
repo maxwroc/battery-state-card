@@ -27,6 +27,10 @@ interface IColorSettings {
      * Whether to enable smooth color transition between steps
      */
     gradient?: boolean;
+    /**
+     * Whether the values are not percentages
+     */
+    non_percent_values?: boolean;
 }
 
 /**
@@ -269,6 +273,11 @@ interface IBatteryEntityConfig {
      * Whether to print the debug output
      */
     debug?: string | boolean,
+
+    /**
+     * Whether to respect HA entity visibility setting
+     */
+    respect_visibility_setting?: boolean,
 }
 
 interface IBatteryCardConfig {

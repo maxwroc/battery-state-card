@@ -35,7 +35,7 @@ const validEntityDomains = [
  */
  export class RichStringProcessor {
 
-    constructor(private hass: HomeAssistant | undefined, private entityData: IMap<any> | undefined) {
+    constructor(private hass: HomeAssistant, private entityData: IMap<any> | undefined) {
     }
 
     /**
@@ -87,7 +87,7 @@ const validEntityDomains = [
 
         if (validEntityDomains.includes(chunks[0])) {
             data = {
-                ...this.hass?.states[chunks.splice(0, 2).join(".")]
+                ...this.hass.states[chunks.splice(0, 2).join(".")]
             };
         }
 

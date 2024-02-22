@@ -9,7 +9,7 @@ import { isNumber } from "../utils";
  * @param entidyData Entity data
  * @returns Secondary info text
  */
-export const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant | undefined, entityData: IMap<any> | undefined): string => {
+export const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssistant, entityData: IMap<any> | undefined): string => {
     if (config.secondary_info) {
         const processor = new RichStringProcessor(hass, entityData);
 
