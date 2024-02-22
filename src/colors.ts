@@ -86,15 +86,6 @@ const getGradientColors = (config: IColorSteps[], level: number, nonPercentValue
     return getColorInterpolationForPercentage(colorList, level);
 }
 
-const convertToPercentage = (colorSteps: IColorSteps[], value: number) => {
-    const values = colorSteps.map((s, i) => s.value === undefined ? i : s.value)
-
-    const dist = values[values.length - 1] - values[0];
-    const valueAdjusted = value - values[0];
-
-    return Math.round(valueAdjusted / dist * 100);
-}
-
 /**
  * Default color (inherited color)
  */
@@ -183,4 +174,24 @@ const getColorInterpolationForPercentage = function (colors: string[], pct: numb
     return true;
 }
 
+/**
+ * Convert given value to percentage (position between min/max step value)
+ * @param colorSteps Configured steps
+ * @param value Value to convert
+ * @returns Percentage
+ */
+const convertToPercentage = (colorSteps: IColorSteps[], value: number) => {
+    const values = colorSteps.map((s, i) => s.value === undefined ? i : s.value).sort((a, b) => a - b);
+
+    const range = values[values.length - 1] - values[0];
+    const valueAdjusted = value - values[0];
+
+    return Math.round(valueAdjusted / range * 100);
+}
+
+/**
+ * Returns last object in the collection or default
+ * @param collelction Array of objects
+ * @returns Last object in the collection or default
+ */
 const lastObject = <T>(collelction: T[]): T => collelction && collelction.length > 0 ? collelction[collelction.length - 1] : <T>{};
