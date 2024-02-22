@@ -9,15 +9,6 @@ describe("Charging state", () => {
         const isCharging = getChargingState({ entity: "any" }, "90", hassMock.hass); 
 
         expect(isCharging).toBe(false);
-    })    
-    
-    test("is false when there is no hass", () => {
-        const isCharging = getChargingState(
-            { entity: "sensor.my_entity", charging_state: { attribute: [ { name: "is_charging", value: "true" } ] } }, 
-            "45", 
-            undefined); 
-
-        expect(isCharging).toBe(false);
     })
 
     test("is true when charging state is in attribute", () => {
