@@ -78,6 +78,10 @@ const getGradientColors = (config: IColorSteps[], level: number, nonPercentValue
             level = convertToPercentage(config, level);
         }
     }
+    else if (level < 0 || level > 100) {
+        log("Entity state value seems to be outside of 0-100 range and color step values are not defined");
+        return defaultColor;
+    }
 
     return getColorInterpolationForPercentage(colorList, level);
 }
@@ -87,7 +91,6 @@ const convertToPercentage = (colorSteps: IColorSteps[], value: number) => {
 
     const dist = values[values.length - 1] - values[0];
     const valueAdjusted = value - values[0];
-    console.log(dist, valueAdjusted)
 
     return Math.round(valueAdjusted / dist * 100);
 }
@@ -167,7 +170,7 @@ const getColorInterpolationForPercentage = function (colors: string[], pct: numb
  const isColorGradientValid = (gradientColors: string[]) => {
     if (gradientColors.length < 2) {
         log("Value for 'color_gradient' should be an array with at least 2 colors.");
-        return;
+        return false;
     }
 
     for (const color of gradientColors) {
