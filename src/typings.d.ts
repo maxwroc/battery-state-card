@@ -27,6 +27,10 @@ interface IColorSettings {
      * Whether to enable smooth color transition between steps
      */
     gradient?: boolean;
+    /**
+     * Whether the values are not percentages
+     */
+    non_percent_values?: boolean;
 }
 
 /**

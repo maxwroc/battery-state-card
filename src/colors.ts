@@ -13,26 +13,26 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
         return config.charging_state.color;
     }
 
-    if (batteryLevel === undefined || isNaN(batteryLevel) || batteryLevel > 100 || batteryLevel < 0) {
+    if (batteryLevel === undefined || isNaN(batteryLevel)) {
         return defaultColor;
     }
 
     const colorSteps = safeGetConfigArrayOfObjects(config.colors?.steps, "color");
 
     if (config.colors?.gradient) {
-        return getGradientColors(colorSteps, batteryLevel);
+        return getGradientColors(colorSteps, batteryLevel, config.colors?.non_percent_values);
     }
 
     let thresholds: IColorSteps[] = defaultColorSteps;
     if (config.colors?.steps) {
         // making sure the value is always set
         thresholds = colorSteps.map(s => {
-            s.value = s.value === undefined || s.value > 100 ? 100 : s.value;
+            s.value = s.value === undefined ? 100 : s.value;
             return s;
         });
     }
 
-    return thresholds.find(th => batteryLevel <= th.value!)?.color || defaultColor;
+    return thresholds.find(th => batteryLevel <= th.value!)?.color || lastObject(thresholds).color || defaultColor;
 }
 
 /**
@@ -41,15 +41,15 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
  * @param level Battery level
  * @returns Hex HTML color
  */
-const getGradientColors = (config: IColorSteps[], level: number): string => {
+const getGradientColors = (config: IColorSteps[], level: number, nonPercentValues?: boolean): string => {
 
-    let simpleList = config.map(s => s.color);
-    if (!isColorGradientValid(simpleList)) {
+    let colorList = config.map(s => s.color);
+    if (!isColorGradientValid(colorList)) {
         log("For gradient colors you need to use hex HTML colors. E.g. '#FF00FF'", "error");
         return defaultColor;
     }
 
-    if (simpleList.length < 2) {
+    if (colorList.length < 2) {
         log("For gradient colors you need to specify at least two steps/colors", "error");
         return defaultColor;
     }
@@ -62,20 +62,34 @@ const getGradientColors = (config: IColorSteps[], level: number): string => {
             return first.color;
         }
 
-        const last = config[config.length - 1];
+        const last = lastObject(config);
         if (level >= last.value!) {
             return last.color;
         }
 
         const index = config.findIndex(s => level <= s.value!);
         if (index != -1) {
-            simpleList = [ config[index - 1].color, config[index].color ];
+            colorList = [ config[index - 1].color, config[index].color ];
             // calculate percentage
             level = (level - config[index - 1].value!) * 100 / (config[index].value! - config[index - 1].value!);
         }
+        // checking whether we should convert the level to the percentage
+        else if ((nonPercentValues == undefined && config.some(s => s.value! < 0 || s.value! > 100)) || nonPercentValues === true) {
+            level = convertToPercentage(config, level);
+        }
     }
 
-    return getColorInterpolationForPercentage(simpleList, level);
+    return getColorInterpolationForPercentage(colorList, level);
+}
+
+const convertToPercentage = (colorSteps: IColorSteps[], value: number) => {
+    const values = colorSteps.map((s, i) => s.value === undefined ? i : s.value)
+
+    const dist = values[values.length - 1] - values[0];
+    const valueAdjusted = value - values[0];
+    console.log(dist, valueAdjusted)
+
+    return Math.round(valueAdjusted / dist * 100);
 }
 
 /**
@@ -165,3 +179,5 @@ const getColorInterpolationForPercentage = function (colors: string[], pct: numb
 
     return true;
 }
+
+const lastObject = <T>(collelction: T[]): T => collelction && collelction.length > 0 ? collelction[collelction.length - 1] : <T>{};
