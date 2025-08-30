@@ -31,8 +31,66 @@ const operatorHandlers: { [key in FilterOperator]: (val: FilterValueType, expect
 /**
  * Filter class
  */
-export class Filter {
+export abstract class Filter {
+    /**
+     * Whether filter is permanent.
+     *
+     * Permanent filters removes entities/batteries from collections permanently
+     * instead of making them hidden.
+     */
+    abstract get is_permanent(): boolean;
 
+    /**
+     * Checks whether entity meets the filter conditions.
+     * @param entityData Hass entity data
+     * @param state State override - battery state/level
+     */
+    abstract isValid(entityData: any, state?: string): boolean;
+}
+
+export class NotFilter extends Filter {
+    constructor(private filter: Filter) {
+        super();
+    }
+
+    override get is_permanent(): boolean {
+        return this.filter.is_permanent;
+    }
+
+    override isValid(entityData: any, state?: string): boolean {
+        return !this.filter.isValid(entityData, state);
+    }
+}
+
+export class AndFilter extends Filter {
+    constructor(private filters: Filter[]) {
+        super();
+    }
+
+    override get is_permanent(): boolean {
+        return this.filters.every(filter => filter.is_permanent);
+    }
+
+    override isValid(entityData: any, state?: string): boolean {
+        return this.filters.every(filter => filter.isValid(entityData, state));
+    }
+}
+
+export class OrFilter extends Filter {
+    constructor(private filters: Filter[]) {
+        super();
+    }
+
+    override get is_permanent(): boolean {
+        return this.filters.every(filter => filter.is_permanent);
+    }
+
+    override isValid(entityData: any, state?: string): boolean {
+        return this.filters.some(filter => filter.isValid(entityData, state));
+    }
+}
+
+export class FieldFilter extends Filter {
     /**
      * Whether filter is permanent.
      *
@@ -44,7 +102,7 @@ export class Filter {
     }
 
     constructor(private config: IFilter) {
-
+        super();
     }
 
     /**
@@ -106,4 +164,17 @@ export class Filter {
 
         return func(val, this.config.value);
     }
+}
+
+export function createFilter(config: FilterSpec): Filter {
+    if ("not" in config) {
+        return new NotFilter(createFilter(config.not));
+    }
+    if ("and" in config) {
+        return new AndFilter(config.and.map(createFilter));
+    }
+    if ("or" in config) {
+        return new OrFilter(config.or.map(createFilter));
+    }
+    return new FieldFilter(config);
 }

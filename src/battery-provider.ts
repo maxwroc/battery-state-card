@@ -1,7 +1,7 @@
 import { log, safeGetConfigArrayOfObjects } from "./utils";
 import { HomeAssistant } from "custom-card-helpers";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
-import { Filter } from "./filter";
+import { createFilter, Filter } from "./filter";
 import { EntityRegistryDisplayEntry, HomeAssistantExt } from "./type-extensions";
 
 /**
@@ -60,8 +60,8 @@ export class BatteryProvider {
     private initialized: boolean = false;
 
     constructor(private config: IBatteryCardConfig) {
-        this.include = config.filter?.include?.map(f => new Filter(f));
-        this.exclude = config.filter?.exclude?.map(f => new Filter(f));
+        this.include = config.filter?.include?.map(createFilter);
+        this.exclude = config.filter?.exclude?.map(createFilter);
 
         if (!this.include) {
             this.initialized = false;

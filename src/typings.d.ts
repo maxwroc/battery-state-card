@@ -178,6 +178,8 @@ interface IFilter {
     value?: FilterValueType;
 }
 
+type FilterSpec = IFilter | { not: FilterSpec } | { and: FilterSpec[] } | { or: FilterSpec[] }
+
 interface IBatteryEntityConfig {
 
     /**
@@ -295,7 +297,7 @@ interface IBatteryCardConfig {
     /**
      * Filters for auto adding or removing entities
      */
-    filter?: { [key in FilterGroups]: IFilter[] };
+    filter?: { [key in FilterGroups]: FilterSpec[] };
 }
 
 /**
