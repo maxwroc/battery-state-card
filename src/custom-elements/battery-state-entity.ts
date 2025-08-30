@@ -98,7 +98,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         this.state = state;
         this.unit = unit;
         this.stateNumeric = level;
-        
+
         const isCharging = getChargingState(this.config, this.state, this.hass);
         this.entityData["charging"] = isCharging ? (this.config.charging_state?.secondary_info_text || "Charging") : "" // todo: think about i18n
 
@@ -170,8 +170,8 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
 
         if (entityDisplayEntry) {
             this.entityData["display"] = entityDisplayEntry;
-            this.entityData["device"] = entityDisplayEntry.device_id 
-                ? this.hass.devices && this.hass.devices[entityDisplayEntry.device_id] 
+            this.entityData["device"] = entityDisplayEntry.device_id
+                ? this.hass.devices && this.hass.devices[entityDisplayEntry.device_id]
                 : undefined;
 
             const area_id = entityDisplayEntry.area_id || (<DeviceRegistryEntry>this.entityData["device"])?.area_id;

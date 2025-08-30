@@ -1,21 +1,20 @@
 import { getChargingState } from "../../../src/entity-fields/charging-state";
 import { HomeAssistantMock } from "../../helpers";
 
-
 describe("Charging state", () => {
 
     test("is false when there is no charging configuration", () => {
         const hassMock = new HomeAssistantMock(true);
-        const isCharging = getChargingState({ entity: "any" }, "90", hassMock.hass); 
+        const isCharging = getChargingState({ entity: "any" }, "90", hassMock.hass);
 
         expect(isCharging).toBe(false);
-    })    
-    
+    })
+
     test("is false when there is no hass", () => {
         const isCharging = getChargingState(
-            { entity: "sensor.my_entity", charging_state: { attribute: [ { name: "is_charging", value: "true" } ] } }, 
-            "45", 
-            undefined); 
+            { entity: "sensor.my_entity", charging_state: { attribute: [ { name: "is_charging", value: "true" } ] } },
+            "45",
+            undefined);
 
         expect(isCharging).toBe(false);
     })
@@ -24,9 +23,9 @@ describe("Charging state", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Sensor", "80", { is_charging: "true" })
         const isCharging = getChargingState(
-            { entity: entity.entity_id, charging_state: { attribute: [ { name: "is_charging", value: "true" } ] } }, 
-            entity.state, 
-            hassMock.hass); 
+            { entity: entity.entity_id, charging_state: { attribute: [ { name: "is_charging", value: "true" } ] } },
+            entity.state,
+            hassMock.hass);
 
         expect(isCharging).toBe(true);
     })
@@ -35,9 +34,9 @@ describe("Charging state", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Sensor", "80", { is_charging: "true" })
         const isCharging = getChargingState(
-            { entity: entity.entity_id, charging_state: { attribute: [ { name: "is_charging", value: "false" } ] } }, 
-            entity.state, 
-            hassMock.hass); 
+            { entity: entity.entity_id, charging_state: { attribute: [ { name: "is_charging", value: "false" } ] } },
+            entity.state,
+            hassMock.hass);
 
         expect(isCharging).toBe(false);
     })
@@ -46,9 +45,9 @@ describe("Charging state", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Sensor", "80", { is_charging: "true" })
         const isCharging = getChargingState(
-            { entity: entity.entity_id, charging_state: { attribute: [ { name: "status", value: "charging" }, { name: "is_charging", value: "true" } ] } }, 
-            entity.state, 
-            hassMock.hass); 
+            { entity: entity.entity_id, charging_state: { attribute: [ { name: "status", value: "charging" }, { name: "is_charging", value: "true" } ] } },
+            entity.state,
+            hassMock.hass);
 
         expect(isCharging).toBe(true);
     })
@@ -57,9 +56,9 @@ describe("Charging state", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Sensor", "80")
         const isCharging = getChargingState(
-            { entity: entity.entity_id, charging_state: { attribute: [ { name: "status", value: "charging" }, { name: "is_charging", value: "true" } ] } }, 
-            entity.state, 
-            hassMock.hass); 
+            { entity: entity.entity_id, charging_state: { attribute: [ { name: "status", value: "charging" }, { name: "is_charging", value: "true" } ] } },
+            entity.state,
+            hassMock.hass);
 
         expect(isCharging).toBe(false);
     })
@@ -73,9 +72,9 @@ describe("Charging state", () => {
         const entity = hassMock.addEntity("Sensor", "80")
         const entityChargingState = hassMock.addEntity("Charging sensor", chargingEntityState)
         const isCharging = getChargingState(
-            { entity: entity.entity_id, charging_state: { entity_id: entityChargingState.entity_id + missingEntitySuffix, state: "charging" } }, 
-            entity.state, 
-            hassMock.hass); 
+            { entity: entity.entity_id, charging_state: { entity_id: entityChargingState.entity_id + missingEntitySuffix, state: "charging" } },
+            entity.state,
+            hassMock.hass);
 
         expect(isCharging).toBe(expected);
     })
@@ -89,9 +88,9 @@ describe("Charging state", () => {
         const entity = hassMock.addEntity("Sensor battery level", "80", { is_charging: "true" })
         const entityChargingState = hassMock.addEntity("Sensor battery state" + missingEntitySuffix, chargingEntityState)
         const isCharging = getChargingState(
-            { entity: entity.entity_id }, 
-            entity.state, 
-            hassMock.hass); 
+            { entity: entity.entity_id },
+            entity.state,
+            hassMock.hass);
 
         expect(isCharging).toBe(expected);
     })

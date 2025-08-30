@@ -5,7 +5,7 @@ describe("Battery level", () => {
 
     test("is equal value_override setting when it is provided", () => {
         const hassMock = new HomeAssistantMock(true);
-        const { state, level, unit } = getBatteryLevel({ entity: "any", value_override: "45" }, hassMock.hass, {}); 
+        const { state, level, unit } = getBatteryLevel({ entity: "any", value_override: "45" }, hassMock.hass, {});
 
         expect(level).toBe(45);
         expect(state).toBe("45");
@@ -18,7 +18,7 @@ describe("Battery level", () => {
         entity.setAttributes(null);
 
         const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBe(45);
         expect(state).toBe("45");
         expect(unit).toBe("%")
@@ -27,7 +27,7 @@ describe("Battery level", () => {
     test("is 'Unknown' when entity not found and no localized string", () => {
         const hassMock = new HomeAssistantMock(true);
         hassMock.hass.localize = () => <string><unknown>null;
-        const { state, level, unit } = getBatteryLevel({ entity: "any" }, hassMock.hass, undefined); 
+        const { state, level, unit } = getBatteryLevel({ entity: "any" }, hassMock.hass, undefined);
 
         expect(level).toBeUndefined();
         expect(state).toBe("Unknown");
@@ -36,7 +36,7 @@ describe("Battery level", () => {
 
     test("is 'Unknown' localized string when entity not found", () => {
         const hassMock = new HomeAssistantMock(true);
-        const { state, level, unit } = getBatteryLevel({ entity: "any" }, hassMock.hass, undefined); 
+        const { state, level, unit } = getBatteryLevel({ entity: "any" }, hassMock.hass, undefined);
 
         expect(level).toBeUndefined();
         expect(state).toBe("[state.default.unknown]");
@@ -44,113 +44,113 @@ describe("Battery level", () => {
     });
 
     test("is taken from attribute but attribute is missing", () => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery_state: "45" });
 
         const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity", attribute: "battery_state_missing" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBeUndefined();
         expect(state).toBe("[state.default.unknown]");
         expect(unit).toBeUndefined();
     });
 
     test("is taken from attribute", () => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery_state: "45" });
 
         const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity", attribute: "battery_state" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBe(45);
         expect(state).toBe("45");
         expect(unit).toBe("%");
     });
 
     test("is taken from attribute - value includes percentage", () => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery_state: "45%" });
 
         const { state, level } = getBatteryLevel({ entity: "mocked_entity", attribute: "battery_state" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBe(45);
         expect(state).toBe("45");
     });
 
     test("is taken from state - value includes percentage", () => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "45%");
 
         const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBe(45);
         expect(state).toBe("45");
     });
 
     test("is taken from dafault locations - attribute: battery_level", () => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery_level: "45%" });
 
         const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBe(45);
         expect(state).toBe("45");
     });
 
     test("is taken from dafault locations - attribute: battery", () => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery: "45%" });
 
         const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBe(45);
         expect(state).toBe("45");
     });
 
     test("is taken from dafault locations - non battery entity", () => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK", { battery_level: "45%" });
 
         const { state, level } = getBatteryLevel({ entity: "mocked_entity", non_battery_entity: true }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBeUndefined();
         expect(state).toBe("OK");
     });
 
     test("is taken from dafault locations - state", () => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "45");
 
         const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBe(45);
         expect(state).toBe("45");
     });
 
     test("is taken from dafault locations - numeric value cannot be found", () => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "OK");
 
         const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBeUndefined();
         expect(state).toBe("OK");
     });
 
     test("multiplier applied", () => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "0.9");
 
         const { state, level } = getBatteryLevel({ entity: "mocked_entity", multiplier: 100 }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBe(90);
         expect(state).toBe("90");
     });
@@ -160,22 +160,22 @@ describe("Battery level", () => {
         ["20.458", 0, "20"],
     ])
     ("round applied", (entityState: string, round: number, expectedResult: string) => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", entityState);
 
         const { state, level } = getBatteryLevel({ entity: "mocked_entity", round }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(state).toBe(expectedResult);
     });
 
     test("first letter is capitalized", () => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", "ok");
 
         const { state, level } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBeUndefined();
         expect(state).toBe("Ok");
     });
@@ -188,13 +188,13 @@ describe("Battery level", () => {
         ["charge", "StateFromOtherEntity", 0, undefined, "{sensor.other_entity.state}"],
     ])
     ("state map applied", (entityState: string, expectedState: string, expectedLevel: number | undefined, expectedUnit: string | undefined, display?: string) => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", entityState);
         hassMock.addEntity("Other entity", "StateFromOtherEntity", undefined, "sensor");
 
         const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity", state_map: [ { from: "ok", to: "100" }, { from: "empty", to: "0" }, { from: "charge", to: "0", display } ] }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBe(expectedLevel);
         expect(state).toBe(expectedState);
         expect(unit).toBe(expectedUnit);
@@ -209,13 +209,13 @@ describe("Battery level", () => {
         [true, "45.4", "dbm", { state: "45,4", level: 45.4, unit: "[dbm]" }, undefined, ","], // test when default HA formatting returns state with comma as decimal point
     ])
     ("default HA formatting", (defaultStateFormatting: boolean | undefined, entityState: string, unitOfMeasurement: string, expected: { state: string, level: number, unit?: string }, stateMap: IConvert[] | undefined = undefined, decimalPoint: string = ".") => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         hassMock.addEntity("Mocked entity", entityState);
         hassMock.mockFunc("formatEntityState", (entityData: any) => `${entityData.state.replace(".", decimalPoint)} [${unitOfMeasurement}]`);
 
         const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity", default_state_formatting: defaultStateFormatting, state_map: stateMap }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
-        
+
         expect(level).toBe(expected.level);
         expect(state).toBe(expected.state);
         expect(unit).toBe(expected.unit);
@@ -264,7 +264,7 @@ describe("Battery level", () => {
 
         expect(state).toBe(expectedState);
     })
-    
+
     test("number in the attribute value", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Mocked entity", "OK", { custom_attribute: 2 });
@@ -282,13 +282,13 @@ describe("Battery level", () => {
         ["99", { state: "99", level: 99, unit: "%" }],
     ])
     ("default HA formatting - various formatted states", (formattedResult: string, expected: { state: string, level: number, unit?: string }) => {
-        
+
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Mocked entity", "45");
         hassMock.mockFunc("formatEntityState", () => formattedResult);
 
         const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
-        
+
         expect(level).toBe(expected.level);
         expect(state).toBe(expected.state);
         expect(unit).toBe(expected.unit);

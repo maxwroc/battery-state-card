@@ -6,7 +6,7 @@ describe("Get icon", () => {
         let icon = getIcon({ entity: "", charging_state: { icon: "mdi:custom" } }, 20, true, undefined);
         expect(icon).toBe("mdi:custom");
     });
-    
+
     test.each([
         [-2],
         [200],

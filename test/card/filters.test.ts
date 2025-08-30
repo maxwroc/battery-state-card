@@ -59,7 +59,7 @@ test("Include via entity_id and exclude via state - empty result", async () => {
     await cardElem.cardUpdated;
 
     const card = new CardElements(cardElem);
-    
+
     expect(card.itemsCount).toBe(0);
     // we expect to not have any content
     expect(cardElem.shadowRoot!.childElementCount).toBe(0);
@@ -93,6 +93,6 @@ test.each([
     await cardElem.cardUpdated;
 
     const card = new CardElements(cardElem);
-    
+
     expect(card.itemsCount).toBe(numOfRenderedEntities);
 });

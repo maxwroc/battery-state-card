@@ -12,7 +12,7 @@ describe("Secondary info", () => {
         expect(result).toBe("");
     })
 
-    test("Other entity state (number)", () => { 
+    test("Other entity state (number)", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Motion sensor kitchen", "50", {}, "sensor");
         const secondaryInfoConfig = "{" + entity.entity_id + ".state}";
@@ -21,7 +21,7 @@ describe("Secondary info", () => {
         expect(result).toBe("50");
     })
 
-    test("Attribute 'last_changed'", () => { 
+    test("Attribute 'last_changed'", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Motion sensor kitchen", "50", {}, "sensor");
         entity.setLastChanged("2022-02-07");
@@ -31,7 +31,7 @@ describe("Secondary info", () => {
         expect(result).toBe("<rt>2022-02-07</rt>");
     })
 
-    test("Secondary info config not set", () => { 
+    test("Secondary info config not set", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Motion sensor kitchen", "50", {}, "sensor");
         entity.setLastChanged("2022-02-07");
@@ -40,7 +40,7 @@ describe("Secondary info", () => {
         expect(result).toBeNull();
     })
 
-    test("Secondary info charging text", () => { 
+    test("Secondary info charging text", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Motion sensor kitchen", "50", {}, "sensor");
 
