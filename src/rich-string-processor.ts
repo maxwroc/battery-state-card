@@ -23,7 +23,7 @@ const validEntityDomains = [
     "scene",
     "script",
     "select",
-    "sensor", 
+    "sensor",
     "switch",
     "update",
     "weather",
@@ -187,7 +187,7 @@ const availableProcessors: IMap<IProcessorCtor> = {
             return Math.round(100 / thresholds.length * result).toString();
         }
     },
-    "abs": () => 
+    "abs": () =>
         val => Math.abs(Number(val)).toString(),
     "equals": (params) => {
         const chunks = params.split(",");
@@ -207,7 +207,7 @@ const availableProcessors: IMap<IProcessorCtor> = {
         const addend = Number(params);
 
         return val => isNaN(addend) ? val : (Number(val) + addend).toString();
-    }, 
+    },
     "reltime": () => {
         return val => {
             const unixTime = Date.parse(val);
@@ -229,4 +229,3 @@ interface IProcessor {
 interface IProcessorCtor {
     (params: string): IProcessor | undefined
 }
-

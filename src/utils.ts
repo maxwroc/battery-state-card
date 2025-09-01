@@ -58,10 +58,10 @@ export const safeGetArray = <T>(val: T | T[] | undefined): T[] => {
 
 /**
  * Converts config value to array of specified objects.
- * 
- * ISimplifiedArray config object supports simple list of strings or even an individual item. This function 
+ *
+ * ISimplifiedArray config object supports simple list of strings or even an individual item. This function
  * ensures we're getting an array in all situations.
- * 
+ *
  * E.g. all of the below are valid entries and can be converted to objects
  * 1. Single string
  *   my_setting: "name"
@@ -78,7 +78,7 @@ export const safeGetArray = <T>(val: T | T[] | undefined): T[] => {
  *     - by: "name"
  *     - by: "sort"
  *       desc: true
- * 
+ *
  * @param value Config array
  * @param defaultKey Key of the object to populate
  * @returns Array of objects
@@ -137,7 +137,7 @@ export const getRegexFromString = (ruleVal: string): RegExp | null => {
     if (ruleVal[0] == "/" && ruleVal[ruleVal.length - 1] == "/") {
         return new RegExp(ruleVal.substr(1, ruleVal.length - 2));
     }
-    else { 
+    else {
         let matches = ruleVal.match(regexPattern)
         if (matches && matches.length == 3) {
             return new RegExp(matches[1], matches[2]);

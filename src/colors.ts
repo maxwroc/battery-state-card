@@ -56,7 +56,7 @@ const getGradientColors = (config: IColorSteps[], level: number): string => {
 
     // if values were used we should respect them and calculate gradient between them
     if (config.every(s => s.value != undefined)) {
-        
+
         const first = config[0];
         if (level <= first.value!) {
             return first.color;
