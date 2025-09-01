@@ -66,7 +66,7 @@ import { isNumber, log, safeGetConfigArrayOfObjects, toNumber } from "./utils";
 
         return result;
     });
-} 
+}
 
 /**
  * Number comparer

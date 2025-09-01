@@ -1,18 +1,17 @@
 import { BatteryStateEntity } from "../../src/custom-elements/battery-state-entity";
 import { EntityElements, HomeAssistantMock } from "../helpers";
 
-
 test("State updates", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", "80");
     const cardElem = hass.addCard("battery-state-entity", {
         entity: sensor.entity_id,
     });
-    
+
     await cardElem.cardUpdated;
 
     const entity = new EntityElements(cardElem);
-    
+
     expect(entity.stateText).toBe("80 %");
 
     sensor.setState("50");
@@ -34,11 +33,11 @@ test.each([
         entity: sensor.entity_id,
         round: round
     });
-    
+
     await cardElem.cardUpdated;
 
     const entity = new EntityElements(cardElem);
-    
+
     expect(entity.stateText).toBe(expectedState);
 });
 
@@ -49,11 +48,11 @@ test("State with custom unit", async () => {
         entity: sensor.entity_id,
         unit: "lqi"
     });
-    
+
     await cardElem.cardUpdated;
 
     const entity = new EntityElements(cardElem);
-    
+
     expect(entity.stateText).toBe("80 lqi");
 });
 
@@ -63,11 +62,11 @@ test("State with string value", async () => {
     const cardElem = hass.addCard("battery-state-entity", {
         entity: sensor.entity_id,
     });
-    
+
     await cardElem.cardUpdated;
 
     const entity = new EntityElements(cardElem);
-    
+
     expect(entity.stateText).toBe("Charging");
 });
 
@@ -84,11 +83,11 @@ test.each([
             { from: "Low", to: "Low" }
         ]
     });
-    
+
     await cardElem.cardUpdated;
 
     const entity = new EntityElements(cardElem);
-    
+
     expect(entity.stateText).toBe(expectedState);
 });
 
@@ -103,10 +102,10 @@ test.each([
     const cardElem = hass.addCard("battery-state-entity", {
         entity: sensor.entity_id,
     });
-    
+
     await cardElem.cardUpdated;
 
     const entity = new EntityElements(cardElem);
-    
+
     expect(entity.stateText).toBe(expectedState);
 });

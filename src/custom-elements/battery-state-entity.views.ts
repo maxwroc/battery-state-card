@@ -6,7 +6,7 @@ const relativeTimeTag = new RegExp("<rt>([^<]+)</rt>", "g");
 
 /**
  * Replaces temporary RT tages with proper HA "relative-time" ones
- * 
+ *
  * @param text Text to be processed
  * @param hass HomeAssistant instance
  * @returns Rendered templates
@@ -28,7 +28,7 @@ const replaceTags = (text: string, hass?: HomeAssistant): TemplateResult[] => {
 
         currentPos += matchPos + matches[0].length;
     }
-    
+
     if (currentPos < text.length) {
         result.push(html`${text.substring(currentPos, text.length)}`);
     }
@@ -64,14 +64,14 @@ const unit = (unit: string | undefined) => unit && html`&nbsp;${unit}`;
 
 export const debugOutput = (content: string) => {
 
-    const actions = [{ 
-        text: "Show / hide", 
-        action: (e: MouseEvent) => { 
+    const actions = [{
+        text: "Show / hide",
+        action: (e: MouseEvent) => {
             const debugContent = <HTMLElement>(<HTMLElement>e.currentTarget)?.parentElement?.parentElement?.querySelector(".debug_expand");
             if (debugContent) {
                 debugContent.style.display = debugContent.style.display === "none" ? "block" : "none";
             }
-        } 
+        }
     }];
 
     if (navigator.clipboard) {

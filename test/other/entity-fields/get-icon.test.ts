@@ -6,7 +6,7 @@ describe("Get icon", () => {
         let icon = getIcon({ entity: "", charging_state: { icon: "mdi:custom" } }, 20, true, new HomeAssistantMock(true).hass);
         expect(icon).toBe("mdi:custom");
     });
-    
+
     test.each([
         [-2],
         [200],

@@ -7,21 +7,21 @@ import { EntityRegistryDisplayEntry, HomeAssistantExt } from "./type-extensions"
 /**
  * Properties which should be copied over to individual entities from the card
  */
-const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ 
-    "bulk_rename", 
-    "charging_state", 
-    "colors", 
+const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [
+    "bulk_rename",
+    "charging_state",
+    "colors",
     "debug",
     "default_state_formatting",
     "extend_entity_data",
-    "icon", 
+    "icon",
     "non_battery_entity",
     "respect_visibility_setting",
     "round",
-    "secondary_info", 
-    "state_map", 
-    "tap_action", 
-    "value_override", 
+    "secondary_info",
+    "state_map",
+    "tap_action",
+    "value_override",
     "unit",
 ];
 

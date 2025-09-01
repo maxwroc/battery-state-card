@@ -1,5 +1,5 @@
 
-:host(.clickable), 
+:host(.clickable),
 .clickable {
     cursor: pointer;
 }

@@ -120,7 +120,7 @@ export class GroupElement extends EntityElements {
     constructor(private elem: HTMLElement) {
         super(<BatteryStateEntity>elem.querySelector(".toggler"), false);
     }
-    
+
     private get batteryNodes(): NodeListOf<BatteryStateEntity> {
         return this.elem.querySelectorAll<BatteryStateEntity>(".groupItems > * > battery-state-entity");
     }
@@ -128,7 +128,7 @@ export class GroupElement extends EntityElements {
     get itemsCount() {
         return this.batteryNodes.length;
     }
-    
+
     get items(): EntityElements[] {
         const result: EntityElements[] = [];
         for (let index = 0; index < this.itemsCount; index++) {
