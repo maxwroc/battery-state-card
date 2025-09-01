@@ -22,7 +22,7 @@ jobs:
       - name: NodeJS setup
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 22
           registry-url: https://registry.npmjs.org/
 
       - name: Installing dependencies
@@ -33,7 +33,7 @@ jobs:
 
       - name: Test
         run: npm run test+coverage
-        
+
       - name: Coveralls
         uses: coverallsapp/github-action@v1.1.2
         with:
@@ -49,7 +49,7 @@ jobs:
       - name: NodeJS setup
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 22
           registry-url: https://registry.npmjs.org/
 
       - name: Installing dependencies
