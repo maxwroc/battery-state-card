@@ -1,5 +1,4 @@
 name: Continous integration
-
 on:
   workflow_dispatch:
   pull_request:
@@ -8,17 +7,16 @@ on:
       - master
       - next
       - vNext
-
 jobs:
   continous_integration:
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest  # ← GEÄNDERT: von macOS-latest zu ubuntu-latest
     steps:
       - name: Checkout files
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4  # ← GEÄNDERT: von v2 zu v4 (aktueller)
       - name: NodeJS setup
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4  # ← GEÄNDERT: von v2 zu v4 (aktueller)
         with:
-          node-version: 14
+          node-version: 18  # ← GEÄNDERT: von 14 zu 18 (LTS Version)
           registry-url: https://registry.npmjs.org/
       - name: Installing dependencies
         run: npm ci
