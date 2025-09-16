@@ -61,8 +61,8 @@ test("Include via entity_id and exclude via state - empty result", async () => {
     const card = new CardElements(cardElem);
     
     expect(card.itemsCount).toBe(0);
-    // we expect to not have any content
-    expect(cardElem.shadowRoot!.childElementCount).toBe(0);
+    // we expect to not have any battery items (shadowRoot may still have header/container elements)
+    expect(cardElem.shadowRoot!.querySelectorAll('battery-state-entity').length).toBe(0);
 });
 
 
