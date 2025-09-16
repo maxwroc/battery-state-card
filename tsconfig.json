@@ -8,6 +8,9 @@
         "strict": true,
         "strictPropertyInitialization": false,
         "moduleResolution": "node",
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "isolatedModules": true
     }
 }
