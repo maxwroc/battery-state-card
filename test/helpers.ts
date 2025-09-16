@@ -5,12 +5,14 @@ import { DeviceRegistryEntry, EntityRegistryDisplayEntry, HomeAssistantExt, Area
 import { throttledCall } from "../src/utils";
 
 /**
- * Removing all custome elements
+ * Removing all custom elements
  */
 afterEach(() => {
-    ["battery-state-card", "battery-state-entity"].forEach(cardTagName => Array
-        .from(document.body.getElementsByTagName(cardTagName))
-        .forEach(elem => elem.remove()));
+    if (typeof document !== 'undefined') {
+        ["battery-state-card", "battery-state-entity"].forEach(cardTagName => Array
+            .from(document.body.getElementsByTagName(cardTagName))
+            .forEach(elem => elem.remove()));
+    }
 });
 
 export class CardElements {
