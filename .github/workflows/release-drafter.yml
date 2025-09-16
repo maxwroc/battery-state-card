@@ -13,16 +13,16 @@ on:
 
 jobs:
   validate_release:
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
     steps:
       # build files
       - name: Checkout files
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: NodeJS setup
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: 14
+          node-version: 20
           registry-url: https://registry.npmjs.org/
 
       - name: Installing dependencies
@@ -32,7 +32,7 @@ jobs:
         run: npm run release
 
       - name: Test
-        run: npm run test+coverage
+        run: NODE_OPTIONS="--no-experimental-fetch" npm run test+coverage
         
       - name: Coveralls
         uses: coverallsapp/github-action@v1.1.2
@@ -44,12 +44,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout files
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: NodeJS setup
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: 14
+          node-version: 20
           registry-url: https://registry.npmjs.org/
 
       - name: Installing dependencies
