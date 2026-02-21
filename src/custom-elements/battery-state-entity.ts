@@ -5,7 +5,7 @@ import { batteryHtml, debugOutput } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
 import entityStyles from "./battery-state-entity.css";
-import { handleAction } from "../action";
+import { handleAction } from "../handle-action";
 import { getColorForBatteryLevel } from "../colors";
 import { getSecondaryInfo } from "../entity-fields/get-secondary-info";
 import { getChargingState } from "../entity-fields/charging-state";
@@ -167,13 +167,17 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         if (enable && !this.error && !this.alert) {
             let tapAction = this.config.tap_action || "more-info";
             if (tapAction != "none" && !this.action) {
+                const tapActionConfig = safeGetConfigObject(tapAction, "action");
                 this.action = evt => {
                     evt.stopPropagation();
-                    handleAction({
-                        card: this,
-                        config: safeGetConfigObject(tapAction, "action"),
-                        entityId: this.config.entity,
-                    }, this.hass!);
+                    handleAction(
+                        this,
+                        {
+                            entity: this.config.entity,
+                            tap_action: tapActionConfig,
+                        },
+                        "tap",
+                    );
                 }
 
                 this.addEventListener("click", this.action);
