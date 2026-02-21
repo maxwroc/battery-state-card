@@ -3,9 +3,9 @@
  */
 export type ActionConfigParams = {
   entity?: string;
-  tap_action?: INativeHomeAssistantActionConfig;
-  hold_action?: INativeHomeAssistantActionConfig;
-  double_tap_action?: INativeHomeAssistantActionConfig;
+  tap_action?: NativeHomeAssistantActionConfig;
+  hold_action?: NativeHomeAssistantActionConfig;
+  double_tap_action?: NativeHomeAssistantActionConfig;
 };
 
 

@@ -37,8 +37,9 @@ interface IColorSettings {
  * Native Home Assistant action configuration
  * https://www.home-assistant.io/dashboards/actions/#tap-action
  */
-interface INativeHomeAssistantActionConfig {
-}
+type NativeHomeAssistantActionConfig = {
+    action: string;
+} | string;
 
 /**
  * Convert one value to another
@@ -189,7 +190,7 @@ interface IBatteryEntityConfig {
     /**
      * Action to be performed when entity is tapped/clicked
      */
-    tap_action?: INativeHomeAssistantActionConfig;
+    tap_action?: NativeHomeAssistantActionConfig;
 
     /**
      * Collection of mappings for values (useful when state/level is not numeric)
