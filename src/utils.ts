@@ -88,7 +88,7 @@ export const safeGetConfigArrayOfObjects = <T>(value: ISimplifiedArray<T>, defau
 }
 
 /**
- * Converts string to object with given property or returns the object if it is not a string
+ * Converts string to object with given property or returns the object (its copy) if it is not a string
  * @param value Value from the config
  * @param propertyName Property name of the expected config object to which value will be assigned
  */
