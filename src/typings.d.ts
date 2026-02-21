@@ -346,13 +346,6 @@ interface IAction {
     (evt: Event): void
 }
 
-/** @deprecated Use handleAction from custom-card-helpers directly */
-interface IActionData {
-    config: IActionConfig
-    card: Node;
-    entityId: string
-}
-
 interface IMap<T> {
     [key: string]: T;
 }
