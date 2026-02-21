@@ -36,7 +36,7 @@ interface IColorSettings {
 /**
  * Supported action names
  */
-type SupportedActions = "more-info" | "call-service" | "navigate" | "url";
+type SupportedActions = "more-info" | "call-service" | "navigate" | "url" | "toggle" | "none" | "fire-dom-event" | "toggle-menu";
 
 /**
  * Action configuration (tapping/clicking)
@@ -346,6 +346,7 @@ interface IAction {
     (evt: Event): void
 }
 
+/** @deprecated Use handleAction from custom-card-helpers directly */
 interface IActionData {
     config: IActionConfig
     card: Node;
