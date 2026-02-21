@@ -34,38 +34,10 @@ interface IColorSettings {
 }
 
 /**
- * Supported action names
+ * Native Home Assistant action configuration
+ * https://www.home-assistant.io/dashboards/actions/#tap-action
  */
-type SupportedActions = "more-info" | "call-service" | "navigate" | "url" | "toggle" | "none" | "fire-dom-event" | "toggle-menu";
-
-/**
- * Action configuration (tapping/clicking)
- */
-interface IActionConfig {
-    /**
-     * Action to be performed
-     */
-    action: SupportedActions;
-
-    /**
-     * Navigation path (home assistant page url path)
-     */
-    navigation_path: string;
-
-    /**
-     * Url to navigate (external)
-     */
-    url_path: string;
-
-    /**
-     * Name of the service to call
-     */
-    service: string;
-
-    /**
-     * Data for the service call
-     */
-    service_data: any;
+interface INativeHomeAssistantActionConfig {
 }
 
 /**
@@ -217,7 +189,7 @@ interface IBatteryEntityConfig {
     /**
      * Action to be performed when entity is tapped/clicked
      */
-    tap_action?: IActionConfig;
+    tap_action?: INativeHomeAssistantActionConfig;
 
     /**
      * Collection of mappings for values (useful when state/level is not numeric)
