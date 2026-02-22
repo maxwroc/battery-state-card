@@ -166,45 +166,35 @@ export class FieldFilter extends Filter {
     }
 }
 
-class AlwaysFalseFilter extends Filter {
-    override get is_permanent(): boolean {
-        return false;
-    }
-
-    override isValid(entityData: any, state?: string): boolean {
-        return false;
-    }
-}
-
 export function createFilter(config: FilterSpec): Filter {
     // Basic runtime validation to avoid crashes on invalid filter specs
     if (!config || typeof config !== "object") {
-        log("Invalid filter specification: expected a non-null object.");
-        return new AlwaysFalseFilter();
+        throw new Error("Invalid filter specification: expected a non-null object.");
     }
 
     if ("not" in config) {
         if (!config.not || typeof config.not !== "object") {
-            log("Invalid 'not' filter specification: expected an object.");
-            return new AlwaysFalseFilter();
+            throw new Error("Invalid 'not' filter specification: expected an object.");
         }
+
         return new NotFilter(createFilter(config.not));
     }
 
     if ("and" in config) {
         if (!Array.isArray(config.and) || config.and.length === 0) {
-            log("Invalid 'and' filter specification: expected a non-empty array.");
-            return new AlwaysFalseFilter();
+            throw new Error("Invalid 'and' filter specification: expected a non-empty array.");
         }
+
         return new AndFilter(config.and.map(createFilter));
     }
 
     if ("or" in config) {
         if (!Array.isArray(config.or) || config.or.length === 0) {
-            log("Invalid 'or' filter specification: expected a non-empty array.");
-            return new AlwaysFalseFilter();
+            throw new Error("Invalid 'or' filter specification: expected a non-empty array.");
         }
+
         return new OrFilter(config.or.map(createFilter));
     }
+
     return new FieldFilter(config);
 }

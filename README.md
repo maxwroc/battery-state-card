@@ -187,7 +187,7 @@ Note: the exact color is taken from CSS variable and it depends on your current 
 | include | list([Filter](#filter-object)) |  | Filters for auto adding entities
 | exclude | list([Filter](#filter-object)) |  | Filters to remove entities dynamically
 
-Note: The action (include/exclude) is performed when at least one of the filters is matching (OR). It is not possible currently to specify two or more conditions (filters combined with AND operator).
+Note: The action (include/exclude) is performed when at least one of the filters is matching (OR). Since v3.3.0 you can use [composite filters](#composite-filters) (`and`, `or`, `not`) to combine multiple conditions.
 
 Note: Include filters should rely on static entity properties. E.g. you should not add include filter which checks the `state` property. Include filters are processed only once - when page is loaded (to minimize perf impact).
 
@@ -197,6 +197,69 @@ Note: Include filters should rely on static entity properties. E.g. you should n
 | name | string | **(required)** | Name of the property/attribute. E.g. `state`, `attribute.device_class`
 | operator | string |  | Operator for value comparison (see [filter operators](#filter-operators))
 | value | any |  | Value to compare the property/attribute to
+
+### Composite filters
+
+Since v3.3.0, you can create complex filter conditions using logical operators:
+
+| Name | Type | Since | Description |
+|:-----|:-----|:-----|:-----|
+| `and` | list([Filter](#filter-object)) | v3.3.0 | Matches when **all** filters in the list match
+| `or` | list([Filter](#filter-object)) | v3.3.0 | Matches when **any** filter in the list matches
+| `not` | [Filter](#filter-object) | v3.3.0 | Inverts the result of the filter (matches when the filter doesn't match)
+
+Composite filters can be nested to create complex conditions.
+
+**Example: Using AND to match entities with both conditions**
+```yaml
+filter:
+  include:
+    - and:
+        - name: entity_id
+          value: "*_battery*"
+        - name: state
+          operator: "<"
+          value: 50
+```
+
+**Example: Using OR for multiple patterns**
+```yaml
+filter:
+  include:
+    - or:
+        - name: entity_id
+          value: "*_battery"
+        - name: entity_id
+          value: "*_power"
+```
+
+**Example: Using NOT to exclude specific entities**
+```yaml
+filter:
+  include:
+    - name: attributes.device_class
+      value: battery
+  exclude:
+    - not:
+        name: state
+        operator: "<"
+        value: 20
+```
+
+**Example: Complex nested conditions**
+```yaml
+filter:
+  include:
+    - and:
+        - or:
+            - name: entity_id
+              value: "sensor.*_battery"
+            - name: attributes.device_class
+              value: battery
+        - not:
+            name: entity_id
+            value: "*_exclude_*"
+```
 
 ### Filter operators
 
