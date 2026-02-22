@@ -31,8 +31,66 @@ const operatorHandlers: { [key in FilterOperator]: (val: FilterValueType, expect
 /**
  * Filter class
  */
-export class Filter {
+export abstract class Filter {
+    /**
+     * Whether filter is permanent.
+     *
+     * Permanent filters removes entities/batteries from collections permanently
+     * instead of making them hidden.
+     */
+    abstract get is_permanent(): boolean;
 
+    /**
+     * Checks whether entity meets the filter conditions.
+     * @param entityData Hass entity data
+     * @param state State override - battery state/level
+     */
+    abstract isValid(entityData: any, state?: string): boolean;
+}
+
+export class NotFilter extends Filter {
+    constructor(private filter: Filter) {
+        super();
+    }
+
+    override get is_permanent(): boolean {
+        return this.filter.is_permanent;
+    }
+
+    override isValid(entityData: any, state?: string): boolean {
+        return !this.filter.isValid(entityData, state);
+    }
+}
+
+export class AndFilter extends Filter {
+    constructor(private filters: Filter[]) {
+        super();
+    }
+
+    override get is_permanent(): boolean {
+        return this.filters.every(filter => filter.is_permanent);
+    }
+
+    override isValid(entityData: any, state?: string): boolean {
+        return this.filters.every(filter => filter.isValid(entityData, state));
+    }
+}
+
+export class OrFilter extends Filter {
+    constructor(private filters: Filter[]) {
+        super();
+    }
+
+    override get is_permanent(): boolean {
+        return this.filters.every(filter => filter.is_permanent);
+    }
+
+    override isValid(entityData: any, state?: string): boolean {
+        return this.filters.some(filter => filter.isValid(entityData, state));
+    }
+}
+
+export class FieldFilter extends Filter {
     /**
      * Whether filter is permanent.
      *
@@ -44,7 +102,7 @@ export class Filter {
     }
 
     constructor(private config: IFilter) {
-
+        super();
     }
 
     /**
@@ -106,4 +164,47 @@ export class Filter {
 
         return func(val, this.config.value);
     }
+}
+
+class AlwaysFalseFilter extends Filter {
+    override get is_permanent(): boolean {
+        return false;
+    }
+
+    override isValid(entityData: any, state?: string): boolean {
+        return false;
+    }
+}
+
+export function createFilter(config: FilterSpec): Filter {
+    // Basic runtime validation to avoid crashes on invalid filter specs
+    if (!config || typeof config !== "object") {
+        log("Invalid filter specification: expected a non-null object.");
+        return new AlwaysFalseFilter();
+    }
+
+    if ("not" in config) {
+        if (!config.not || typeof config.not !== "object") {
+            log("Invalid 'not' filter specification: expected an object.");
+            return new AlwaysFalseFilter();
+        }
+        return new NotFilter(createFilter(config.not));
+    }
+
+    if ("and" in config) {
+        if (!Array.isArray(config.and) || config.and.length === 0) {
+            log("Invalid 'and' filter specification: expected a non-empty array.");
+            return new AlwaysFalseFilter();
+        }
+        return new AndFilter(config.and.map(createFilter));
+    }
+
+    if ("or" in config) {
+        if (!Array.isArray(config.or) || config.or.length === 0) {
+            log("Invalid 'or' filter specification: expected a non-empty array.");
+            return new AlwaysFalseFilter();
+        }
+        return new OrFilter(config.or.map(createFilter));
+    }
+    return new FieldFilter(config);
 }
