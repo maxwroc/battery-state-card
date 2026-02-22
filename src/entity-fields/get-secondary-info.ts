@@ -21,9 +21,20 @@ export const getSecondaryInfo = (config: IBatteryEntityConfig, hass: HomeAssista
             return result;
         }
 
-        const dateVal = Date.parse(result);
-        // The RT tags will be converted to proper HA tags at the views layer
-        return isNaN(dateVal) ? result : `<rt>${result}</rt>`;
+        // Check if the string looks like a date before attempting to parse it
+        // This prevents false positives like "Bedroom 2" being treated as dates
+        // Common date patterns include: ISO dates (2022-02-07), times (10:30:00), datetimes (2022-02-07T10:30:00)
+        const looksLikeDate = /\d{4}-\d{2}-\d{2}|\d{1,2}:\d{2}(:\d{2})?|\d{1,2}\/\d{1,2}\/\d{2,4}/.test(result);
+
+        if (looksLikeDate) {
+            const dateVal = Date.parse(result);
+            if (!isNaN(dateVal)) {
+                // The RT tags will be converted to proper HA tags at the views layer
+                return `<rt>${result}</rt>`;
+            }
+        }
+
+        return result;
     }
 
     return <any>null;
