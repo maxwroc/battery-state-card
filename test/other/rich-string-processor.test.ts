@@ -85,8 +85,8 @@ describe("RichStringProcessor", () => {
     });
 
     test.each([
-        ["Value {state|multiply(2)}", "20.56", "Value 41.12"], 
-        ["Value {state|multiply(0.5)}", "20.56", "Value 10.28"], 
+        ["Value {state|multiply(2)}", "20.56", "Value 41.12"],
+        ["Value {state|multiply(0.5)}", "20.56", "Value 10.28"],
         ["Value {state|multiply()}", "20.56", "Value 20.56"],  // param missing
     ])("multiply function", (text: string, state:string, expectedResult: string) => {
         const hassMock = new HomeAssistantMock<BatteryStateEntity>(true);
@@ -98,8 +98,8 @@ describe("RichStringProcessor", () => {
     });
 
     test.each([
-        ["Value {state|add(2)}", "20.56", "Value 22.56"], 
-        ["Value {state|add(-21.5)|round(2)}", "20.56", "Value -0.94"], 
+        ["Value {state|add(2)}", "20.56", "Value 22.56"],
+        ["Value {state|add(-21.5)|round(2)}", "20.56", "Value -0.94"],
         ["Value {state|add(0)}", "20.56", "Value 20.56"],
         ["Value {state|add()}", "20.56", "Value 20.56"],  // param missing
     ])("add function", (text: string, state:string, expectedResult: string) => {

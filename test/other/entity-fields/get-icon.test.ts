@@ -3,16 +3,16 @@ import { HomeAssistantMock } from "../../helpers";
 
 describe("Get icon", () => {
     test("charging and charging icon set in config", () => {
-        let icon = getIcon({ entity: "", charging_state: { icon: "mdi:custom" } }, 20, true, undefined);
+        let icon = getIcon({ entity: "", charging_state: { icon: "mdi:custom" } }, 20, true, new HomeAssistantMock(true).hass);
         expect(icon).toBe("mdi:custom");
     });
-    
+
     test.each([
         [-2],
         [200],
         [NaN],
     ])("returns unknown state icon when invalid state passed", (invalidEntityState: number) => {
-        let icon = getIcon({ entity: "" }, invalidEntityState, false, undefined);
+        let icon = getIcon({ entity: "" }, invalidEntityState, false, new HomeAssistantMock(true).hass);
         expect(icon).toBe("mdi:battery-unknown");
     });
 
@@ -38,12 +38,12 @@ describe("Get icon", () => {
         [95, true, "mdi:battery-charging-100"],
         [100, true, "mdi:battery-charging-100"],
     ])("returns correct state icon", (batteryLevel: number, isCharging: boolean, expectedIcon: string) => {
-        let icon = getIcon({ entity: "" }, batteryLevel, isCharging, undefined);
+        let icon = getIcon({ entity: "" }, batteryLevel, isCharging, new HomeAssistantMock(true).hass);
         expect(icon).toBe(expectedIcon);
     });
 
     test("returns custom icon from config", () => {
-        let icon = getIcon({ entity: "", icon: "mdi:custom" }, 20, false, undefined);
+        let icon = getIcon({ entity: "", icon: "mdi:custom" }, 20, false, new HomeAssistantMock(true).hass);
         expect(icon).toBe("mdi:custom");
     });
 

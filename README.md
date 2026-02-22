@@ -108,6 +108,7 @@ These options can be specified both per-entity and at the top level (affecting a
 | non_battery_entity | boolean | `false` | v3.0.0 | Disables default battery state sources e.g. "battery_level" attribute
 | default_state_formatting | boolean | `true` | v3.1.0 | Can be used to disable default state formatting e.g. entity display precission setting
 | debug | boolean \| string | `false` | v3.2.0 | Whether to show debug output (all available entity data). You can use entity_id if you want to debug specific one.
+| respect_visibility_setting | boolean | `true` | v3.3.0 | Whether to hide entities which are marked in the UI as hidden on dashboards.
 
 ### Keyword string (KString)
 
@@ -148,7 +149,7 @@ You can execute functions one after another. For example if you have the value "
 Note: you can simplify this setting and use just use strings if you want to keep ascending order e.g.:
 
 ```yaml
-sort: 
+sort:
   - "name"
   - "state"
 ```
@@ -224,6 +225,8 @@ The definition is similar to the default [tap-action](https://www.home-assistant
 | service_data | any |  | Service data to inlclue when `action` defined as `call-service`
 | navigation_path | string |  | Path to navigate to when `action` defined as `navigate`. Eg. `"/lovelace/0"`
 | url_path | string |  | Url to navigate to when `action` defined as `url`. Eg. `"https://www.home-assistant.io"`
+
+Note: From version 3.3.0 card supports all native Home Assistant actions and related functionalities: [Actions - Home Assistant](https://www.home-assistant.io/dashboards/actions/#tap-action)
 
 ### Convert
 
@@ -377,7 +380,7 @@ When you put empty array in `steps` property you can disable colors.
 ```yaml
 type: custom:battery-state-card
 title: "No color"
-colors: 
+colors:
   steps: []
 entities:
   - sensor.bedroom_motion_battery_level
@@ -709,7 +712,7 @@ colors:
 tap_action:
   action: more-info
 collapse: 3
-sort: 
+sort:
   by: state
   desc: true
 unit: °C
@@ -896,7 +899,7 @@ lovelace:
 
 Note: there is "undocumented" `value_override` property on the [entity object](#entity-object) which you can use for testing.
 
-### Testing 
+### Testing
 
 ```shell
 npm run test

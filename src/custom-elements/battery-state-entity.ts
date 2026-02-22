@@ -5,14 +5,14 @@ import { batteryHtml, debugOutput } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
 import entityStyles from "./battery-state-entity.css";
-import { handleAction } from "../action";
+import { handleAction } from "../handle-action";
 import { getColorForBatteryLevel } from "../colors";
 import { getSecondaryInfo } from "../entity-fields/get-secondary-info";
 import { getChargingState } from "../entity-fields/charging-state";
 import { getBatteryLevel } from "../entity-fields/battery-level";
 import { getName } from "../entity-fields/get-name";
 import { getIcon } from "../entity-fields/get-icon";
-import { DeviceRegistryEntry } from "../type-extensions";
+import { DeviceRegistryEntry, EntityRegistryDisplayEntry } from "../type-extensions";
 
 /**
  * Battery entity element
@@ -62,6 +62,11 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     public action: IAction | undefined;
 
     /**
+     * Whether entity should not be shown
+     */
+    public isHidden: boolean | undefined;
+
+    /**
      * Raw entity data
      */
     public entityData: IMap<any> = {};
@@ -79,12 +84,25 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     }
 
     async internalUpdate() {
+
+        if (!this.hass?.states[this.config.entity]) {
+            this.alert = {
+                type: "warning",
+                title: this.hass?.localize("ui.panel.lovelace.warning.entity_not_found", "entity", this.config.entity) || `Entity not available: ${this.config.entity}`,
+            }
+
+            return;
+        }
+
         this.entityData = <any>{
-            ...this.hass?.states[this.config.entity]
+            ...this.hass.states[this.config.entity]
         };
 
         if (this.config.extend_entity_data !== false) {
             this.extendEntityData();
+
+            // make sure entity is visible when it should be shown
+            this.showEntity();
         }
 
         if (this.config.debug === true || this.config.debug === this.config.entity) {
@@ -98,7 +116,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         this.state = state;
         this.unit = unit;
         this.stateNumeric = level;
-        
+
         const isCharging = getChargingState(this.config, this.state, this.hass);
         this.entityData["charging"] = isCharging ? (this.config.charging_state?.secondary_info_text || "Charging") : "" // todo: think about i18n
 
@@ -127,6 +145,20 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     onError(): void {
     }
 
+    hideEntity(): void {
+        this.isHidden = true;
+    }
+
+    showEntity(): void {
+        if (this.config.respect_visibility_setting !== false && (<EntityRegistryDisplayEntry>this.entityData?.display)?.hidden) {
+            // When entity is marked as hidden in the UI we should respect it
+            this.isHidden = true;
+            return;
+        }
+
+        this.isHidden = false;
+    }
+
     /**
      * Adding or removing action
      * @param enable Whether to enable/add the tap action
@@ -137,11 +169,14 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
             if (tapAction != "none" && !this.action) {
                 this.action = evt => {
                     evt.stopPropagation();
-                    handleAction({
-                        card: this,
-                        config: safeGetConfigObject(tapAction, "action"),
-                        entityId: this.config.entity,
-                    }, this.hass!);
+                    handleAction(
+                        this,
+                        {
+                            entity: this.config.entity,
+                            tap_action: tapAction,
+                        },
+                        "tap",
+                    );
                 }
 
                 this.addEventListener("click", this.action);
@@ -170,8 +205,8 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
 
         if (entityDisplayEntry) {
             this.entityData["display"] = entityDisplayEntry;
-            this.entityData["device"] = entityDisplayEntry.device_id 
-                ? this.hass.devices && this.hass.devices[entityDisplayEntry.device_id] 
+            this.entityData["device"] = entityDisplayEntry.device_id
+                ? this.hass.devices && this.hass.devices[entityDisplayEntry.device_id]
                 : undefined;
 
             const area_id = entityDisplayEntry.area_id || (<DeviceRegistryEntry>this.entityData["device"])?.area_id;

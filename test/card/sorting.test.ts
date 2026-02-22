@@ -1,7 +1,6 @@
 import { BatteryStateCard } from "../../src/custom-elements/battery-state-card";
 import { CardElements, HomeAssistantMock } from "../helpers";
 
-
 describe("Entities correctly sorted", () => {
     test.each([
         ["state", ["50", "90", "40"], "40 %, 50 %, 90 %"],

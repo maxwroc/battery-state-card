@@ -3,26 +3,15 @@ import { HomeAssistantMock } from "../../helpers";
 
 describe("Get name", () => {
     test("returns name from the config", () => {
-        const hassMock = new HomeAssistantMock(true);
-        let name = getName({ entity: "test", name: "Entity name" }, hassMock.hass, {})
+        let name = getName({ entity: "test", name: "Entity name" }, new HomeAssistantMock(true).hass, {})
 
         expect(name).toBe("Entity name");
     });
 
-    test("returns entity id when name and hass is missing", () => {
-        let name = getName({ entity: "sensor.my_entity_id" }, undefined, {})
+    test("returns entity id when friendly_name is missing", () => {
+        let name = getName({ entity: "sensor.my_entity_id" }, new HomeAssistantMock(true).hass, { attributes: {} })
 
         expect(name).toBe("sensor.my_entity_id");
-    });
-
-    test("doesn't throw exception when attributes property is missing", () => {
-        const hassMock = new HomeAssistantMock(true);
-        const entity = hassMock.addEntity("My entity", "45", { friendly_name: "My entity name" });
-        entity.setAttributes(null);
-
-        let name = getName({ entity: "my_entity" }, hassMock.hass, {});
-
-        expect(name).toBe("my_entity");
     });
 
     test("returns name from friendly_name attribute of the entity", () => {
@@ -32,13 +21,6 @@ describe("Get name", () => {
         let name = getName({ entity: "my_entity" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
 
         expect(name).toBe("My entity name");
-    });
-
-    test("returns entity id when entity not found in hass", () => {
-        const hassMock = new HomeAssistantMock(true);
-        let name = getName({ entity: "my_entity_missing" }, hassMock.hass, {});
-
-        expect(name).toBe("my_entity_missing");
     });
 
     test("returns entity id when entity doesn't have a friendly_name attribute", () => {

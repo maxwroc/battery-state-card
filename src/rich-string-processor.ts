@@ -23,7 +23,7 @@ const validEntityDomains = [
     "scene",
     "script",
     "select",
-    "sensor", 
+    "sensor",
     "switch",
     "update",
     "weather",
@@ -35,7 +35,7 @@ const validEntityDomains = [
  */
  export class RichStringProcessor {
 
-    constructor(private hass: HomeAssistant | undefined, private entityData: IMap<any> | undefined) {
+    constructor(private hass: HomeAssistant, private entityData: IMap<any> | undefined) {
     }
 
     /**
@@ -87,7 +87,7 @@ const validEntityDomains = [
 
         if (validEntityDomains.includes(chunks[0])) {
             data = {
-                ...this.hass?.states[chunks.splice(0, 2).join(".")]
+                ...this.hass.states[chunks.splice(0, 2).join(".")]
             };
         }
 
@@ -187,7 +187,7 @@ const availableProcessors: IMap<IProcessorCtor> = {
             return Math.round(100 / thresholds.length * result).toString();
         }
     },
-    "abs": () => 
+    "abs": () =>
         val => Math.abs(Number(val)).toString(),
     "equals": (params) => {
         const chunks = params.split(",");
@@ -207,7 +207,7 @@ const availableProcessors: IMap<IProcessorCtor> = {
         const addend = Number(params);
 
         return val => isNaN(addend) ? val : (Number(val) + addend).toString();
-    }, 
+    },
     "reltime": () => {
         return val => {
             const unixTime = Date.parse(val);
@@ -229,4 +229,3 @@ interface IProcessor {
 interface IProcessorCtor {
     (params: string): IProcessor | undefined
 }
-

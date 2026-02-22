@@ -7,20 +7,21 @@ import { EntityRegistryDisplayEntry, HomeAssistantExt } from "./type-extensions"
 /**
  * Properties which should be copied over to individual entities from the card
  */
-const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [ 
-    "bulk_rename", 
-    "charging_state", 
-    "colors", 
+const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [
+    "bulk_rename",
+    "charging_state",
+    "colors",
     "debug",
     "default_state_formatting",
     "extend_entity_data",
-    "icon", 
-    "non_battery_entity", 
-    "round",  
-    "secondary_info", 
-    "state_map", 
-    "tap_action", 
-    "value_override", 
+    "icon",
+    "non_battery_entity",
+    "respect_visibility_setting",
+    "round",
+    "secondary_info",
+    "state_map",
+    "tap_action",
+    "value_override",
     "unit",
 ];
 
@@ -217,11 +218,6 @@ export class BatteryProvider {
      */
     private processExcludes() {
         if (this.exclude == undefined) {
-            Object.keys(this.batteries).forEach((entityId) => {
-                const battery = this.batteries[entityId];
-                battery.isHidden = (<EntityRegistryDisplayEntry>battery.entityData?.display)?.hidden;
-            });
-
             return;
         }
 
@@ -248,8 +244,8 @@ export class BatteryProvider {
             }
 
             // we keep the view model to keep updating it
-            // it might be shown/not-hidden next time
-            battery.isHidden = isHidden || (<EntityRegistryDisplayEntry>battery.entityData?.display)?.hidden;
+            // it might be shown/not-hidden after next update
+            isHidden? battery.hideEntity() : battery.showEntity();
         });
 
         toBeRemoved.forEach(entityId => delete this.batteries[entityId]);
@@ -262,5 +258,4 @@ export interface IBatteryCollection {
 
 export interface IBatteryCollectionItem extends BatteryStateEntity {
     entityId?: string;
-    isHidden?: boolean;
 }
