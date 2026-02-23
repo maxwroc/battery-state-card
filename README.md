@@ -763,6 +763,36 @@ state_map:
 collapse: 8
 
 ```
+#### Default configuration to work with the "Battery Notes" integration
+
+The "HA-Battery_Notes HACS integration automatically adds additional information about all battery devices within your HA implementation, such as battery types, etc. The Configuration below automatically creates a table for all Battery Plus devices and shows the required type and number of devices.
+
+[HA-Battery-notes]: https://github.com/andrew-codechimp/HA-Battery-Notes
+
+```yaml
+type: custom:battery-state-card
+secondary_info: "{attributes.battery_type_and_quantity}"
+filter:
+  include:
+    - name: entity_id
+      value: "*battery_plus"
+  exclude:
+    - name: entity_id
+      value: binary_sensor.*
+sort:
+  by: state
+  desc: true
+bulk_rename:
+  - from: " Battery"
+  - from: " level"
+colors:
+  steps:
+    - "#ff0000"
+    - "#ffff00"
+    - "#00ff00"
+  gradient: true
+```
+
 
 ## Installation
 
