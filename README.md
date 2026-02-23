@@ -219,11 +219,26 @@ Operator is an optional property. If operator is not specified it depends on `va
 The definition is similar to the default [tap-action](https://www.home-assistant.io/lovelace/actions/#tap-action) in HomeAssistant.
 | Name | Type | Default | Description |
 |:-----|:-----|:-----|:-----|
-| action | string | `more-info` | Action type, one of the following: `more-info`, `call-service`, `navigate`, `url`, `none`
+| action | string | `more-info` | Action type, one of the following: `more-info`, `call-service`, `navigate`, `url`, `fire-dom-event`, `none`
 | service | string |  | Service to call when `action` defined as `call-service`. Eg. `"notify.pushover"`
 | service_data | any |  | Service data to inlclue when `action` defined as `call-service`
 | navigation_path | string |  | Path to navigate to when `action` defined as `navigate`. Eg. `"/lovelace/0"`
 | url_path | string |  | Url to navigate to when `action` defined as `url`. Eg. `"https://www.home-assistant.io"`
+| browser_mod | any |  | Browser mod configuration when `action` defined as `fire-dom-event`. See [Browser Mod integration](https://github.com/thomasloven/hass-browser_mod) for details
+
+#### JavaScript Templates in fire-dom-event
+
+When using `fire-dom-event` action, you can use JavaScript templates to access dynamic entity data. Templates use the syntax `[[[ return expression ]]]` and have access to the following variables:
+
+| Variable | Description | Example |
+|:---------|:------------|:--------|
+| `entity.entity_id` | Current entity ID | `"[[[ return entity.entity_id ]]]"` |
+| `entity.state` | Current entity state | `"[[[ return entity.state ]]]"` |
+| `entity.attributes.friendly_name` | Entity display name | `"[[[ return entity.attributes.friendly_name ]]]"` |
+| `entity.attributes.*` | Any entity attribute | `"[[[ return entity.attributes.device_class ]]]"` |
+| `config.entity` | Entity ID from config | `"[[[ return config.entity ]]]"` |
+
+Templates are processed recursively through the entire `browser_mod` configuration, allowing dynamic content in titles, entity lists, and service data.
 
 ### Convert
 
@@ -645,6 +660,34 @@ entities:
       action: url
       url_path: 'http://reddit.com'
     value_override: 20
+  - entity: sensor.living_room_motion_battery_level
+    name: Browser mod popup
+    tap_action:
+      action: fire-dom-event
+      browser_mod:
+        service: browser_mod.popup
+        data:
+          title: "🔋 [[[ return entity.attributes.friendly_name ]]] Details"
+          content:
+            type: vertical-stack
+            cards:
+              - type: entities
+                entities:
+                  - entity: "[[[ return entity.entity_id ]]]"
+                    name: "[[[ return entity.attributes.friendly_name ]]]"
+              - type: history-graph
+                entities:
+                  - "[[[ return entity.entity_id ]]]"
+                hours_to_show: 24
+              - type: custom:button-card
+                name: Mark battery as replaced
+                icon: mdi:battery-sync
+                tap_action:
+                  action: call-service
+                  service: battery_notes.mark_battery_replaced
+                  service_data:
+                    entity_id: "[[[ return entity.entity_id ]]]"
+    value_override: 40
   - entity: sensor.bedroom_switch_battery_level
     name: No action
     value_override: 80
