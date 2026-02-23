@@ -133,7 +133,7 @@ type FilterOperator = "exists" | "not_exists" | "=" | ">" | "<" | ">=" | "<=" | 
 /**
  * Allowed filter value types
  */
-type FilterValueType  = string | number | boolean | null | undefined;
+type FilterValueType  = string | number | boolean | null | undefined | any[];
 
 /**
  * Filter object
@@ -155,7 +155,7 @@ interface IFilter {
     value?: FilterValueType;
 }
 
-type FilterSpec = IFilter | { not: FilterSpec } | { and: FilterSpec[] } | { or: FilterSpec[] }
+type FilterSpec = IFilter | { not: FilterSpec | FilterSpec[] } | { and: FilterSpec[] } | { or: FilterSpec[] }
 
 interface IBatteryEntityConfig {
 

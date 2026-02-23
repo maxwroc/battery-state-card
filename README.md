@@ -206,7 +206,7 @@ Since v3.3.0, you can create complex filter conditions using logical operators:
 |:-----|:-----|:-----|:-----|
 | `and` | list([Filter](#filter-object)) | v3.3.0 | Matches when **all** filters in the list match
 | `or` | list([Filter](#filter-object)) | v3.3.0 | Matches when **any** filter in the list matches
-| `not` | [Filter](#filter-object) | v3.3.0 | Inverts the result of the filter (matches when the filter doesn't match)
+| `not` | list[Filter](#filter-object) | v3.3.0 | Inverts the result of the filter (matches when the filter doesn't match)
 
 Composite filters can be nested to create complex conditions.
 
@@ -275,8 +275,27 @@ Operator is an optional property. If operator is not specified it depends on `va
 | `"="` | v1.3.0 | If value equals the one specified in `value` property.
 | `">"` | v1.3.0 | If value is greater than one specified in `value` property. Possible variant: `">="`. Value must be numeric type.
 | `"<"` | v1.3.0 | If value is lower than one specified in `value` property. Possible variant: `"<="`. Value must be numeric type.
-| `"contains"` | v1.3.0 | If value contains the one specified in `value` property
+| `"contains"` | v1.3.0 | If value contains the one specified in `value` property. **Since v3.4.0**: Also supports arrays - checks if any array element contains the search string.
 | `"matches"` | v1.3.0 | If value matches the one specified in `value` property. You can use wildcards (e.g. `"*_battery_level"`) or regular expression (must be prefixed and followed by slash e.g. `"/[a-z_]+_battery_level/"`)
+
+**Example: Include entities with specific device label**
+```yaml
+filter:
+  include:
+    - name: device.labels
+      operator: contains
+      value: "office_stuff"
+```
+
+**Example: Include only entities WITHOUT a specific label**
+```yaml
+filter:
+  include:
+    - not:
+        name: device.labels
+        operator: contains
+        value: "ignore_battery"
+```
 
 ### Tap-Action
 

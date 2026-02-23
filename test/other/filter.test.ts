@@ -118,6 +118,24 @@ describe("Filter", () => {
 
         expect(isValid).toBe(expectedIsVlid);
     })
+
+    test.each([
+        [["office_stuff", "battery"], <FilterOperator>"contains", "office_stuff", true],
+        [["office_stuff", "battery"], <FilterOperator>"contains", "office", true],
+        [["office_stuff", "battery"], <FilterOperator>"contains", "kitchen", false],
+        [["office_stuff", "battery"], <FilterOperator>"contains", "battery", true],
+        [[], <FilterOperator>"contains", "office_stuff", false],
+    ])("contains with arrays", (attributeValue: string[], operator: FilterOperator, value: string, expectedIsValid: boolean) => {
+        const hassMock = new HomeAssistantMock();
+
+        const entity = hassMock.addEntity("Entity name", "ok", { labels: attributeValue });
+
+        const filter = createFilter({ name: "attributes.labels", operator, value });
+        const isValid = filter.isValid(entity);
+
+        expect(isValid).toBe(expectedIsValid);
+    })
+
     test.each([
         [44, <FilterOperator>"<", "44,1", true],
         [44, <FilterOperator>">", "44.1", false],

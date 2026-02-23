@@ -1,4 +1,4 @@
-import { getRegexFromString, getValueFromObject, isNumber, log, toNumber } from "./utils";
+import { getRegexFromString, getValueFromObject, isNumber, log, safeGetArray, toNumber } from "./utils";
 
 /**
  * Functions to check if filter condition is met
@@ -6,12 +6,47 @@ import { getRegexFromString, getValueFromObject, isNumber, log, toNumber } from 
 const operatorHandlers: { [key in FilterOperator]: (val: FilterValueType, expectedVal: FilterValueType) => boolean } = {
     "exists": val => val !== undefined,
     "not_exists": val => val === undefined,
-    "contains": (val, searchString) => val !== undefined && val !== null && val.toString().indexOf(searchString!.toString()) != -1,
-    "=": (val, expectedVal) => isNumber(val) || isNumber(expectedVal) ? toNumber(val) == toNumber(expectedVal) : val == expectedVal,
-    ">": (val, expectedVal) => toNumber(val) > toNumber(expectedVal),
-    "<": (val, expectedVal) => toNumber(val) < toNumber(expectedVal),
-    ">=": (val, expectedVal) => toNumber(val) >= toNumber(expectedVal),
-    "<=": (val, expectedVal) => toNumber(val) <= toNumber(expectedVal),
+    "contains": (val, searchString) => {
+        if (val === undefined || val === null || searchString === undefined || searchString === null) {
+            return false;
+        }
+        // If val is an array, check if it contains the searchString
+        if (Array.isArray(val)) {
+            return val.some(item => item !== null && item !== undefined && item.toString().indexOf(searchString!.toString()) !== -1);
+        }
+        // Otherwise, convert to string and search
+        return val.toString().indexOf(searchString!.toString()) !== -1;
+    },
+    "=": (val, expectedVal) => {
+        if (Array.isArray(val) || Array.isArray(expectedVal)) {
+            throw new Error("The '=' operator does not support array values.");
+        }
+        return isNumber(val) || isNumber(expectedVal) ? toNumber(val) == toNumber(expectedVal) : val == expectedVal;
+    },
+    ">": (val, expectedVal) => {
+        if (Array.isArray(val) || Array.isArray(expectedVal)) {
+            throw new Error("The '>' operator does not support array values.");
+        }
+        return toNumber(val) > toNumber(expectedVal);
+    },
+    "<": (val, expectedVal) => {
+        if (Array.isArray(val) || Array.isArray(expectedVal)) {
+            throw new Error("The '<' operator does not support array values.");
+        }
+        return toNumber(val) < toNumber(expectedVal);
+    },
+    ">=": (val, expectedVal) => {
+        if (Array.isArray(val) || Array.isArray(expectedVal)) {
+            throw new Error("The '>=' operator does not support array values.");
+        }
+        return toNumber(val) >= toNumber(expectedVal);
+    },
+    "<=": (val, expectedVal) => {
+        if (Array.isArray(val) || Array.isArray(expectedVal)) {
+            throw new Error("The '<=' operator does not support array values.");
+        }
+        return toNumber(val) <= toNumber(expectedVal);
+    },
     "matches": (val, pattern) => {
         if (val === undefined || val === null) {
             return false;
@@ -41,6 +76,13 @@ export abstract class Filter {
     abstract get is_permanent(): boolean;
 
     /**
+     * Whether filter is advanced.
+     *
+     * Advanced means relies on extra fields like display, device, area.
+     */
+    abstract get is_advanced(): boolean;
+
+    /**
      * Checks whether entity meets the filter conditions.
      * @param entityData Hass entity data
      * @param state State override - battery state/level
@@ -48,22 +90,8 @@ export abstract class Filter {
     abstract isValid(entityData: any, state?: string): boolean;
 }
 
-export class NotFilter extends Filter {
-    constructor(private filter: Filter) {
-        super();
-    }
-
-    override get is_permanent(): boolean {
-        return this.filter.is_permanent;
-    }
-
-    override isValid(entityData: any, state?: string): boolean {
-        return !this.filter.isValid(entityData, state);
-    }
-}
-
-export class AndFilter extends Filter {
-    constructor(private filters: Filter[]) {
+abstract class CompositeFilter extends Filter {
+    constructor(protected filters: Filter[]) {
         super();
     }
 
@@ -71,45 +99,43 @@ export class AndFilter extends Filter {
         return this.filters.every(filter => filter.is_permanent);
     }
 
+    override get is_advanced(): boolean {
+        return this.filters.some(filter => filter.is_advanced);
+    }
+}
+
+export class NotFilter extends CompositeFilter {
+    override isValid(entityData: any, state?: string): boolean {
+        return !this.filters.every(filter => filter.isValid(entityData, state));
+    }
+}
+
+export class AndFilter extends CompositeFilter {
     override isValid(entityData: any, state?: string): boolean {
         return this.filters.every(filter => filter.isValid(entityData, state));
     }
 }
 
-export class OrFilter extends Filter {
-    constructor(private filters: Filter[]) {
-        super();
-    }
-
-    override get is_permanent(): boolean {
-        return this.filters.every(filter => filter.is_permanent);
-    }
-
+export class OrFilter extends CompositeFilter {
     override isValid(entityData: any, state?: string): boolean {
         return this.filters.some(filter => filter.isValid(entityData, state));
     }
 }
 
 export class FieldFilter extends Filter {
-    /**
-     * Whether filter is permanent.
-     *
-     * Permanent filters removes entities/batteries from collections permanently
-     * instead of making them hidden.
-     */
-    get is_permanent(): boolean {
+
+    override get is_permanent(): boolean {
         return this.config.name != "state";
+    }
+
+    override get is_advanced(): boolean {
+        return this.config.name.startsWith("display.") || this.config.name.startsWith("device.") || this.config.name.startsWith("area.");
     }
 
     constructor(private config: IFilter) {
         super();
     }
 
-    /**
-     * Checks whether entity meets the filter conditions.
-     * @param entityData Hass entity data
-     * @param state State override - battery state/level
-     */
     isValid(entityData: any, state?: string): boolean {
         const val = this.getValue(entityData, state);
         return this.meetsExpectations(val);
@@ -173,27 +199,30 @@ export function createFilter(config: FilterSpec): Filter {
     }
 
     if ("not" in config) {
-        if (!config.not || typeof config.not !== "object") {
-            throw new Error("Invalid 'not' filter specification: expected an object.");
+        const filters = safeGetArray(config.not);
+        if (filters.length === 0) {
+            throw new Error("Invalid 'not' filter specification: expected a non-empty array.");
         }
 
-        return new NotFilter(createFilter(config.not));
+        return new NotFilter(filters.map(createFilter));
     }
 
     if ("and" in config) {
-        if (!Array.isArray(config.and) || config.and.length === 0) {
+        const filters = safeGetArray(config.and);
+        if (filters.length === 0) {
             throw new Error("Invalid 'and' filter specification: expected a non-empty array.");
         }
 
-        return new AndFilter(config.and.map(createFilter));
+        return new AndFilter(filters.map(createFilter));
     }
 
     if ("or" in config) {
-        if (!Array.isArray(config.or) || config.or.length === 0) {
+        const filters = safeGetArray(config.or);
+        if (filters.length === 0) {
             throw new Error("Invalid 'or' filter specification: expected a non-empty array.");
         }
 
-        return new OrFilter(config.or.map(createFilter));
+        return new OrFilter(filters.map(createFilter));
     }
 
     return new FieldFilter(config);
