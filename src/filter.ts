@@ -1,51 +1,52 @@
 import { getRegexFromString, getValueFromObject, isNumber, log, safeGetArray, toNumber } from "./utils";
 
 /**
+ * Helper to validate that operands are not arrays for numeric/equality operators
+ */
+const ensureNotArray = (val: FilterValueType, expectedVal: FilterValueType, operator: string): void => {
+    if (Array.isArray(val) || Array.isArray(expectedVal)) {
+        throw new Error(`The '${operator}' operator does not support array values.`);
+    }
+};
+
+/**
  * Functions to check if filter condition is met
  */
 const operatorHandlers: { [key in FilterOperator]: (val: FilterValueType, expectedVal: FilterValueType) => boolean } = {
     "exists": val => val !== undefined,
     "not_exists": val => val === undefined,
-    "contains": (val, searchString) => {
+    "contains": (val: FilterValueType, searchString: FilterValueType): boolean => {
         if (val === undefined || val === null || searchString === undefined || searchString === null) {
             return false;
         }
-        // If val is an array, check if it contains the searchString
+
+        const searchStr = searchString.toString();
+
         if (Array.isArray(val)) {
-            return val.some(item => item !== null && item !== undefined && item.toString().indexOf(searchString!.toString()) !== -1);
+            return val.some(item => item != null && item.toString().includes(searchStr));
         }
-        // Otherwise, convert to string and search
-        return val.toString().indexOf(searchString!.toString()) !== -1;
+
+        return val.toString().includes(searchStr);
     },
     "=": (val, expectedVal) => {
-        if (Array.isArray(val) || Array.isArray(expectedVal)) {
-            throw new Error("The '=' operator does not support array values.");
-        }
-        return isNumber(val) || isNumber(expectedVal) ? toNumber(val) == toNumber(expectedVal) : val == expectedVal;
+        ensureNotArray(val, expectedVal, "=");
+        return isNumber(val as any) || isNumber(expectedVal as any) ? toNumber(val as any) == toNumber(expectedVal as any) : val == expectedVal;
     },
     ">": (val, expectedVal) => {
-        if (Array.isArray(val) || Array.isArray(expectedVal)) {
-            throw new Error("The '>' operator does not support array values.");
-        }
-        return toNumber(val) > toNumber(expectedVal);
+        ensureNotArray(val, expectedVal, ">");
+        return toNumber(val as any) > toNumber(expectedVal as any);
     },
     "<": (val, expectedVal) => {
-        if (Array.isArray(val) || Array.isArray(expectedVal)) {
-            throw new Error("The '<' operator does not support array values.");
-        }
-        return toNumber(val) < toNumber(expectedVal);
+        ensureNotArray(val, expectedVal, "<");
+        return toNumber(val as any) < toNumber(expectedVal as any);
     },
     ">=": (val, expectedVal) => {
-        if (Array.isArray(val) || Array.isArray(expectedVal)) {
-            throw new Error("The '>=' operator does not support array values.");
-        }
-        return toNumber(val) >= toNumber(expectedVal);
+        ensureNotArray(val, expectedVal, ">=");
+        return toNumber(val as any) >= toNumber(expectedVal as any);
     },
     "<=": (val, expectedVal) => {
-        if (Array.isArray(val) || Array.isArray(expectedVal)) {
-            throw new Error("The '<=' operator does not support array values.");
-        }
-        return toNumber(val) <= toNumber(expectedVal);
+        ensureNotArray(val, expectedVal, "<=");
+        return toNumber(val as any) <= toNumber(expectedVal as any);
     },
     "matches": (val, pattern) => {
         if (val === undefined || val === null) {
@@ -164,7 +165,7 @@ export class FieldFilter extends Filter {
      * @param val Value to validate
      */
     private meetsExpectations(val: FilterValueType): boolean {
-
+        // Determine the operator to use
         let operator = this.config.operator;
         if (!operator) {
             if (this.config.value === undefined) {
@@ -176,15 +177,13 @@ export class FieldFilter extends Filter {
             else {
                 const expectedVal = this.config.value.toString();
                 const regex = getRegexFromString(expectedVal);
-                operator = expectedVal.indexOf("*") != -1 || regex ?
-                    "matches" :
-                    "=";
+                operator = (expectedVal.includes("*") || regex) ? "matches" : "=";
             }
         }
 
         const func = operatorHandlers[operator];
         if (!func) {
-            log(`Operator '${this.config.operator}' not supported. Supported operators: ${Object.keys(operatorHandlers).join(", ")}`);
+            log(`Operator '${operator}' not supported. Supported operators: ${Object.keys(operatorHandlers).join(", ")}`);
             return false;
         }
 
@@ -198,32 +197,23 @@ export function createFilter(config: FilterSpec): Filter {
         throw new Error("Invalid filter specification: expected a non-null object.");
     }
 
-    if ("not" in config) {
-        const filters = safeGetArray(config.not);
+    // Helper to create composite filters
+    const createCompositeFilter = (
+        key: "not" | "and" | "or",
+        FilterClass: typeof NotFilter | typeof AndFilter | typeof OrFilter
+    ): Filter | null => {
+        if (!(key in config)) return null;
+
+        const filters = safeGetArray((config as any)[key]);
         if (filters.length === 0) {
-            throw new Error("Invalid 'not' filter specification: expected a non-empty array.");
+            throw new Error(`Invalid '${key}' filter specification: expected a non-empty array.`);
         }
 
-        return new NotFilter(filters.map(createFilter));
-    }
+        return new FilterClass(filters.map(createFilter));
+    };
 
-    if ("and" in config) {
-        const filters = safeGetArray(config.and);
-        if (filters.length === 0) {
-            throw new Error("Invalid 'and' filter specification: expected a non-empty array.");
-        }
-
-        return new AndFilter(filters.map(createFilter));
-    }
-
-    if ("or" in config) {
-        const filters = safeGetArray(config.or);
-        if (filters.length === 0) {
-            throw new Error("Invalid 'or' filter specification: expected a non-empty array.");
-        }
-
-        return new OrFilter(filters.map(createFilter));
-    }
-
-    return new FieldFilter(config);
+    return createCompositeFilter("not", NotFilter)
+        || createCompositeFilter("and", AndFilter)
+        || createCompositeFilter("or", OrFilter)
+        || new FieldFilter(config as IFilter);
 }
