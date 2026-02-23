@@ -5,11 +5,22 @@ export const printVersion = () => console.info(
 );
 
 /**
+ * Set to track logged messages and prevent duplicates
+ */
+const loggedMessages = new Set<string>();
+
+/**
  * Logs message in developer console
  * @param message Message to log
  * @param level Message level/importance
  */
 export const log = (message: string, level: "warn" | "error" = "warn") => {
+    const key = `${level}:${message}`;
+    if (loggedMessages.has(key)) {
+        return;
+    }
+
+    loggedMessages.add(key);
     console[level]("[battery-state-card] " + message);
 }
 
