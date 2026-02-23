@@ -43,7 +43,11 @@ describe("Get icon", () => {
     });
 
     test("returns custom icon from config", () => {
-        let icon = getIcon({ entity: "", icon: "mdi:custom" }, 20, false, new HomeAssistantMock(true).hass);
+
+        const hassMock = new HomeAssistantMock();
+        hassMock.addEntity("Battery state", "45");
+
+        let icon = getIcon({ entity: "battery_state", icon: "mdi:custom" }, 20, false, hassMock.hass);
         expect(icon).toBe("mdi:custom");
     });
 
@@ -75,6 +79,6 @@ describe("Get icon", () => {
         hassMock.addEntity("Battery state", "45", { icon: "mdi:attribute-icon" });
 
         let icon = getIcon({ entity: "battery_state", icon: "attribute.icon_non_existing" }, 45, false, hassMock.hass);
-        expect(icon).toBe("attribute.icon_non_existing");
+        expect(icon).toBe("mdi:battery-unknown");
     })
 });

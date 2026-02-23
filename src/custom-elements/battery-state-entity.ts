@@ -173,7 +173,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
                         this,
                         {
                             entity: this.config.entity,
-                            tap_action: tapAction,
+                            tap_action: safeGetConfigObject(tapAction!, "action"),
                         },
                         "tap",
                     );
