@@ -16,11 +16,16 @@ import { log, safeGetArray } from "../utils";
 
     let entityWithChargingState = hass.states[config.entity];
 
+    if (!entityWithChargingState) {
+        log(`Entity (${config.entity}) not found.`, "error");
+        return false;
+    }
+
     // check whether we should use different entity to get charging state
     if (chargingConfig.entity_id) {
         entityWithChargingState = hass.states[chargingConfig.entity_id]
         if (!entityWithChargingState) {
-            log(`'charging_state' entity id (${chargingConfig.entity_id}) not found.`);
+            log(`'charging_state' entity id (${chargingConfig.entity_id}) not found.`, "error");
             return false;
         }
 

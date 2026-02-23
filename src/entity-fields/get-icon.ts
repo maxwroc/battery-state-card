@@ -2,6 +2,8 @@ import { HomeAssistant } from "custom-card-helpers";
 import { log } from "../utils";
 import { RichStringProcessor } from "../rich-string-processor";
 
+const batteryUnknownIcon = "mdi:battery-unknown";
+
 /**
  * Gets MDI icon class
  * @param config Entity config
@@ -16,25 +18,33 @@ export const getIcon = (config: IBatteryEntityConfig, level: number | undefined,
     }
 
     if (config.icon) {
+
+        const entityData = hass.states[config.entity];
+        if (!entityData) {
+            log(`Entity '${config.entity}' not found`, "error");
+            return batteryUnknownIcon;
+        }
+
         const attribPrefix = "attribute.";
         // check if we should return the icon/string from the attribute value
         if (config.icon.startsWith(attribPrefix)) {
             const attribName = config.icon.substr(attribPrefix.length);
-            const val = hass.states[config.entity].attributes[attribName] as string | undefined;
+
+            const val = entityData.attributes[attribName] as string | undefined;
             if (!val) {
                 log(`Icon attribute missing in '${config.entity}' entity`, "error");
-                return config.icon;
+                return batteryUnknownIcon;
             }
 
             return val;
         }
 
-        const processor = new RichStringProcessor(hass, { ...hass.states[config.entity] });
+        const processor = new RichStringProcessor(hass, { ...entityData });
         return processor.process(config.icon);
     }
 
     if (level === undefined || isNaN(level) || level > 100 || level < 0) {
-        return "mdi:battery-unknown";
+        return batteryUnknownIcon;
     }
 
     const roundedLevel = Math.round(level / 10) * 10;
