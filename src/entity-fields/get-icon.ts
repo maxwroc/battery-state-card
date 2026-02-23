@@ -16,20 +16,28 @@ export const getIcon = (config: IBatteryEntityConfig, level: number | undefined,
     }
 
     if (config.icon) {
+
+        const entityData = hass.states[config.entity];
+        if (!entityData) {
+            log(`Entity '${config.entity}' not found`, "error");
+            return "mdi:battery-unknown";
+        }
+
         const attribPrefix = "attribute.";
         // check if we should return the icon/string from the attribute value
         if (config.icon.startsWith(attribPrefix)) {
             const attribName = config.icon.substr(attribPrefix.length);
-            const val = hass.states[config.entity].attributes[attribName] as string | undefined;
+
+            const val = entityData.attributes[attribName] as string | undefined;
             if (!val) {
                 log(`Icon attribute missing in '${config.entity}' entity`, "error");
-                return config.icon;
+                return "mdi:battery-unknown";
             }
 
             return val;
         }
 
-        const processor = new RichStringProcessor(hass, { ...hass.states[config.entity] });
+        const processor = new RichStringProcessor(hass, { ...entityData });
         return processor.process(config.icon);
     }
 
