@@ -1,6 +1,6 @@
 import { css } from "lit";
 import { property } from "lit/decorators.js"
-import { safeGetConfigObject } from "../utils";
+import { extendEntityData, safeGetConfigObject } from "../utils";
 import { batteryHtml, debugOutput } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
@@ -12,7 +12,7 @@ import { getChargingState } from "../entity-fields/charging-state";
 import { getBatteryLevel } from "../entity-fields/battery-level";
 import { getName } from "../entity-fields/get-name";
 import { getIcon } from "../entity-fields/get-icon";
-import { DeviceRegistryEntry, EntityRegistryDisplayEntry } from "../type-extensions";
+import { EntityRegistryDisplayEntry } from "../type-extensions";
 
 /**
  * Battery entity element
@@ -99,7 +99,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         };
 
         if (this.config.extend_entity_data !== false) {
-            this.extendEntityData();
+            this.entityData = extendEntityData(this.hass, this.config.entity, this.entityData);
 
             // make sure entity is visible when it should be shown
             this.showEntity();
@@ -188,30 +188,6 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
                 this.classList.remove("clickable");
                 this.removeEventListener("click", this.action);
                 this.action = undefined;
-            }
-        }
-    }
-
-    /**
-     * Adds display, device and area objects to entityData
-     */
-    private extendEntityData(): void {
-
-        if (!this.hass) {
-            return;
-        }
-
-        const entityDisplayEntry = this.hass.entities && this.hass.entities[this.config.entity];
-
-        if (entityDisplayEntry) {
-            this.entityData["display"] = entityDisplayEntry;
-            this.entityData["device"] = entityDisplayEntry.device_id
-                ? this.hass.devices && this.hass.devices[entityDisplayEntry.device_id]
-                : undefined;
-
-            const area_id = entityDisplayEntry.area_id || (<DeviceRegistryEntry>this.entityData["device"])?.area_id;
-            if (area_id) {
-                this.entityData["area"] = this.hass.areas && this.hass.areas[area_id];
             }
         }
     }

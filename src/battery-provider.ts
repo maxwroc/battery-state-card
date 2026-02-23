@@ -1,8 +1,8 @@
-import { log, safeGetConfigArrayOfObjects } from "./utils";
+import { extendEntityData, log, safeGetConfigArrayOfObjects } from "./utils";
 import { HomeAssistant } from "custom-card-helpers";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 import { createFilter, Filter } from "./filter";
-import { EntityRegistryDisplayEntry, HomeAssistantExt } from "./type-extensions";
+import { HomeAssistantExt } from "./type-extensions";
 
 /**
  * Properties which should be copied over to individual entities from the card
@@ -164,17 +164,27 @@ export class BatteryProvider {
      * Adds batteries based on filter.include config.
      * @param hass Home Assistant instance
      */
-    private processIncludes(hass: HomeAssistant): void {
-        if (!this.include) {
+    private processIncludes(hass: HomeAssistantExt): void {
+        if (!this.include || !Array.isArray(this.include) || this.include.length == 0) {
             return;
         }
 
-        Object.keys(hass.states).forEach(entityId => {
-            // check if entity matches filter conditions
-            if (this.include?.some(filter => filter.isValid(hass.states[entityId])) &&
-                // check if battery is not added already (via explicit entities)
-                !this.batteries[entityId]) {
+        const advancedInclude = this.include.some(filter => filter.is_advanced);
 
+        Object.keys(hass.states).forEach(entityId => {
+
+            if (this.batteries[entityId]) {
+                // entity is already added via explicit entities in config so we skip it
+                return;
+            }
+
+            let entityData = <IMap<any>>{};
+            if (advancedInclude) {
+                entityData = extendEntityData(hass, entityId, { ...hass.states[entityId] });
+            }
+
+            // check if entity matches filter conditions
+            if (this.include!.some(filter => filter.isValid(advancedInclude ? entityData : hass.states[entityId]))) {
                 this.batteries[entityId] = this.createBattery({ entity: entityId });
             }
         });
