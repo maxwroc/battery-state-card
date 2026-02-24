@@ -228,4 +228,112 @@ describe("Filter", () => {
 
         expect(isValid).toBe(expectedIsValid);
     })
+
+    test.each([
+        [null, "test", false],
+        [undefined, "test", false],
+        ["test", null, false],
+        ["test", undefined, false],
+    ])("contains with null/undefined values", (attributeValue: any, searchValue: any, expectedIsValid: boolean) => {
+        const hassMock = new HomeAssistantMock();
+
+        const entity = hassMock.addEntity("Entity name", "ok", { test_attr: attributeValue });
+
+        const filter = createFilter({ name: "attributes.test_attr", operator: "contains", value: searchValue });
+        const isValid = filter.isValid(entity);
+
+        expect(isValid).toBe(expectedIsValid);
+    })
+
+    test.each([
+        [null, "pattern"],
+        [undefined, "pattern"],
+    ])("matches with null/undefined values", (attributeValue: any, pattern: string) => {
+        const hassMock = new HomeAssistantMock();
+
+        const entity = hassMock.addEntity("Entity name", "ok", { test_attr: attributeValue });
+
+        const filter = createFilter({ name: "attributes.test_attr", operator: "matches", value: pattern });
+        const isValid = filter.isValid(entity);
+
+        expect(isValid).toBe(false);
+    })
+
+    test("createFilter with invalid filter spec - null", () => {
+        expect(() => createFilter(<any>null)).toThrow("Invalid filter specification");
+    })
+
+    test("createFilter with invalid filter spec - non-object", () => {
+        expect(() => createFilter(<any>"invalid")).toThrow("Invalid filter specification");
+    })
+
+    test("createFilter with empty and filter array", () => {
+        expect(() => createFilter({ and: [] })).toThrow("Invalid 'and' filter specification");
+    })
+
+    test("createFilter with empty or filter array", () => {
+        expect(() => createFilter({ or: [] })).toThrow("Invalid 'or' filter specification");
+    })
+
+    test("createFilter with empty not filter array", () => {
+        expect(() => createFilter({ not: [] })).toThrow("Invalid 'not' filter specification");
+    })
+
+    test("is_permanent is false for state filters", () => {
+        const filter = createFilter({ name: "state", value: "50" });
+
+        expect(filter.is_permanent).toBe(false);
+    })
+
+    test("is_permanent is true for non-state filters", () => {
+        const filter = createFilter({ name: "entity_id", value: "sensor.battery" });
+
+        expect(filter.is_permanent).toBe(true);
+    })
+
+    test("is_advanced is true for display filters", () => {
+        const filter = createFilter({ name: "display.entity_id", value: "sensor.battery" });
+
+        expect(filter.is_advanced).toBe(true);
+    })
+
+    test("is_advanced is true for device filters", () => {
+        const filter = createFilter({ name: "device.name", value: "My Device" });
+
+        expect(filter.is_advanced).toBe(true);
+    })
+
+    test("is_advanced is true for area filters", () => {
+        const filter = createFilter({ name: "area.name", value: "Living Room" });
+
+        expect(filter.is_advanced).toBe(true);
+    })
+
+    test("is_advanced is false for other filters", () => {
+        const filter = createFilter({ name: "state", value: "50" });
+
+        expect(filter.is_advanced).toBe(false);
+    })
+
+    test("composite filter is_permanent is false if any child is not permanent", () => {
+        const filter = createFilter({
+            and: [
+                { name: "state", value: "50" },
+                { name: "entity_id", value: "sensor.battery" }
+            ]
+        });
+
+        expect(filter.is_permanent).toBe(false);
+    })
+
+    test("composite filter is_advanced is true if any child is advanced", () => {
+        const filter = createFilter({
+            or: [
+                { name: "state", value: "50" },
+                { name: "display.entity_id", value: "sensor.battery" }
+            ]
+        });
+
+        expect(filter.is_advanced).toBe(true);
+    })
 });
