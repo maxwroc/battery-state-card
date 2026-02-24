@@ -738,39 +738,38 @@ entities:
 
 ### Other use cases
 
-#### RSSI sensors (signal strength)
+#### Signal strength
 
-![image](https://github.com/maxwroc/battery-state-card/assets/8268674/40957377-d523-45d2-99ae-39325b5ddacc)
-![image](https://github.com/maxwroc/battery-state-card/assets/8268674/477149f8-9d88-4858-b1f4-f7c615186845)
+<img width="476" height="435" alt="image" src="https://github.com/user-attachments/assets/f807eec3-81e7-4ef7-a3fd-522d961d259f" />
 
 ```yaml
 type: custom:battery-state-card
-secondary_info: '{last_changed}'
-icon: mdi:signal
-# below an example with dynamic icon
-# icon: "mdi:signal-cellular-{state|abs()|greaterthan(69,outline)|greaterthan(59,1)|greaterthan(49,2)|greaterthan(2,3)}"
+secondary_info: "{last_changed}"
+icon: >-
+  mdi:signal-cellular-{state|abs()|greaterthan(80,outline)|greaterthan(75,1)|greaterthan(60,2)|greaterthan(2,3)}
 filter:
   include:
     - name: attributes.device_class
       value: signal_strength
-sort:
-  by: state
-collapse: 8
+collapse: 7
+sort: state
 bulk_rename:
-  - from: ' Signal'
-  - from: ' strength'
-  - from: ' Rssi'
-  - from: ' numeric'
-value_override: '{state|abs()}'
+  - from: " Signal"
+  - from: " signal"
+  - from: " Strength"
+  - from: " strength"
+  - from: " RSSI"
+  - from: " numeric"
 colors:
   steps:
-    - color: '#00ff00'
-      value: 50
-    - color: '#ffff00'
-      value: 65
-    - color: '#ff0000'
-      value: 100
+    - color: "#ff0000"
+      value: -90
+    - color: "#ffff00"
+      value: -80
+    - color: "#00ff00"
+      value: -50
   gradient: true
+
 ```
 
 #### HDD temperatures
