@@ -14,7 +14,7 @@ describe("Colors", () => {
 
         expect(result).toBe(expectedColor);
     })
-    
+
     test.each([
         [-5],
         [120],
@@ -145,5 +145,139 @@ describe("Colors", () => {
         const result = getColorForBatteryLevel(config, value, false);
 
         expect(result).toBe(expectedResult);
+    })
+
+    test("gradient with invalid colors - not hex format", () => {
+        const config = <IBatteryEntityConfig>{
+            entity: "",
+            colors: {
+                steps: [
+                    { color: "red" },
+                    { color: "blue" }
+                ],
+                gradient: true
+            }
+        }
+
+        const result = getColorForBatteryLevel(config, 50, false);
+
+        expect(result).toBe("inherit");
+    })
+
+    test("gradient with only one color", () => {
+        const config = <IBatteryEntityConfig>{
+            entity: "",
+            colors: {
+                steps: [
+                    { color: "#ff0000" }
+                ],
+                gradient: true
+            }
+        }
+
+        const result = getColorForBatteryLevel(config, 50, false);
+
+        expect(result).toBe("inherit");
+    })
+
+    test("charging state color override", () => {
+        const config = <IBatteryEntityConfig>{
+            entity: "",
+            charging_state: {
+                color: "blue"
+            },
+            colors: {
+                steps: [
+                    { value: 20, color: "red" },
+                    { value: 100, color: "green" }
+                ]
+            }
+        }
+
+        const result = getColorForBatteryLevel(config, 50, true);
+
+        expect(result).toBe("blue");
+    })
+
+    test("undefined battery level returns default color", () => {
+        const config = <IBatteryEntityConfig>{
+            entity: "",
+            colors: {
+                steps: [
+                    { value: 20, color: "red" },
+                    { value: 100, color: "green" }
+                ]
+            }
+        }
+
+        const result = getColorForBatteryLevel(config, undefined, false);
+
+        expect(result).toBe("inherit");
+    })
+
+    test("NaN battery level returns default color", () => {
+        const config = <IBatteryEntityConfig>{
+            entity: "",
+            colors: {
+                steps: [
+                    { value: 20, color: "red" },
+                    { value: 100, color: "green" }
+                ]
+            }
+        }
+
+        const result = getColorForBatteryLevel(config, NaN, false);
+
+        expect(result).toBe("inherit");
+    })
+
+    test("gradient with non-percent values explicit flag false", () => {
+        const config = <IBatteryEntityConfig>{
+            entity: "",
+            colors: {
+                steps: [
+                    { value: 0, color: "#ff0000" },
+                    { value: 200, color: "#00ff00" }
+                ],
+                gradient: true,
+                non_percent_values: false
+            }
+        }
+
+        const result = getColorForBatteryLevel(config, 100, false);
+
+        expect(result).toBe("#7f7f00");
+    })
+
+    test("gradient step with no values defined - color range applied", () => {
+        const config = <IBatteryEntityConfig>{
+            entity: "",
+            colors: {
+                steps: [
+                    { color: "#ff0000" },
+                    { color: "#00ff00" }
+                ],
+                gradient: true
+            }
+        }
+
+        const result = getColorForBatteryLevel(config, 50, false);
+
+        expect(result).toBe("#7f7f00");
+    })
+
+    test("custom steps without values - default 100 applied", () => {
+        const config = <IBatteryEntityConfig>{
+            entity: "",
+            colors: {
+                steps: [
+                    { color: "red" }
+                ]
+            }
+        }
+
+        const result = getColorForBatteryLevel(config, 50, false);
+
+        expect(result).toBe("red");
     })
 })
