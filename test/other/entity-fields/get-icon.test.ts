@@ -3,7 +3,7 @@ import { HomeAssistantMock } from "../../helpers";
 
 describe("Get icon", () => {
     test("charging and charging icon set in config", () => {
-        let icon = getIcon({ entity: "", charging_state: { icon: "mdi:custom" } }, 20, true, undefined);
+        let icon = getIcon({ entity: "", charging_state: { icon: "mdi:custom" } }, 20, true, new HomeAssistantMock(true).hass);
         expect(icon).toBe("mdi:custom");
     });
 
@@ -12,7 +12,7 @@ describe("Get icon", () => {
         [200],
         [NaN],
     ])("returns unknown state icon when invalid state passed", (invalidEntityState: number) => {
-        let icon = getIcon({ entity: "" }, invalidEntityState, false, undefined);
+        let icon = getIcon({ entity: "" }, invalidEntityState, false, new HomeAssistantMock(true).hass);
         expect(icon).toBe("mdi:battery-unknown");
     });
 
@@ -38,12 +38,16 @@ describe("Get icon", () => {
         [95, true, "mdi:battery-charging-100"],
         [100, true, "mdi:battery-charging-100"],
     ])("returns correct state icon", (batteryLevel: number, isCharging: boolean, expectedIcon: string) => {
-        let icon = getIcon({ entity: "" }, batteryLevel, isCharging, undefined);
+        let icon = getIcon({ entity: "" }, batteryLevel, isCharging, new HomeAssistantMock(true).hass);
         expect(icon).toBe(expectedIcon);
     });
 
     test("returns custom icon from config", () => {
-        let icon = getIcon({ entity: "", icon: "mdi:custom" }, 20, false, undefined);
+
+        const hassMock = new HomeAssistantMock();
+        hassMock.addEntity("Battery state", "45");
+
+        let icon = getIcon({ entity: "battery_state", icon: "mdi:custom" }, 20, false, hassMock.hass);
         expect(icon).toBe("mdi:custom");
     });
 
@@ -75,6 +79,6 @@ describe("Get icon", () => {
         hassMock.addEntity("Battery state", "45", { icon: "mdi:attribute-icon" });
 
         let icon = getIcon({ entity: "battery_state", icon: "attribute.icon_non_existing" }, 45, false, hassMock.hass);
-        expect(icon).toBe("attribute.icon_non_existing");
+        expect(icon).toBe("mdi:battery-unknown");
     })
 });

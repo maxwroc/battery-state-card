@@ -1,3 +1,5 @@
+import { DeviceRegistryEntry, HomeAssistantExt } from "./type-extensions";
+
 export const printVersion = () => console.info(
     "%c BATTERY-STATE-CARD %c [VI]{version}[/VI]",
     "color: white; background: forestgreen; font-weight: 700;",
@@ -5,11 +7,22 @@ export const printVersion = () => console.info(
 );
 
 /**
+ * Set to track logged messages and prevent duplicates
+ */
+const loggedMessages = new Set<string>();
+
+/**
  * Logs message in developer console
  * @param message Message to log
  * @param level Message level/importance
  */
 export const log = (message: string, level: "warn" | "error" = "warn") => {
+    const key = `${level}:${message}`;
+    if (loggedMessages.has(key)) {
+        return;
+    }
+
+    loggedMessages.add(key);
     console[level]("[battery-state-card] " + message);
 }
 
@@ -88,7 +101,7 @@ export const safeGetConfigArrayOfObjects = <T>(value: ISimplifiedArray<T>, defau
 }
 
 /**
- * Converts string to object with given property or returns the object if it is not a string
+ * Converts string to object with given property or returns the object (its copy) if it is not a string
  * @param value Value from the config
  * @param propertyName Property name of the expected config object to which value will be assigned
  */
@@ -168,4 +181,32 @@ export const getValueFromObject = (dataObject: any, path: string): string | numb
     }
 
     return dataObject;
+}
+
+
+
+/**
+ * Adds display, device and area objects to entityData
+ */
+export const extendEntityData = (hass: HomeAssistantExt, entity_id: string, entityData: IMap<any>): IMap<any> => {
+
+        if (!hass) {
+            return entityData;
+        }
+
+        const entityDisplayEntry = hass.entities && hass.entities[entity_id];
+
+        if (entityDisplayEntry) {
+            entityData["display"] = entityDisplayEntry;
+            entityData["device"] = entityDisplayEntry.device_id
+                ? hass.devices && hass.devices[entityDisplayEntry.device_id]
+                : undefined;
+
+            const area_id = entityDisplayEntry.area_id || (<DeviceRegistryEntry>entityData["device"])?.area_id;
+            if (area_id && hass.areas) {
+                entityData["area"] = hass.areas[area_id];
+            }
+    }
+
+    return entityData;
 }

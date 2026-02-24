@@ -1,4 +1,4 @@
-import { Filter } from "../../src/filter";
+import { createFilter } from "../../src/filter";
 import { HomeAssistantMock } from "../helpers";
 
 describe("Filter", () => {
@@ -8,7 +8,7 @@ describe("Filter", () => {
 
         const entity = hassMock.addEntity("Entity name", "90", { battery_level: "45" });
 
-        const filter = new Filter({ name: "attributes.battery_level", operator: <any>"unsupported" });
+        const filter = createFilter({ name: "attributes.battery_level", operator: <any>"unsupported" });
         const isValid = filter.isValid(entity);
 
         expect(isValid).toBe(false);
@@ -22,7 +22,7 @@ describe("Filter", () => {
 
         const entity = hassMock.addEntity("Entity name", "90", { battery_level: "45" });
 
-        const filter = new Filter({ name: <any>filterName });
+        const filter = createFilter({ name: <any>filterName });
         const isValid = filter.isValid(entity);
 
         expect(isValid).toBe(false);
@@ -36,7 +36,7 @@ describe("Filter", () => {
 
         const entity = hassMock.addEntity("Entity name", "90");
 
-        const filter = new Filter({ name: "state", value: filterValue });
+        const filter = createFilter({ name: "state", value: filterValue });
         const isValid = filter.isValid(entity, "45");
 
         expect(isValid).toBe(expectedIsValid);
@@ -56,7 +56,7 @@ describe("Filter", () => {
 
         const entity = hassMock.addEntity(entityName, "90");
 
-        const filter = new Filter({ name: "entity_id", value: filterValue });
+        const filter = createFilter({ name: "entity_id", value: filterValue });
         const isValid = filter.isValid(entity);
 
         expect(filter.is_permanent).toBeTruthy();
@@ -74,7 +74,7 @@ describe("Filter", () => {
 
         const entity = hassMock.addEntity("Entity name", "90", attribs);
 
-        const filter = new Filter({ name: fileterName, operator });
+        const filter = createFilter({ name: fileterName, operator });
         const isValid = filter.isValid(entity);
 
         expect(filter.is_permanent).toBeTruthy();
@@ -113,11 +113,29 @@ describe("Filter", () => {
 
         const entity = hassMock.addEntity("Entity name", "ok", { battery_level: state });
 
-        const filter = new Filter({ name: "attributes.battery_level", operator, value });
+        const filter = createFilter({ name: "attributes.battery_level", operator, value });
         const isValid = filter.isValid(entity);
 
         expect(isValid).toBe(expectedIsVlid);
     })
+
+    test.each([
+        [["office_stuff", "battery"], <FilterOperator>"contains", "office_stuff", true],
+        [["office_stuff", "battery"], <FilterOperator>"contains", "office", true],
+        [["office_stuff", "battery"], <FilterOperator>"contains", "kitchen", false],
+        [["office_stuff", "battery"], <FilterOperator>"contains", "battery", true],
+        [[], <FilterOperator>"contains", "office_stuff", false],
+    ])("contains with arrays", (attributeValue: string[], operator: FilterOperator, value: string, expectedIsValid: boolean) => {
+        const hassMock = new HomeAssistantMock();
+
+        const entity = hassMock.addEntity("Entity name", "ok", { labels: attributeValue });
+
+        const filter = createFilter({ name: "attributes.labels", operator, value });
+        const isValid = filter.isValid(entity);
+
+        expect(isValid).toBe(expectedIsValid);
+    })
+
     test.each([
         [44, <FilterOperator>"<", "44,1", true],
         [44, <FilterOperator>">", "44.1", false],
@@ -134,7 +152,7 @@ describe("Filter", () => {
 
         const entity = hassMock.addEntity("Entity name", "ok", { entity_attrib: attributeValue });
 
-        const filter = new Filter({ name: "attributes.entity_attrib", operator, value });
+        const filter = createFilter({ name: "attributes.entity_attrib", operator, value });
         const isValid = filter.isValid(entity);
 
         expect(isValid).toBe(expectedIsVlid);
@@ -149,9 +167,173 @@ describe("Filter", () => {
     ])("filter based on nested entity data", (entityData: any, filterName: string, filterValue: string, expectedIsValid: boolean) => {
         const hassMock = new HomeAssistantMock();
 
-        const filter = new Filter({ name: filterName, value: filterValue });
+        const filter = createFilter({ name: filterName, value: filterValue });
         const isValid = filter.isValid(entityData, "45");
 
         expect(isValid).toBe(expectedIsValid);
+    })
+
+    test.each([
+        ["45", <FilterOperator>"=", "45", false],
+        ["45", <FilterOperator>"=", "55", true],
+    ])("not negates the underlying filter", (state: string | undefined, operator: FilterOperator | undefined, value: string | number, expectedIsVlid: boolean) => {
+        const hassMock = new HomeAssistantMock();
+
+        const entity = hassMock.addEntity("Entity name", "ok", { battery_level: state });
+
+        const filter = createFilter({ not: { name: "attributes.battery_level", operator, value } });
+        const isValid = filter.isValid(entity);
+
+        expect(isValid).toBe(expectedIsVlid);
+    })
+
+    test.each([
+        ["Charging", "45", true],
+        ["Charging", "55", false],
+        ["45", "45", false],
+        ["55", "55", false],
+    ])("combining filters using and", (state: string, battery_level: string, expectedIsValid: boolean ) => {
+        const hassMock = new HomeAssistantMock();
+
+        const entity = hassMock.addEntity("Entity name", state, { battery_level });
+
+        const filter = createFilter({
+            and: [
+                { name: "attributes.battery_level", operator: "<", value: "50" },
+                { name: "state", operator: "=", value: "Charging" },
+            ]
+        });
+        const isValid = filter.isValid(entity);
+
+        expect(isValid).toBe(expectedIsValid);
+    })
+
+    test.each([
+        ["Charging", "45", true],
+        ["Charging", "55", true],
+        ["45", "45", true],
+        ["55", "55", false],
+    ])("combining filters using or", (state: string, battery_level: string, expectedIsValid: boolean ) => {
+        const hassMock = new HomeAssistantMock();
+
+        const entity = hassMock.addEntity("Entity name", state, { battery_level });
+
+        const filter = createFilter({
+            or: [
+                { name: "attributes.battery_level", operator: "<", value: "50" },
+                { name: "state", operator: "=", value: "Charging" },
+            ]
+        });
+        const isValid = filter.isValid(entity);
+
+        expect(isValid).toBe(expectedIsValid);
+    })
+
+    test.each([
+        [null, "test", false],
+        [undefined, "test", false],
+        ["test", null, false],
+        ["test", undefined, false],
+    ])("contains with null/undefined values", (attributeValue: any, searchValue: any, expectedIsValid: boolean) => {
+        const hassMock = new HomeAssistantMock();
+
+        const entity = hassMock.addEntity("Entity name", "ok", { test_attr: attributeValue });
+
+        const filter = createFilter({ name: "attributes.test_attr", operator: "contains", value: searchValue });
+        const isValid = filter.isValid(entity);
+
+        expect(isValid).toBe(expectedIsValid);
+    })
+
+    test.each([
+        [null, "pattern"],
+        [undefined, "pattern"],
+    ])("matches with null/undefined values", (attributeValue: any, pattern: string) => {
+        const hassMock = new HomeAssistantMock();
+
+        const entity = hassMock.addEntity("Entity name", "ok", { test_attr: attributeValue });
+
+        const filter = createFilter({ name: "attributes.test_attr", operator: "matches", value: pattern });
+        const isValid = filter.isValid(entity);
+
+        expect(isValid).toBe(false);
+    })
+
+    test("createFilter with invalid filter spec - null", () => {
+        expect(() => createFilter(<any>null)).toThrow("Invalid filter specification");
+    })
+
+    test("createFilter with invalid filter spec - non-object", () => {
+        expect(() => createFilter(<any>"invalid")).toThrow("Invalid filter specification");
+    })
+
+    test("createFilter with empty and filter array", () => {
+        expect(() => createFilter({ and: [] })).toThrow("Invalid 'and' filter specification");
+    })
+
+    test("createFilter with empty or filter array", () => {
+        expect(() => createFilter({ or: [] })).toThrow("Invalid 'or' filter specification");
+    })
+
+    test("createFilter with empty not filter array", () => {
+        expect(() => createFilter({ not: [] })).toThrow("Invalid 'not' filter specification");
+    })
+
+    test("is_permanent is false for state filters", () => {
+        const filter = createFilter({ name: "state", value: "50" });
+
+        expect(filter.is_permanent).toBe(false);
+    })
+
+    test("is_permanent is true for non-state filters", () => {
+        const filter = createFilter({ name: "entity_id", value: "sensor.battery" });
+
+        expect(filter.is_permanent).toBe(true);
+    })
+
+    test("is_advanced is true for display filters", () => {
+        const filter = createFilter({ name: "display.entity_id", value: "sensor.battery" });
+
+        expect(filter.is_advanced).toBe(true);
+    })
+
+    test("is_advanced is true for device filters", () => {
+        const filter = createFilter({ name: "device.name", value: "My Device" });
+
+        expect(filter.is_advanced).toBe(true);
+    })
+
+    test("is_advanced is true for area filters", () => {
+        const filter = createFilter({ name: "area.name", value: "Living Room" });
+
+        expect(filter.is_advanced).toBe(true);
+    })
+
+    test("is_advanced is false for other filters", () => {
+        const filter = createFilter({ name: "state", value: "50" });
+
+        expect(filter.is_advanced).toBe(false);
+    })
+
+    test("composite filter is_permanent is false if any child is not permanent", () => {
+        const filter = createFilter({
+            and: [
+                { name: "state", value: "50" },
+                { name: "entity_id", value: "sensor.battery" }
+            ]
+        });
+
+        expect(filter.is_permanent).toBe(false);
+    })
+
+    test("composite filter is_advanced is true if any child is advanced", () => {
+        const filter = createFilter({
+            or: [
+                { name: "state", value: "50" },
+                { name: "display.entity_id", value: "sensor.battery" }
+            ]
+        });
+
+        expect(filter.is_advanced).toBe(true);
     })
 });

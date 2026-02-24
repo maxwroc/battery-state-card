@@ -52,4 +52,30 @@ describe("Secondary info", () => {
 
         expect(result).toBe("Charging");
     })
+
+    test("Text with number should not be treated as date (e.g. 'Bedroom 2')", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("Bedroom 2", "50", {}, "sensor");
+        const result = getSecondaryInfo({ entity: entity.entity_id, secondary_info: "Bedroom 2" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
+
+        expect(result).toBe("Bedroom 2");
+        expect(result).not.toContain("<rt>");
+    })
+
+    test("Actual dates should still be detected and wrapped", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("Test sensor", "50", {}, "sensor");
+        
+        // Test ISO date format
+        const result1 = getSecondaryInfo({ entity: entity.entity_id, secondary_info: "2023-12-25" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
+        expect(result1).toBe("<rt>2023-12-25</rt>");
+        
+        // Test datetime format (ISO 8601)
+        const result2 = getSecondaryInfo({ entity: entity.entity_id, secondary_info: "2023-12-25T10:30:00" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
+        expect(result2).toBe("<rt>2023-12-25T10:30:00</rt>");
+        
+        // Test full datetime with timezone
+        const result3 = getSecondaryInfo({ entity: entity.entity_id, secondary_info: "2023-12-25T10:30:00Z" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
+        expect(result3).toBe("<rt>2023-12-25T10:30:00Z</rt>");
+    })
 })

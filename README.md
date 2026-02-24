@@ -108,6 +108,7 @@ These options can be specified both per-entity and at the top level (affecting a
 | non_battery_entity | boolean | `false` | v3.0.0 | Disables default battery state sources e.g. "battery_level" attribute
 | default_state_formatting | boolean | `true` | v3.1.0 | Can be used to disable default state formatting e.g. entity display precission setting
 | debug | boolean \| string | `false` | v3.2.0 | Whether to show debug output (all available entity data). You can use entity_id if you want to debug specific one.
+| respect_visibility_setting | boolean | `true` | v3.3.0 | Whether to hide entities which are marked in the UI as hidden on dashboards.
 
 ### Keyword string (KString)
 
@@ -148,7 +149,7 @@ You can execute functions one after another. For example if you have the value "
 Note: you can simplify this setting and use just use strings if you want to keep ascending order e.g.:
 
 ```yaml
-sort: 
+sort:
   - "name"
   - "state"
 ```
@@ -186,7 +187,7 @@ Note: the exact color is taken from CSS variable and it depends on your current 
 | include | list([Filter](#filter-object)) |  | Filters for auto adding entities
 | exclude | list([Filter](#filter-object)) |  | Filters to remove entities dynamically
 
-Note: The action (include/exclude) is performed when at least one of the filters is matching (OR). It is not possible currently to specify two or more conditions (filters combined with AND operator).
+Note: The action (include/exclude) is performed when at least one of the filters is matching (OR). Since v3.3.0 you can use [composite filters](#composite-filters) (`and`, `or`, `not`) to combine multiple conditions.
 
 Note: Include filters should rely on static entity properties. E.g. you should not add include filter which checks the `state` property. Include filters are processed only once - when page is loaded (to minimize perf impact).
 
@@ -196,6 +197,69 @@ Note: Include filters should rely on static entity properties. E.g. you should n
 | name | string | **(required)** | Name of the property/attribute. E.g. `state`, `attribute.device_class`
 | operator | string |  | Operator for value comparison (see [filter operators](#filter-operators))
 | value | any |  | Value to compare the property/attribute to
+
+### Composite filters
+
+Since v3.3.0, you can create complex filter conditions using logical operators:
+
+| Name | Type | Since | Description |
+|:-----|:-----|:-----|:-----|
+| `and` | list([Filter](#filter-object)) | v3.3.0 | Matches when **all** filters in the list match
+| `or` | list([Filter](#filter-object)) | v3.3.0 | Matches when **any** filter in the list matches
+| `not` | list[Filter](#filter-object) | v3.3.0 | Inverts the result of the filter (matches when the filter doesn't match)
+
+Composite filters can be nested to create complex conditions.
+
+**Example: Using AND to match entities with both conditions**
+```yaml
+filter:
+  include:
+    - and:
+        - name: entity_id
+          value: "*_battery*"
+        - name: state
+          operator: "<"
+          value: 50
+```
+
+**Example: Using OR for multiple patterns**
+```yaml
+filter:
+  include:
+    - or:
+        - name: entity_id
+          value: "*_battery"
+        - name: entity_id
+          value: "*_power"
+```
+
+**Example: Using NOT to exclude specific entities**
+```yaml
+filter:
+  include:
+    - name: attributes.device_class
+      value: battery
+  exclude:
+    - not:
+        name: state
+        operator: "<"
+        value: 20
+```
+
+**Example: Complex nested conditions**
+```yaml
+filter:
+  include:
+    - and:
+        - or:
+            - name: entity_id
+              value: "sensor.*_battery"
+            - name: attributes.device_class
+              value: battery
+        - not:
+            name: entity_id
+            value: "*_exclude_*"
+```
 
 ### Filter operators
 
@@ -211,8 +275,27 @@ Operator is an optional property. If operator is not specified it depends on `va
 | `"="` | v1.3.0 | If value equals the one specified in `value` property.
 | `">"` | v1.3.0 | If value is greater than one specified in `value` property. Possible variant: `">="`. Value must be numeric type.
 | `"<"` | v1.3.0 | If value is lower than one specified in `value` property. Possible variant: `"<="`. Value must be numeric type.
-| `"contains"` | v1.3.0 | If value contains the one specified in `value` property
+| `"contains"` | v1.3.0 | If value contains the one specified in `value` property. **Since v3.4.0**: Also supports arrays - checks if any array element contains the search string.
 | `"matches"` | v1.3.0 | If value matches the one specified in `value` property. You can use wildcards (e.g. `"*_battery_level"`) or regular expression (must be prefixed and followed by slash e.g. `"/[a-z_]+_battery_level/"`)
+
+**Example: Include entities with specific device label**
+```yaml
+filter:
+  include:
+    - name: device.labels
+      operator: contains
+      value: "office_stuff"
+```
+
+**Example: Include only entities WITHOUT a specific label**
+```yaml
+filter:
+  include:
+    - not:
+        name: device.labels
+        operator: contains
+        value: "ignore_battery"
+```
 
 ### Tap-Action
 
@@ -224,6 +307,8 @@ The definition is similar to the default [tap-action](https://www.home-assistant
 | service_data | any |  | Service data to inlclue when `action` defined as `call-service`
 | navigation_path | string |  | Path to navigate to when `action` defined as `navigate`. Eg. `"/lovelace/0"`
 | url_path | string |  | Url to navigate to when `action` defined as `url`. Eg. `"https://www.home-assistant.io"`
+
+Note: From version 3.3.0 card supports all native Home Assistant actions and related functionalities: [Actions - Home Assistant](https://www.home-assistant.io/dashboards/actions/#tap-action)
 
 ### Convert
 
@@ -377,7 +462,7 @@ When you put empty array in `steps` property you can disable colors.
 ```yaml
 type: custom:battery-state-card
 title: "No color"
-colors: 
+colors:
   steps: []
 entities:
   - sensor.bedroom_motion_battery_level
@@ -653,39 +738,38 @@ entities:
 
 ### Other use cases
 
-#### RSSI sensors (signal strength)
+#### Signal strength
 
-![image](https://github.com/maxwroc/battery-state-card/assets/8268674/40957377-d523-45d2-99ae-39325b5ddacc)
-![image](https://github.com/maxwroc/battery-state-card/assets/8268674/477149f8-9d88-4858-b1f4-f7c615186845)
+<img width="476" height="435" alt="image" src="https://github.com/user-attachments/assets/f807eec3-81e7-4ef7-a3fd-522d961d259f" />
 
 ```yaml
 type: custom:battery-state-card
-secondary_info: '{last_changed}'
-icon: mdi:signal
-# below an example with dynamic icon
-# icon: "mdi:signal-cellular-{state|abs()|greaterthan(69,outline)|greaterthan(59,1)|greaterthan(49,2)|greaterthan(2,3)}"
+secondary_info: "{last_changed}"
+icon: >-
+  mdi:signal-cellular-{state|abs()|greaterthan(80,outline)|greaterthan(75,1)|greaterthan(60,2)|greaterthan(2,3)}
 filter:
   include:
     - name: attributes.device_class
       value: signal_strength
-sort:
-  by: state
-collapse: 8
+collapse: 7
+sort: state
 bulk_rename:
-  - from: ' Signal'
-  - from: ' strength'
-  - from: ' Rssi'
-  - from: ' numeric'
-value_override: '{state|abs()}'
+  - from: " Signal"
+  - from: " signal"
+  - from: " Strength"
+  - from: " strength"
+  - from: " RSSI"
+  - from: " numeric"
 colors:
   steps:
-    - color: '#00ff00'
-      value: 50
-    - color: '#ffff00'
-      value: 65
-    - color: '#ff0000'
-      value: 100
+    - color: "#ff0000"
+      value: -90
+    - color: "#ffff00"
+      value: -80
+    - color: "#00ff00"
+      value: -50
   gradient: true
+
 ```
 
 #### HDD temperatures
@@ -709,7 +793,7 @@ colors:
 tap_action:
   action: more-info
 collapse: 3
-sort: 
+sort:
   by: state
   desc: true
 unit: °C
@@ -926,7 +1010,7 @@ lovelace:
 
 Note: there is "undocumented" `value_override` property on the [entity object](#entity-object) which you can use for testing.
 
-### Testing 
+### Testing
 
 ```shell
 npm run test

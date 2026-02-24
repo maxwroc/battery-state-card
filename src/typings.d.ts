@@ -27,42 +27,19 @@ interface IColorSettings {
      * Whether to enable smooth color transition between steps
      */
     gradient?: boolean;
+    /**
+     * Whether the values are not percentages
+     */
+    non_percent_values?: boolean;
 }
 
 /**
- * Supported action names
+ * Native Home Assistant action configuration
+ * https://www.home-assistant.io/dashboards/actions/#tap-action
  */
-type SupportedActions = "more-info" | "call-service" | "navigate" | "url";
-
-/**
- * Action configuration (tapping/clicking)
- */
-interface IActionConfig {
-    /**
-     * Action to be performed
-     */
-    action: SupportedActions;
-
-    /**
-     * Navigation path (home assistant page url path)
-     */
-    navigation_path: string;
-
-    /**
-     * Url to navigate (external)
-     */
-    url_path: string;
-
-    /**
-     * Name of the service to call
-     */
-    service: string;
-
-    /**
-     * Data for the service call
-     */
-    service_data: any;
-}
+type NativeHomeAssistantActionConfig = {
+    action: string;
+} | string;
 
 /**
  * Convert one value to another
@@ -156,7 +133,7 @@ type FilterOperator = "exists" | "not_exists" | "=" | ">" | "<" | ">=" | "<=" | 
 /**
  * Allowed filter value types
  */
-type FilterValueType  = string | number | boolean | null | undefined;
+type FilterValueType  = string | number | boolean | null | undefined | any[];
 
 /**
  * Filter object
@@ -177,6 +154,8 @@ interface IFilter {
      */
     value?: FilterValueType;
 }
+
+type FilterSpec = IFilter | { not: FilterSpec | FilterSpec[] } | { and: FilterSpec[] } | { or: FilterSpec[] }
 
 interface IBatteryEntityConfig {
 
@@ -213,7 +192,7 @@ interface IBatteryEntityConfig {
     /**
      * Action to be performed when entity is tapped/clicked
      */
-    tap_action?: IActionConfig;
+    tap_action?: NativeHomeAssistantActionConfig;
 
     /**
      * Collection of mappings for values (useful when state/level is not numeric)
@@ -269,6 +248,11 @@ interface IBatteryEntityConfig {
      * Whether to print the debug output
      */
     debug?: string | boolean,
+
+    /**
+     * Whether to respect HA entity visibility setting
+     */
+    respect_visibility_setting?: boolean,
 }
 
 interface IBatteryCardConfig {
@@ -295,7 +279,7 @@ interface IBatteryCardConfig {
     /**
      * Filters for auto adding or removing entities
      */
-    filter?: { [key in FilterGroups]: IFilter[] };
+    filter?: { [key in FilterGroups]: FilterSpec[] };
 }
 
 /**
@@ -335,12 +319,6 @@ interface IGroupConfig {
 
 interface IAction {
     (evt: Event): void
-}
-
-interface IActionData {
-    config: IActionConfig
-    card: Node;
-    entityId: string
 }
 
 interface IMap<T> {

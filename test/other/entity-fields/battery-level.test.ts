@@ -15,7 +15,7 @@ describe("Battery level", () => {
     test("doen't throw exception when attributes are not set on entity", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Mocked entity", "45", { battery_state: "45" });
-        entity.setAttributes(null);
+        entity.setAttributes(<any>null);
 
         const { state, level, unit } = getBatteryLevel({ entity: "mocked_entity" }, hassMock.hass, hassMock.hass.states["mocked_entity"]);
 

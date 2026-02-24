@@ -10,15 +10,6 @@ describe("Charging state", () => {
         expect(isCharging).toBe(false);
     })
 
-    test("is false when there is no hass", () => {
-        const isCharging = getChargingState(
-            { entity: "sensor.my_entity", charging_state: { attribute: [ { name: "is_charging", value: "true" } ] } },
-            "45",
-            undefined);
-
-        expect(isCharging).toBe(false);
-    })
-
     test("is true when charging state is in attribute", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Sensor", "80", { is_charging: "true" })
@@ -93,6 +84,88 @@ describe("Charging state", () => {
             hassMock.hass);
 
         expect(isCharging).toBe(expected);
+    })
+
+    test("returns false when entity is not found in hass", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const isCharging = getChargingState(
+            { entity: "sensor.missing_entity", charging_state: { state: "charging" } },
+            "80",
+            hassMock.hass);
+
+        expect(isCharging).toBe(false);
+    })
+
+    test("is true when attribute exists without specified value", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("Sensor", "80", { is_charging: "any_value" })
+        const isCharging = getChargingState(
+            { entity: entity.entity_id, charging_state: { attribute: { name: "is_charging", value: "any_value" } } },
+            entity.state,
+            hassMock.hass);
+
+        expect(isCharging).toBe(true);
+    })
+
+    test("is true when state matches any of the specified states", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("Sensor", "charging")
+        const isCharging = getChargingState(
+            { entity: entity.entity_id, charging_state: { state: ["charging", "full", "connected"] } },
+            entity.state,
+            hassMock.hass);
+
+        expect(isCharging).toBe(true);
+    })
+
+    test("is false when state doesn't match any of the specified states", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("Sensor", "discharging")
+        const isCharging = getChargingState(
+            { entity: entity.entity_id, charging_state: { state: ["charging", "full", "connected"] } },
+            entity.state,
+            hassMock.hass);
+
+        expect(isCharging).toBe(false);
+    })
+
+    test("is true when charging_state config exists but no state array is specified and state is truthy", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("Sensor", "some_state")
+        const isCharging = getChargingState(
+            { entity: entity.entity_id, charging_state: {} },
+            entity.state,
+            hassMock.hass);
+
+        expect(isCharging).toBe(true);
+    })
+
+    test("is false when charging_state config exists but no state array is specified and state is falsy", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("Sensor", "")
+        const isCharging = getChargingState(
+            { entity: entity.entity_id, charging_state: {} },
+            entity.state,
+            hassMock.hass);
+
+        expect(isCharging).toBe(false);
+    })
+
+    test("is true when attribute is in nested path", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("Sensor", "80", {
+            device: {
+                charging: {
+                    status: "active"
+                }
+            }
+        })
+        const isCharging = getChargingState(
+            { entity: entity.entity_id, charging_state: { attribute: { name: "device.charging.status", value: "active" } } },
+            entity.state,
+            hassMock.hass);
+
+        expect(isCharging).toBe(true);
     })
 
 });

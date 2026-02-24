@@ -72,6 +72,11 @@ export class EntityElements {
     private root: HTMLElement;
 
     constructor(private card: BatteryStateEntity, isShadowRoot: boolean = true) {
+
+        if (isShadowRoot && !card.shadowRoot) {
+            throw Error("Missing shaddow root");
+        }
+
         this.root = isShadowRoot ? <any>card.shadowRoot! : card;
     }
 
@@ -96,6 +101,18 @@ export class EntityElements {
             ?.textContent
             ?.trim()
             .replace(String.fromCharCode(160), " "); // replace non breakable space
+    }
+
+    get isAlert() {
+        return !!this.root.querySelector("ha-alert");
+    }
+
+    get alertType() {
+        return this.root.querySelector("ha-alert")?.getAttribute("alert-type");
+    }
+
+    get alertTitle() {
+        return this.root.querySelector("ha-alert")?.getAttribute("title");
     }
 }
 
@@ -138,7 +155,7 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
 
     public hass: HomeAssistantExt = <any>{
         states: {},
-        localize: jest.fn((key: string) => `[${key}]`),
+        localize: jest.fn((...data: string[]) => `[${data.join(", ")}]`),
         formatEntityState: jest.fn((entityData: any) => `${entityData.state} %`),
     };
 
@@ -195,12 +212,6 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
                 return entity;
             },
             setAttributes: (attribs: IEntityAttributes) => {
-
-                if (attribs === null) {
-                    this.hass.states[entity.entity_id].attributes = <any>undefined;
-                    return entity;
-                }
-
                 this.hass.states[entity.entity_id].attributes = {
                     ...this.hass.states[entity.entity_id].attributes,
                     ...attribs
@@ -248,7 +259,7 @@ interface IEntityMock {
     readonly entity_id: string;
     readonly state: string;
     setState(state: string): IEntityMock;
-    setAttributes(attribs: IEntityAttributes | null): IEntityMock;
+    setAttributes(attribs: IEntityAttributes): IEntityMock;
     setLastUpdated(val: string): void;
     setLastChanged(val: string): void;
     setProperty<K extends keyof HaEntityPropertyToTypeMap>(name: K, val: HaEntityPropertyToTypeMap[K]): void;

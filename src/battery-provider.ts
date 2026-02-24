@@ -1,8 +1,8 @@
-import { log, safeGetConfigArrayOfObjects } from "./utils";
+import { extendEntityData, log, safeGetConfigArrayOfObjects } from "./utils";
 import { HomeAssistant } from "custom-card-helpers";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
-import { Filter } from "./filter";
-import { EntityRegistryDisplayEntry, HomeAssistantExt } from "./type-extensions";
+import { createFilter, Filter } from "./filter";
+import { HomeAssistantExt } from "./type-extensions";
 
 /**
  * Properties which should be copied over to individual entities from the card
@@ -16,6 +16,7 @@ const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [
     "extend_entity_data",
     "icon",
     "non_battery_entity",
+    "respect_visibility_setting",
     "round",
     "secondary_info",
     "state_map",
@@ -60,8 +61,8 @@ export class BatteryProvider {
     private initialized: boolean = false;
 
     constructor(private config: IBatteryCardConfig) {
-        this.include = config.filter?.include?.map(f => new Filter(f));
-        this.exclude = config.filter?.exclude?.map(f => new Filter(f));
+        this.include = config.filter?.include?.map(createFilter);
+        this.exclude = config.filter?.exclude?.map(createFilter);
 
         if (!this.include) {
             this.initialized = false;
@@ -163,17 +164,27 @@ export class BatteryProvider {
      * Adds batteries based on filter.include config.
      * @param hass Home Assistant instance
      */
-    private processIncludes(hass: HomeAssistant): void {
-        if (!this.include) {
+    private processIncludes(hass: HomeAssistantExt): void {
+        if (!this.include || !Array.isArray(this.include) || this.include.length == 0) {
             return;
         }
 
-        Object.keys(hass.states).forEach(entityId => {
-            // check if entity matches filter conditions
-            if (this.include?.some(filter => filter.isValid(hass.states[entityId])) &&
-                // check if battery is not added already (via explicit entities)
-                !this.batteries[entityId]) {
+        const advancedInclude = this.include.some(filter => filter.is_advanced);
 
+        Object.keys(hass.states).forEach(entityId => {
+
+            if (this.batteries[entityId]) {
+                // entity is already added via explicit entities in config so we skip it
+                return;
+            }
+
+            let entityData = <IMap<any>>{};
+            if (advancedInclude) {
+                entityData = extendEntityData(hass, entityId, { ...hass.states[entityId] });
+            }
+
+            // check if entity matches filter conditions
+            if (this.include!.some(filter => filter.isValid(advancedInclude ? entityData : hass.states[entityId]))) {
                 this.batteries[entityId] = this.createBattery({ entity: entityId });
             }
         });
@@ -217,11 +228,6 @@ export class BatteryProvider {
      */
     private processExcludes() {
         if (this.exclude == undefined) {
-            Object.keys(this.batteries).forEach((entityId) => {
-                const battery = this.batteries[entityId];
-                battery.isHidden = (<EntityRegistryDisplayEntry>battery.entityData?.display)?.hidden;
-            });
-
             return;
         }
 
@@ -248,8 +254,8 @@ export class BatteryProvider {
             }
 
             // we keep the view model to keep updating it
-            // it might be shown/not-hidden next time
-            battery.isHidden = isHidden || (<EntityRegistryDisplayEntry>battery.entityData?.display)?.hidden;
+            // it might be shown/not-hidden after next update
+            isHidden? battery.hideEntity() : battery.showEntity();
         });
 
         toBeRemoved.forEach(entityId => delete this.batteries[entityId]);
@@ -262,5 +268,4 @@ export interface IBatteryCollection {
 
 export interface IBatteryCollectionItem extends BatteryStateEntity {
     entityId?: string;
-    isHidden?: boolean;
 }

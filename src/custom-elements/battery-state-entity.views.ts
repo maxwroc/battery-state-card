@@ -56,7 +56,7 @@ ${icon(model.icon, model.iconColor)}
     ${secondaryInfo(model.secondaryInfo, model.hass)}
 </div>
 <div class="state">
-    ${model.state}${unit(model.unit)}
+    ${replaceTags(model.state, model.hass)}${unit(model.unit)}
 </div>
 `;
 
