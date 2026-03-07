@@ -13,6 +13,7 @@ import { getBatteryLevel } from "../entity-fields/battery-level";
 import { getName } from "../entity-fields/get-name";
 import { getIcon } from "../entity-fields/get-icon";
 import { EntityRegistryDisplayEntry } from "../type-extensions";
+import { RichStringProcessor } from "../rich-string-processor";
 
 /**
  * Battery entity element
@@ -118,7 +119,9 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         this.stateNumeric = level;
 
         const isCharging = getChargingState(this.config, this.state, this.hass);
-        this.entityData["charging"] = isCharging ? (this.config.charging_state?.secondary_info_text || "Charging") : "" // todo: think about i18n
+        const chargingText = this.config.charging_state?.secondary_info_text || "Charging"; // todo: think about i18n
+        const processor = new RichStringProcessor(this.hass, this.entityData);
+        this.entityData["charging"] = isCharging ? processor.process(chargingText) : "";
 
         this.name = getName(this.config, this.hass, this.entityData);
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, this.entityData);

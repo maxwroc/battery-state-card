@@ -37,6 +37,27 @@ test("Secondary info charging text", async () => {
     expect(entity.secondaryInfoText).toBe("Charging now");
 });
 
+test("Secondary info charging text with KString", async () => {
+    const hass = new HomeAssistantMock<BatteryStateEntity>();
+    const sensor = hass.addEntity("Motion sensor battery level", "80", { is_charging: "true" });
+    const cardElem = hass.addCard("battery-state-entity", {
+        entity: sensor.entity_id,
+        secondary_info: "{charging}",
+        charging_state: {
+            secondary_info_text: "Charging at {state}%",
+            attribute: {
+                name: "is_charging",
+                value: "true"
+            }
+        }
+    });
+
+    await cardElem.cardUpdated;
+
+    const entity = new EntityElements(cardElem);
+    expect(entity.secondaryInfoText).toBe("Charging at 80%");
+});
+
 test("Secondary info other entity attribute value", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const flowerBattery = hass.addEntity("Flower sensor battery level", "80", {});
