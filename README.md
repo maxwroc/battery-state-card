@@ -335,7 +335,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | attribute | list([Attribute](#attribute-object)) |  | v1.2.0 | List of attribute name-values indicating charging in progress
 | state | list(any) |  | v1.1.0 | List of values indicating charging in progress
 | icon | string |  | v1.1.0 | Icon to show when charging is in progress
-| secondary_info_text | string |  | v1.1.0 | Text to be shown when battery is charging. To show it you need to have `secondary_info: "{charging}"` property set on entity. ([example](#secondary-info))
+| secondary_info_text | [KString](#keyword-string-kstring) |  | v1.1.0 | Text to be shown when battery is charging. Supports dynamic values (e.g., `{state}`, `{attributes.x}`). To show it you need to have `secondary_info: "{charging}"` property set on entity. ([example](#secondary-info))
 
 ### Attribute object
 
@@ -686,7 +686,7 @@ entities:
       attribute:
         name: "is_charging"
         value: true
-      secondary_info_text: "Charging in progress" # override for "Charging" text
+      secondary_info_text: "Charging at {state}%" # supports KString - shows current battery level
   - entity: sensor.jacks_motorola
     name: "Jack's phone"
     secondary_info: "Motorola" # Static text
