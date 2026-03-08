@@ -81,6 +81,12 @@ export class EntityElements {
     }
 
     get iconName() {
+        // Check for ha-state-icon (used for default entity icons)
+        const stateIcon = this.root.querySelector("ha-state-icon");
+        if (stateIcon) {
+            return "__ha-state-icon__"; // Special marker to indicate state icon is being used
+        }
+        // Check for ha-icon (used for battery/custom icons)
         return this.root.querySelector("ha-icon")?.getAttribute("icon");
     }
 
@@ -230,6 +236,7 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
             },
             setProperty: <K extends keyof HaEntityPropertyToTypeMap>(name: K, val: HaEntityPropertyToTypeMap[K]) => {
                 (<any>entity)[name] = val;
+                this.throttledUpdate();
             }
         };
 
