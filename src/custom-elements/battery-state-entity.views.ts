@@ -1,8 +1,10 @@
 import { HomeAssistant } from "custom-card-helpers";
 import { TemplateResult, html } from "lit";
 import { BatteryStateEntity } from "./battery-state-entity";
+import { DefaultIcon } from "../entity-fields/get-icon";
 
 const relativeTimeTag = new RegExp("<rt>([^<]+)</rt>", "g");
+
 
 /**
  * Replaces temporary RT tages with proper HA "relative-time" ones
@@ -40,17 +42,33 @@ export const secondaryInfo = (text?: string, hass?: HomeAssistant) => text && ht
 <div class="secondary">${replaceTags(text, hass)}</div>
 `;
 
-export const icon = (icon?: string, color?: string) => icon && html`
+export const icon = (icon: string | undefined, iconColor: string | undefined) =>  icon && html`
 <div class="icon">
     <ha-icon
-        style="color: ${color}"
+        style="color: ${iconColor}"
         icon="${icon}"
     ></ha-icon>
 </div>
 `;
 
+export const customOrDefaultIcon = (model: BatteryStateEntity) => {
+    if (model.icon === DefaultIcon) {
+        return html`
+<div class="icon">
+    <ha-state-icon
+        style="color: ${model.iconColor}"
+        .hass="${model.hass}"
+        .stateObj="${model.entityData}"
+    ></ha-state-icon>
+</div>
+`;
+    }
+
+    return icon(model.icon, model.iconColor);
+}
+
 export const batteryHtml = (model: BatteryStateEntity) => html`
-${icon(model.icon, model.iconColor)}
+${customOrDefaultIcon(model)}
 <div class="name truncate">
     ${model.name}
     ${secondaryInfo(model.secondaryInfo, model.hass)}

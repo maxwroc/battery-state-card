@@ -85,7 +85,7 @@ colors:
 | type | string | | v0.9.0 | Must be `custom:battery-state-entity` if used as entity row e.g. in entity-list card  |
 | entity | string | **(required)** | v0.9.0 | Entity ID
 | name | string |  | v0.9.0 | Entity name override
-| icon | string |  | v1.6.0 | Icon override (if you want to set a static custom one). You can provide entity attribute name which contains icon class (e.g. `attributes.battery_icon` - it has to be prefixed with "attributes.")
+| icon | string \| null |  | v1.6.0 | Icon override. Set to a custom icon (e.g. `mdi:battery`), use entity attribute (e.g. `attributes.battery_icon`), or set to `null` to use the entity's default icon
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
 
@@ -847,6 +847,35 @@ state_map:
 collapse: 8
 
 ```
+
+#### Using default entity icons
+
+If your entities already have appropriate icons defined and you want to keep them instead of using battery icons, set `icon` to `null`:
+
+```yaml
+type: custom:battery-state-card
+title: "Devices with original icons"
+entities:
+  - entity: sensor.phone_battery
+    icon: null
+  - entity: sensor.tablet_battery
+    icon: null
+  - entity: sensor.watch_battery
+    icon: null
+```
+
+You can also apply it to all entities using [common options](#common-options):
+
+```yaml
+type: custom:battery-state-card
+title: "Devices with original icons"
+icon: null  # Apply to all entities
+filter:
+  include:
+    - name: entity_id
+      value: "*_battery"
+```
+
 #### Default configuration to work with the "Battery Notes" integration
 
 The "HA-Battery_Notes HACS integration automatically adds additional information about all battery devices within your HA implementation, such as battery types, etc. The Configuration below automatically creates a table for all Battery Plus devices and shows the required type and number of devices.

@@ -170,9 +170,9 @@ interface IBatteryEntityConfig {
     name?: string;
 
     /**
-     * Icon override
+     * Icon override. Set to null to use entity's default icon.
      */
-    icon?: string;
+    icon?: string | null;
 
     /**
      * Attribute name to extract batterly level from
