@@ -13,26 +13,29 @@ const relativeTimeTag = new RegExp("<rt>([^<]+)</rt>", "g");
  * @param hass HomeAssistant instance
  * @returns Rendered templates
  */
-const replaceTags = (text: string, hass?: HomeAssistant): TemplateResult[] => {
+const replaceTags = (text: string | undefined, hass?: HomeAssistant): TemplateResult[] => {
+    if (!text) {
+        return [];
+    }
 
-    const result: TemplateResult[] = []
-
-    let matches: string[] | null = [];
+    const result: TemplateResult[] = [];
+    let matches: RegExpExecArray | null;
     let currentPos = 0;
-    while(matches = relativeTimeTag.exec(text)) {
-        const matchPos = text.indexOf(matches[0], currentPos);
 
-        if (matchPos != 0) {
+    while(matches = relativeTimeTag.exec(text)) {
+        const matchPos = matches.index;
+
+        if (matchPos !== currentPos) {
             result.push(html`${text.substring(currentPos, matchPos)}`);
         }
 
         result.push(html`<ha-relative-time .hass="${hass}" .datetime="${new Date(matches[1])}"></ha-relative-time>`);
 
-        currentPos += matchPos + matches[0].length;
+        currentPos = matchPos + matches[0].length;
     }
 
     if (currentPos < text.length) {
-        result.push(html`${text.substring(currentPos, text.length)}`);
+        result.push(html`${text.substring(currentPos)}`);
     }
 
     return result;
