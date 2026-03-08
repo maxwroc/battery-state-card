@@ -21,6 +21,7 @@ const config = {
   coverageConfig: {
     include: ['src/**/*.ts'],
     exclude: ['test/**/*'],
+    reportDir: 'coverage/integration',
   },
 };
 

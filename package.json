@@ -24,9 +24,10 @@
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "jest",
     "test:integration": "web-test-runner",
-    "test:coverage": "npm run test:unit:coverage && npm run test:integration:coverage",
-    "test:unit:coverage": "jest --coverage",
+    "test:coverage": "npm run test:unit:coverage && npm run test:integration:coverage && npm run test:coverage:merge",
+    "test:unit:coverage": "jest --coverage --coverageDirectory=coverage/unit",
     "test:integration:coverage": "web-test-runner --coverage",
+    "test:coverage:merge": "node scripts/merge-coverage.mjs",
     "test:debug": "SET DEBUG_MODE=1&&jest"
   },
   "jest": {
@@ -46,7 +47,8 @@
     },
     "coveragePathIgnorePatterns": [
       "<rootDir>/test"
-    ]
+    ],
+    "coverageDirectory": "coverage/unit"
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
@@ -59,6 +61,7 @@
     "@web/test-runner-commands": "^0.9.0",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
+    "nyc": "^18.0.0",
     "rollup": "^4.59.0",
     "rollup-plugin-import-css": "^4.2.0",
     "rollup-plugin-serve": "^3.0.0",
