@@ -3,6 +3,7 @@
   "version": "3.3.0",
   "description": "Battery State card for Home Assistant",
   "main": "dist/battery-state-card.js",
+  "type": "module",
   "author": "Max Chodorowski",
   "license": "MIT",
   "keywords": [
@@ -20,70 +21,54 @@
     "build": "rollup -c",
     "release": "rollup --environment RELEASE -c",
     "watch": "rollup -c --watch",
-    "test": "jest",
-    "test+integration": "jest --testPathPattern=\"test/(entity|card)\"",
-    "test+coverage": "jest --coverage",
-    "test+coverage+unit": "jest --coverage --testPathPattern=test/other",
-    "test+debug": "SET DEBUG_MODE=1&&jest"
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "jest",
+    "test:integration": "web-test-runner",
+    "test:coverage": "npm run test:unit:coverage && npm run test:integration:coverage",
+    "test:unit:coverage": "jest --coverage",
+    "test:integration:coverage": "web-test-runner --coverage",
+    "test:debug": "SET DEBUG_MODE=1&&jest"
   },
   "jest": {
-    "projects": [
-      {
-        "preset": "ts-jest",
-        "runner": "jest-electron/runner",
-        "testEnvironment": "jest-electron/environment",
-        "testMatch": [
-          "<rootDir>/test/card/**/*.test.ts",
-          "<rootDir>/test/entity/**/*.test.ts"
-        ],
-        "verbose": false,
-        "setupFilesAfterEnv": [
-          "<rootDir>/dist/battery-state-card.js"
-        ],
-        "globals": {
-          "ts-jest": {
-            "isolatedModules": true
-          }
-        },
-        "coveragePathIgnorePatterns": [
-          "<rootDir>/test"
-        ]
-      },
-      {
-        "preset": "ts-jest",
-        "testMatch": [
-          "<rootDir>/test/other/**/*.test.ts"
-        ],
-        "verbose": false,
-        "globals": {
-          "ts-jest": {
-            "isolatedModules": true
-          }
-        },
-        "coveragePathIgnorePatterns": [
-          "<rootDir>/test"
-        ]
-      }
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "testMatch": [
+      "<rootDir>/test/unit/**/*.test.ts"
+    ],
+    "verbose": false,
+    "transform": {
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "isolatedModules": true
+        }
+      ]
+    },
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/test"
     ]
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.5",
-    "@types/jest": "^27.4.0",
-    "jest": "^24.9.0",
-    "jest-electron": "^0.1.12",
-    "rollup": "^2.79.1",
-    "rollup-plugin-import-css": "^3.3.5",
-    "rollup-plugin-minify-html-literals": "^1.2.6",
-    "rollup-plugin-serve": "^2.0.2",
-    "rollup-plugin-terser": "^7.0.2",
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@types/jest": "^30.0.0",
+    "@web/dev-server-esbuild": "^1.0.5",
+    "@web/test-runner": "^0.20.2",
+    "@web/test-runner-commands": "^0.9.0",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "rollup": "^4.59.0",
+    "rollup-plugin-import-css": "^4.2.0",
+    "rollup-plugin-serve": "^3.0.0",
     "rollup-plugin-version-injector": "^1.3.3",
-    "ts-jest": "^24.3.0",
+    "ts-jest": "^29.4.6",
     "tslib": "^2.5.3",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "custom-card-helpers": "^1.9.0",
-    "lit": "^2.8.0"
+    "custom-card-helpers": "^2.0.0",
+    "lit": "^3.3.2"
   }
 }
