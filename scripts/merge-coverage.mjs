@@ -1,6 +1,5 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { execSync } from 'child_process';
 
 console.log('Merging coverage reports...');
 
