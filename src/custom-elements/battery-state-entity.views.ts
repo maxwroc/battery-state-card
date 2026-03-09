@@ -1,4 +1,4 @@
-import { HomeAssistant } from "custom-card-helpers";
+import { HomeAssistantExt } from "../type-extensions";
 import { TemplateResult, html } from "lit";
 import { BatteryStateEntity } from "./battery-state-entity";
 import { DefaultIcon } from "../entity-fields/get-icon";
@@ -13,7 +13,7 @@ const relativeTimeTag = new RegExp("<rt>([^<]+)</rt>", "g");
  * @param hass HomeAssistant instance
  * @returns Rendered templates
  */
-const replaceTags = (text: string | undefined, hass?: HomeAssistant): TemplateResult[] => {
+const replaceTags = (text: string | undefined, hass?: HomeAssistantExt): TemplateResult[] => {
     if (!text) {
         return [];
     }
@@ -41,7 +41,7 @@ const replaceTags = (text: string | undefined, hass?: HomeAssistant): TemplateRe
     return result;
 }
 
-export const secondaryInfo = (text?: string, hass?: HomeAssistant) => text && html`
+export const secondaryInfo = (text?: string, hass?: HomeAssistantExt) => text && html`
 <div class="secondary">${replaceTags(text, hass)}</div>
 `;
 

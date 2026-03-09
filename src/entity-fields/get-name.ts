@@ -1,4 +1,4 @@
-import { HomeAssistant } from "custom-card-helpers";
+import { HomeAssistantExt } from "../type-extensions";
 import { getRegexFromString, safeGetArray } from "../utils";
 import { RichStringProcessor } from "../rich-string-processor";
 
@@ -9,7 +9,7 @@ import { RichStringProcessor } from "../rich-string-processor";
  * @param hass HomeAssistant state object
  * @returns Battery name
  */
-export const getName = (config: IBatteryEntityConfig, hass: HomeAssistant, entityData: IMap<any>): string => {
+export const getName = (config: IBatteryEntityConfig, hass: HomeAssistantExt, entityData: IMap<any>): string => {
     if (config.name) {
         const proc = new RichStringProcessor(hass, entityData);
         return proc.process(config.name);

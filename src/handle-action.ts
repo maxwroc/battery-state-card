@@ -1,4 +1,4 @@
-import { HomeAssistant } from "custom-card-helpers";
+import { HomeAssistantExt } from "./type-extensions";
 import { RichStringProcessor } from "./rich-string-processor";
 
 /**
@@ -24,7 +24,7 @@ export const handleAction = async (
   node: HTMLElement,
   config: ActionConfigParams,
   action: string,
-  hass?: HomeAssistant,
+  hass?: HomeAssistantExt,
   entityData?: IMap<any>,
 ): Promise<void> => {
   // Process KString values in action config if hass is provided
@@ -44,7 +44,7 @@ export const handleAction = async (
  */
 const processActionConfig = (
   config: ActionConfigParams,
-  hass: HomeAssistant,
+  hass: HomeAssistantExt,
   entityData?: IMap<any>,
 ): ActionConfigParams => {
   const processor = new RichStringProcessor(hass, entityData);

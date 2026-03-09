@@ -1,4 +1,4 @@
-import { HomeAssistant } from "custom-card-helpers/dist/types";
+import { HomeAssistantExt } from "../type-extensions";
 import { log, safeGetArray } from "../utils";
 
 /**
@@ -8,7 +8,7 @@ import { log, safeGetArray } from "../utils";
  * @param hass HomeAssistant state object
  * @returns Whether battery is in chargin mode
  */
- export const getChargingState = (config: IBatteryEntityConfig, state: string, hass: HomeAssistant): boolean => {
+ export const getChargingState = (config: IBatteryEntityConfig, state: string, hass: HomeAssistantExt): boolean => {
     const chargingConfig = config.charging_state;
     if (!chargingConfig) {
         return getDefaultChargingState(config, hass);
@@ -55,7 +55,7 @@ import { log, safeGetArray } from "../utils";
 
 const standardBatteryLevelEntitySuffix = "_battery_level";
 const standardBatteryStateEntitySuffix = "_battery_state";
-const getDefaultChargingState = (config: IBatteryEntityConfig, hass?: HomeAssistant): boolean => {
+const getDefaultChargingState = (config: IBatteryEntityConfig, hass?: HomeAssistantExt): boolean => {
     if (!config.entity.endsWith(standardBatteryLevelEntitySuffix)) {
         return false;
     }

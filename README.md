@@ -75,6 +75,7 @@ colors:
 | collapse | number \| list([Group](#group-object)) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view)). Or list of entity/battery groups ([example](#battery-groups))
 | filter | [Filters](#filters) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
 | bulk_rename | list([Convert](#convert)) \| [BulkRename](#bulk-rename) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
+| theme | string |  | v3.3.0 | Name of the theme to apply (must be installed in Home Assistant). ([example](#using-themes))
 
 +[common options](#common-options) (if specified they will be apllied to all entities)
 
@@ -771,6 +772,20 @@ entities:
     value_override: 80
 
 ```
+
+### Using Themes
+
+You can apply any Home Assistant theme to the card using the `theme` property. The card will apply the theme's CSS variables to match your Home Assistant theme.
+
+```yaml
+type: custom:battery-state-card
+theme: slate  # Apply the "slate" theme
+entities:
+  - sensor.bedroom_motion_battery_level
+  - sensor.bathroom_motion_battery_level
+```
+
+**Light/Dark Mode Support**: The card automatically detects if your theme has separate light and dark modes and applies the appropriate mode based on Home Assistant's dark mode setting.
 
 ### Other use cases
 

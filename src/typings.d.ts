@@ -287,6 +287,11 @@ interface IBatteryCardConfig {
      * Filters for auto adding or removing entities
      */
     filter?: { [key in FilterGroups]: FilterSpec[] };
+
+    /**
+     * Name of the theme to apply (must be installed in Home Assistant)
+     */
+    theme?: string;
 }
 
 /**
