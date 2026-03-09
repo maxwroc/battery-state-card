@@ -83,7 +83,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "custom-card-helpers": "^1.9.0",
+    "custom-card-helpers": "^2.0.0",
     "lit": "^2.8.0"
   }
 }
