@@ -303,12 +303,48 @@ The definition is similar to the default [tap-action](https://www.home-assistant
 | Name | Type | Default | Description |
 |:-----|:-----|:-----|:-----|
 | action | string | `more-info` | Action type, one of the following: `more-info`, `call-service`, `navigate`, `url`, `none`
-| service | string |  | Service to call when `action` defined as `call-service`. Eg. `"notify.pushover"`
-| service_data | any |  | Service data to inlclue when `action` defined as `call-service`
-| navigation_path | string |  | Path to navigate to when `action` defined as `navigate`. Eg. `"/lovelace/0"`
-| url_path | string |  | Url to navigate to when `action` defined as `url`. Eg. `"https://www.home-assistant.io"`
+| service | [KString](#keyword-string-kstring) \| string |  | Service to call when `action` defined as `call-service`. Eg. `"notify.pushover"`. Supports KString for dynamic values.
+| service_data | any |  | Service data to include when `action` defined as `call-service`. Supports KString in nested string values.
+| data | any |  | Additional data for the action. Supports KString in nested string values.
+| target | any |  | Target for the service call. Supports KString in nested string values.
+| navigation_path | [KString](#keyword-string-kstring) \| string |  | Path to navigate to when `action` defined as `navigate`. Eg. `"/lovelace/0"`. Supports KString for dynamic values.
+| url_path | [KString](#keyword-string-kstring) \| string |  | Url to navigate to when `action` defined as `url`. Eg. `"https://www.home-assistant.io"`. Supports KString for dynamic values.
 
 Note: From version 3.3.0 card supports all native Home Assistant actions and related functionalities: [Actions - Home Assistant](https://www.home-assistant.io/dashboards/actions/#tap-action)
+
+**KString support in actions:** Since v3.3.0, tap actions support [KString](#keyword-string-kstring) for dynamic values. This allows you to use entity data (state, attributes, etc.) in action parameters. KString processing happens just before the action is executed, ensuring up-to-date values.
+
+**Examples:**
+```yaml
+# Navigate to device page using device_id from entity attributes
+tap_action:
+  action: navigate
+  navigation_path: /config/devices/device/{attributes.device_id}
+
+# Open URL with dynamic content
+tap_action:
+  action: url
+  url_path: https://example.com/battery-report?level={state}&device={attributes.device_name}
+
+# Call service with dynamic data
+tap_action:
+  action: call-service
+  service: notify.mobile_app
+  service_data:
+    message: "Low battery alert: {state}%"
+    title: "Warning for {attributes.friendly_name}"
+    data:
+      entity_id: "{entity_id}"
+      battery_level: "{state}"
+
+# Use KString functions in actions
+tap_action:
+  action: call-service
+  service: script.battery_notification
+  data:
+    rounded_level: "{state|round(0)}"
+    doubled_value: "{state|multiply(2)|round(1)}"
+```
 
 ### Convert
 
