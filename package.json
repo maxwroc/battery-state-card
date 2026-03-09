@@ -78,7 +78,7 @@
     "rollup-plugin-serve": "^2.0.2",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-version-injector": "^1.3.3",
-    "ts-jest": "^24.3.0",
+    "ts-jest": "^29.4.6",
     "tslib": "^2.5.3",
     "typescript": "^5.2.2"
   },
