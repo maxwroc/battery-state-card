@@ -1,7 +1,8 @@
-import { BatteryStateEntity } from "../../src/custom-elements/battery-state-entity";
-import { EntityElements, HomeAssistantMock } from "../helpers";
+import { expect } from '@esm-bundle/chai';
+import { BatteryStateEntity } from "../../../src/custom-elements/battery-state-entity";
+import { EntityElements, HomeAssistantMock } from "../../helpers";
 
-test.each([
+const dynamicBatteryIconTests = [
     [95, "mdi:battery"],
     [94, "mdi:battery-90"],
     [49, "mdi:battery-50"],
@@ -9,22 +10,25 @@ test.each([
     [5, "mdi:battery-10"],
     [4, "mdi:battery-outline"],
     [0, "mdi:battery-outline"],
-])("Dynamic battery icon", async (state: number, expectedIcon: string) => {
+];
 
-    const hass = new HomeAssistantMock<BatteryStateEntity>();
-    const sensor = hass.addEntity("Motion sensor battery level", state.toString());
-    const cardElem = hass.addCard("battery-state-entity", {
-        entity: sensor.entity_id
+dynamicBatteryIconTests.forEach(([state, expectedIcon]) => {
+    it(`Dynamic battery icon - state ${state}`, async () => {
+        const hass = new HomeAssistantMock<BatteryStateEntity>();
+        const sensor = hass.addEntity("Motion sensor battery level", (state as number).toString());
+        const cardElem = hass.addCard("battery-state-entity", {
+            entity: sensor.entity_id
+        });
+
+        await cardElem.cardUpdated;
+
+        const entity = new EntityElements(cardElem);
+
+        expect(entity.iconName).to.equal(expectedIcon);
     });
-
-    await cardElem.cardUpdated;
-
-    const entity = new EntityElements(cardElem);
-
-    expect(entity.iconName).toBe(expectedIcon);
 });
 
-test("Static icon", async () => {
+it("Static icon", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", "80");
     const cardElem = hass.addCard("battery-state-entity", {
@@ -36,12 +40,12 @@ test("Static icon", async () => {
 
     const entity = new EntityElements(cardElem);
 
-    expect(entity.iconName).toBe("mdi:static");
+    expect(entity.iconName).to.equal("mdi:static");
 });
 
 // ################# Charging state #################
 
-test.each([
+const dynamicChargingIconTests = [
     [95, "mdi:battery-charging-100"],
     [94, "mdi:battery-charging-90"],
     [49, "mdi:battery-charging-50"],
@@ -49,28 +53,31 @@ test.each([
     [5, "mdi:battery-charging-10"],
     [4, "mdi:battery-charging-outline"],
     [0, "mdi:battery-charging-outline"],
-])("Dynamic charging icon", async (state: number, expectedIcon: string) => {
+];
 
-    const hass = new HomeAssistantMock<BatteryStateEntity>();
-    const sensor = hass.addEntity("Motion sensor battery level", state.toString(), { is_charging: "true" });
-    const cardElem = hass.addCard("battery-state-entity", {
-        entity: sensor.entity_id,
-        charging_state: {
-            attribute: {
-                name: "is_charging",
-                value: "true"
+dynamicChargingIconTests.forEach(([state, expectedIcon]) => {
+    it(`Dynamic charging icon - state ${state}`, async () => {
+        const hass = new HomeAssistantMock<BatteryStateEntity>();
+        const sensor = hass.addEntity("Motion sensor battery level", (state as number).toString(), { is_charging: "true" });
+        const cardElem = hass.addCard("battery-state-entity", {
+            entity: sensor.entity_id,
+            charging_state: {
+                attribute: {
+                    name: "is_charging",
+                    value: "true"
+                }
             }
-        }
+        });
+
+        await cardElem.cardUpdated;
+
+        const entity = new EntityElements(cardElem);
+
+        expect(entity.iconName).to.equal(expectedIcon);
     });
-
-    await cardElem.cardUpdated;
-
-    const entity = new EntityElements(cardElem);
-
-    expect(entity.iconName).toBe(expectedIcon);
 });
 
-test("Static charging icon", async () => {
+it("Static charging icon", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", "80", { is_charging: "true" });
     const cardElem = hass.addCard("battery-state-entity", {
@@ -88,10 +95,10 @@ test("Static charging icon", async () => {
 
     const entity = new EntityElements(cardElem);
 
-    expect(entity.iconName).toBe("mdi:static-charging-icon");
+    expect(entity.iconName).to.equal("mdi:static-charging-icon");
 });
 
-test("Charging state taken from object set as attribute", async () => {
+it("Charging state taken from object set as attribute", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", "80", { valetudo_state: { "id": 8, "name": "Charging" } });
     const cardElem = hass.addCard("battery-state-entity", {
@@ -109,12 +116,12 @@ test("Charging state taken from object set as attribute", async () => {
 
     const entity = new EntityElements(cardElem);
 
-    expect(entity.iconName).toBe("mdi:static-charging-icon");
+    expect(entity.iconName).to.equal("mdi:static-charging-icon");
 });
 
 // ################# Default entity icon #################
 
-test("Default entity icon", async () => {
+it("Default entity icon", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", "80");
     const cardElem = hass.addCard("battery-state-entity", {
@@ -127,10 +134,10 @@ test("Default entity icon", async () => {
     const entity = new EntityElements(cardElem);
 
     // When icon is null, ha-state-icon element should be used
-    expect(entity.iconName).toBe("__ha-state-icon__");
+    expect(entity.iconName).to.equal("__ha-state-icon__");
 });
 
-test("Default entity icon - fallback to battery when entity has no icon", async () => {
+it("Default entity icon - fallback to battery when entity has no icon", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", "80");
     const cardElem = hass.addCard("battery-state-entity", {
@@ -143,10 +150,10 @@ test("Default entity icon - fallback to battery when entity has no icon", async 
     const entity = new EntityElements(cardElem);
 
     // When icon is null, ha-state-icon element should be used (even if it falls back to default)
-    expect(entity.iconName).toBe("__ha-state-icon__");
+    expect(entity.iconName).to.equal("__ha-state-icon__");
 });
 
-test("Default entity icon - custom icon takes precedence", async () => {
+it("Default entity icon - custom icon takes precedence", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", "80");
     const cardElem = hass.addCard("battery-state-entity", {
@@ -159,5 +166,5 @@ test("Default entity icon - custom icon takes precedence", async () => {
     const entity = new EntityElements(cardElem);
 
     // Custom icon should take precedence
-    expect(entity.iconName).toBe("mdi:custom-icon");
+    expect(entity.iconName).to.equal("mdi:custom-icon");
 });

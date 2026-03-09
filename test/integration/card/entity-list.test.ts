@@ -1,7 +1,8 @@
-import { BatteryStateCard } from "../../src/custom-elements/battery-state-card";
-import { CardElements, HomeAssistantMock } from "../helpers";
+import { expect } from '@esm-bundle/chai';
+import { BatteryStateCard } from "../../../src/custom-elements/battery-state-card";
+import { CardElements, HomeAssistantMock } from "../../helpers";
 
-test("Entities as strings/ids", async () => {
+it("Entities as strings/ids", async () => {
 
     const hass = new HomeAssistantMock<BatteryStateCard>();
     const motionSensor = hass.addEntity("Bedroom motion battery level", "90");
@@ -20,11 +21,11 @@ test("Entities as strings/ids", async () => {
 
     const card = new CardElements(cardElem);
 
-    expect(card.header).toBe("Header");
-    expect(card.itemsCount).toBe(2);
+    expect(card.header).to.equal("Header");
+    expect(card.itemsCount).to.equal(2);
 });
 
-test("Entities as objects with custom settings", async () => {
+it("Entities as objects with custom settings", async () => {
     const hass = new HomeAssistantMock<BatteryStateCard>();
     const motionSensor = hass.addEntity("Bedroom motion battery level", "90");
     const tempSensor = hass.addEntity("Temp sensor battery level", "50");
@@ -48,12 +49,12 @@ test("Entities as objects with custom settings", async () => {
 
     const card = new CardElements(cardElem);
 
-    expect(card.itemsCount).toBe(2);
-    expect(card.item(0).nameText).toBe("Entity 1");
-    expect(card.item(1).nameText).toBe("Entity 2");
+    expect(card.itemsCount).to.equal(2);
+    expect(card.item(0).nameText).to.equal("Entity 1");
+    expect(card.item(1).nameText).to.equal("Entity 2");
 });
 
-test("Missing entity", async () => {
+it("Missing entity", async () => {
     const hass = new HomeAssistantMock<BatteryStateCard>();
     const motionSensor = hass.addEntity("Bedroom motion battery level", "90");
 
@@ -71,8 +72,8 @@ test("Missing entity", async () => {
 
     const card = new CardElements(cardElem);
 
-    expect(card.itemsCount).toBe(1);
-    expect(card.item(0).isAlert).toBeTruthy();
-    expect(card.item(0).alertType).toBe("warning");
-    expect(card.item(0).alertTitle).toBe("[ui.panel.lovelace.warning.entity_not_found, entity, bedroom_motion_battery_level_missing]");
+    expect(card.itemsCount).to.equal(1);
+    expect(card.item(0).isAlert).to.be.true;
+    expect(card.item(0).alertType).to.equal("warning");
+    expect(card.item(0).alertTitle).to.equal("[ui.panel.lovelace.warning.entity_not_found, entity, bedroom_motion_battery_level_missing]");
 });

@@ -161,8 +161,8 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
 
     public hass: HomeAssistantExt = <any>{
         states: {},
-        localize: jest.fn((...data: string[]) => `[${data.join(", ")}]`),
-        formatEntityState: jest.fn((entityData: any) => `${entityData.state} %`),
+        localize: (...data: string[]) => `[${data.join(", ")}]`,
+        formatEntityState: (entityData: any) => `${entityData.state} %`,
     };
 
     private throttledUpdate = throttledCall(() => {
@@ -176,7 +176,7 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
     }
 
     mockFunc(funcName: keyof HomeAssistantExt, mockedFunc: Function) {
-        (<any>this.hass)[funcName] = jest.fn(<any>mockedFunc)
+        (<any>this.hass)[funcName] = <any>mockedFunc;
     }
 
     addCard<K extends LovelaceCard<T>>(type: string, config: extractGeneric<T>): T {
