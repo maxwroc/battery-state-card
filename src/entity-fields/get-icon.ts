@@ -1,4 +1,4 @@
-import { HomeAssistant } from "custom-card-helpers";
+import { HomeAssistantExt } from "../type-extensions";
 import { log } from "../utils";
 import { RichStringProcessor } from "../rich-string-processor";
 
@@ -17,7 +17,7 @@ export const DefaultIcon = "<default_icon>";
  * @param hass HomeAssistant state object
  * @returns Mdi icon string
  */
-export const getIcon = (config: IBatteryEntityConfig, level: number | undefined, isCharging: boolean, hass: HomeAssistant): string => {
+export const getIcon = (config: IBatteryEntityConfig, level: number | undefined, isCharging: boolean, hass: HomeAssistantExt): string => {
     if (isCharging && config.charging_state?.icon) {
         return config.charging_state.icon;
     }

@@ -7,7 +7,7 @@ import { getBatteryGroups, IBatteryGroup } from "../grouping";
 import sharedStyles from "./shared.css"
 import cardStyles from "./battery-state-card.css"
 import { getIdsOfSortedBatteries } from "../sorting";
-import { safeGetConfigArrayOfObjects } from "../utils";
+import { safeGetConfigArrayOfObjects, getThemeStyles } from "../utils";
 import defaultConfig from "../default-config";
 
 
@@ -67,6 +67,14 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
         }
 
         this.header = this.config.title;
+
+        // Apply theme styles directly to host element
+        const themeStyles = getThemeStyles(<any>this.hass, this.config.theme);
+        if (themeStyles) {
+            this.style.cssText = themeStyles;
+        } else {
+            this.style.cssText = "";
+        }
 
         this.batteries = this.batteryProvider.getBatteries();
 

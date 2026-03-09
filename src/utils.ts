@@ -210,3 +210,49 @@ export const extendEntityData = (hass: HomeAssistantExt, entity_id: string, enti
 
     return entityData;
 }
+
+/**
+ * Converts theme object to CSS variables string for inline styles
+ * @param hass Home Assistant object
+ * @param themeName Name of the theme to apply
+ * @returns CSS variables string or undefined if theme not found
+ */
+export const getThemeStyles = (hass: any, themeName: string | undefined): string | undefined => {
+    if (!hass || !themeName || !hass.themes || !hass.themes.themes) {
+        return undefined;
+    }
+
+    const themes = hass.themes.themes;
+    let themeData = themes[themeName];
+
+    if (!themeData) {
+        log(`Theme "${themeName}" not found in Home Assistant`);
+        return undefined;
+    }
+
+    // Check if theme has modes (light/dark)
+    if (themeData.modes) {
+        const isDarkMode = hass.themes.darkMode || false;
+        themeData = isDarkMode ? themeData.modes.dark : themeData.modes.light;
+
+        if (!themeData) {
+            log(`Theme "${themeName}" mode not found (dark: ${isDarkMode})`);
+            return undefined;
+        }
+    }
+
+    // Convert theme properties to CSS variables
+    // Theme objects in HA contain all CSS variables, not just the limited set in Theme interface
+    const cssVars: string[] = [];
+    for (const [key, value] of Object.entries<any>(themeData)) {
+        // Skip the 'modes' property if it exists
+        if (key === 'modes') {
+            continue;
+        }
+        // Theme properties are already in the format we need (some might already have --)
+        const varName = key.startsWith('--') ? key : `--${key}`;
+        cssVars.push(`${varName}: ${value}`);
+    }
+
+    return cssVars.join('; ');
+}

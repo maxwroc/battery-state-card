@@ -1,4 +1,4 @@
-import { HomeAssistant } from "custom-card-helpers";
+import { HomeAssistantExt } from "./type-extensions";
 import { log } from "./utils";
 
 const validEntityDomains = [
@@ -35,7 +35,7 @@ const validEntityDomains = [
  */
  export class RichStringProcessor {
 
-    constructor(private hass: HomeAssistant, private entityData: IMap<any> | undefined) {
+    constructor(private hass: HomeAssistantExt, private entityData: IMap<any> | undefined) {
     }
 
     /**

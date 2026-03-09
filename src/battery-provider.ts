@@ -194,7 +194,7 @@ export class BatteryProvider {
      * Adds batteries from group entities (if they were on the list)
      * @param hass Home Assistant instance
      */
-    private processGroupEntities(hass: HomeAssistant): void {
+    private processGroupEntities(hass: HomeAssistantExt): void {
         this.groupsToResolve.forEach(group_id => {
             const groupEntity = hass.states[group_id];
             if (!groupEntity) {
