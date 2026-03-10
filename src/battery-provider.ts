@@ -23,6 +23,7 @@ const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [
     "tap_action",
     "value_override",
     "unit",
+    "style",
 ];
 
 /**
@@ -60,7 +61,7 @@ export class BatteryProvider {
      */
     private initialized: boolean = false;
 
-    constructor(private config: IBatteryCardConfig) {
+    constructor(private config: IBatteryStateCardConfig) {
         this.include = config.filter?.include?.map(createFilter);
         this.exclude = config.filter?.exclude?.map(createFilter);
 

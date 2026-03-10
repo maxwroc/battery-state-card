@@ -71,6 +71,7 @@ export const customOrDefaultIcon = (model: BatteryStateEntity) => {
 }
 
 export const batteryHtml = (model: BatteryStateEntity) => html`
+${model.dynamicStyles ? html`<style>${model.dynamicStyles}</style>` : ""}
 ${customOrDefaultIcon(model)}
 <div class="name truncate">
     ${model.name}

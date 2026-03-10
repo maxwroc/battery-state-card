@@ -111,6 +111,7 @@ These options can be specified both per-entity and at the top level (affecting a
 | debug | boolean \| string | `false` | v3.2.0 | Whether to show debug output (all available entity data). You can use entity_id if you want to debug specific one.
 | respect_visibility_setting | boolean | `true` | v3.3.0 | Whether to hide entities which are marked in the UI as hidden on dashboards.
 | unpack | boolean | `false` | v3.4.0 | Whether to unpack entities that have an `entity_id` array attribute (e.g. sensor groups) into separate batteries. ([example](#unpacking-grouped-entities))
+| style | string |  | v3.4.0 | Custom CSS rules injected into the element's shadow DOM. Allows targeting inner elements (e.g. `.name`, `.state`, `.icon`). Can be used together with card-level `theme`. ([example](#custom-styles))
 
 ### Keyword string (KString)
 
@@ -787,6 +788,62 @@ entities:
 ```
 
 **Light/Dark Mode Support**: The card automatically detects if your theme has separate light and dark modes and applies the appropriate mode based on Home Assistant's dark mode setting.
+
+### Custom styles
+
+You can use the `style` property to inject custom CSS rules into the component's shadow DOM. This allows you to target inner HTML elements like `.name`, `.state`, `.icon`, `ha-card`, etc.
+
+#### Card-level custom styles
+
+```yaml
+type: custom:battery-state-card
+style: |
+  ha-card {
+    background: #1E1E1E;
+  }
+  .name {
+    font-weight: bold;
+  }
+entities:
+  - sensor.bedroom_motion_battery_level
+  - sensor.bathroom_motion_battery_level
+```
+
+You can also use CSS variables to customize the look:
+
+```yaml
+type: custom:battery-state-card
+style: ":host { --ha-card-background: #1E1E1E; --primary-text-color: #E0E0E0; }"
+entities:
+  - sensor.bedroom_motion_battery_level
+```
+
+#### Per-entity custom styles
+
+Since `style` is a [common option](#common-options), it can be set per-entity to style individual battery elements:
+
+```yaml
+type: custom:battery-state-card
+title: "Custom styled entities"
+entities:
+  - entity: sensor.bedroom_battery
+    style: ".name { color: red; }"
+  - sensor.bathroom_battery  # no custom style
+```
+
+#### Combining with themes
+
+You can combine `style` with `theme`. Theme CSS variables are applied as inline styles on the host element, while custom `style` rules are injected into the shadow DOM — so both work independently:
+
+```yaml
+type: custom:battery-state-card
+theme: slate
+style: |
+  :host { --primary-color: #ff5722; }
+  .name { font-style: italic; }
+entities:
+  - sensor.bedroom_motion_battery_level
+```
 
 ### Unpacking grouped entities
 

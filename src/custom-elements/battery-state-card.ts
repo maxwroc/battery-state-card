@@ -14,13 +14,19 @@ import defaultConfig from "../default-config";
 /**
  * Battery Card element
  */
-export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
+export class BatteryStateCard extends LovelaceCard<IBatteryStateCardConfig> {
 
     /**
      * Card title
      */
     @property({attribute: false})
     public header: string | undefined;
+
+    /**
+     * Dynamic styles from theme and custom style config
+     */
+    @property({attribute: false})
+    public dynamicStyles: string = "";
 
     /**
      * List of entity IDs to render (without group)
@@ -68,13 +74,12 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
 
         this.header = this.config.title;
 
-        // Apply theme styles directly to host element
+        // Apply theme styles to host element via style attribute
         const themeStyles = getThemeStyles(<any>this.hass, this.config.theme);
-        if (themeStyles) {
-            this.style.cssText = themeStyles;
-        } else {
-            this.style.cssText = "";
-        }
+        this.style.cssText = themeStyles || "";
+
+        // Custom style config goes into shadow DOM style block
+        this.dynamicStyles = this.config.style || "";
 
         this.batteries = this.batteryProvider.getBatteries();
 

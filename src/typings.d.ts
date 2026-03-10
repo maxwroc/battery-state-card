@@ -265,6 +265,11 @@ interface IBatteryEntityConfig {
      * Whether to unpack entity_id attribute and create separate batteries for each entity
      */
     unpack?: boolean,
+
+    /**
+     * Custom CSS styles to apply to the element
+     */
+    style?: string,
 }
 
 interface IBatteryCardConfig {
@@ -297,17 +302,12 @@ interface IBatteryCardConfig {
      * Name of the theme to apply (must be installed in Home Assistant)
      */
     theme?: string;
-
-    /**
-     * Whether to unpack entities having entity_id array attribute into separate batteries
-     */
-    unpack?: boolean;
 }
 
 /**
  * Battery card root config
  */
-interface IBatteryStateCardConfig extends IBatteryCardConfig, IBatteryEntityConfig  {
+interface IBatteryStateCardConfig extends IBatteryCardConfig, Omit<IBatteryEntityConfig, "entity"> {
 
 }
 
