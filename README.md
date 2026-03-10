@@ -110,6 +110,7 @@ These options can be specified both per-entity and at the top level (affecting a
 | default_state_formatting | boolean | `true` | v3.1.0 | Can be used to disable default state formatting e.g. entity display precission setting
 | debug | boolean \| string | `false` | v3.2.0 | Whether to show debug output (all available entity data). You can use entity_id if you want to debug specific one.
 | respect_visibility_setting | boolean | `true` | v3.3.0 | Whether to hide entities which are marked in the UI as hidden on dashboards.
+| unpack | boolean | `false` | v3.4.0 | Whether to unpack entities that have an `entity_id` array attribute (e.g. sensor groups) into separate batteries. ([example](#unpacking-grouped-entities))
 
 ### Keyword string (KString)
 
@@ -786,6 +787,41 @@ entities:
 ```
 
 **Light/Dark Mode Support**: The card automatically detects if your theme has separate light and dark modes and applies the appropriate mode based on Home Assistant's dark mode setting.
+
+### Unpacking grouped entities
+
+Some entities (e.g. sensor groups or template sensors) contain an `entity_id` attribute with a list of other entity IDs. You can unpack these into separate battery entries.
+
+Entities in the `group` domain are always unpacked automatically. For entities in other domains (e.g. `sensor`) you can enable unpacking either per-entity or at the card level.
+
+#### Per-entity unpack
+
+Use `unpack: true` on a specific entity to unpack only that one:
+
+```yaml
+type: custom:battery-state-card
+title: "Sensor group batteries"
+entities:
+  - entity: sensor.battery_group
+    unpack: true
+  - sensor.some_other_battery # this one is shown as-is
+```
+
+#### Card-level unpack
+
+Use `unpack: true` at the card level to automatically unpack all entities that have an `entity_id` array attribute:
+
+```yaml
+type: custom:battery-state-card
+title: "Auto-unpack all groups"
+unpack: true
+filter:
+  include:
+    - name: attributes.device_class
+      value: battery
+```
+
+Note: When card-level `unpack` is enabled, any entity (regardless of domain) whose `entity_id` attribute is an array will be replaced by its child entities. Entities without an `entity_id` array attribute are unaffected.
 
 ### Other use cases
 

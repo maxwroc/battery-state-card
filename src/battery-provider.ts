@@ -77,6 +77,10 @@ export class BatteryProvider {
             this.initialized = true;
             this.processGroupEntities(hass);
             this.processIncludes(hass);
+
+            if (this.config.unpack) {
+                this.processUnpackEntities(hass);
+            }
         }
 
         const updateComplete = Object.keys(this.batteries).map(id => {
@@ -126,7 +130,7 @@ export class BatteryProvider {
                 throw new Error("Invalid configuration - missing property 'entity' on:\n" + JSON.stringify(e));
             }
 
-            if (e.entity.startsWith("group.")) {
+            if (e.entity.startsWith("group.") || e.unpack) {
                 this.groupsToResolve.push(e.entity);
                 return false;
             }
@@ -221,6 +225,31 @@ export class BatteryProvider {
         });
 
         this.groupsToResolve = [];
+    }
+
+    /**
+     * Checks existing batteries for entity_id array attribute and unpacks them.
+     * @param hass Home Assistant instance
+     */
+    private processUnpackEntities(hass: HomeAssistantExt): void {
+        const toUnpack: string[] = [];
+
+        Object.keys(this.batteries).forEach(entityId => {
+            const entity = hass.states[entityId];
+            if (entity && Array.isArray(entity.attributes?.entity_id)) {
+                toUnpack.push(entityId);
+            }
+        });
+
+        toUnpack.forEach(entityId => {
+            delete this.batteries[entityId];
+            const entityIds = hass.states[entityId].attributes.entity_id as string[];
+            entityIds.forEach(childId => {
+                if (!this.batteries[childId]) {
+                    this.batteries[childId] = this.createBattery({ entity: childId });
+                }
+            });
+        });
     }
 
     /**
