@@ -260,6 +260,11 @@ interface IBatteryEntityConfig {
      * Whether to respect HA entity visibility setting
      */
     respect_visibility_setting?: boolean,
+
+    /**
+     * Whether to unpack entity_id attribute and create separate batteries for each entity
+     */
+    unpack?: boolean,
 }
 
 interface IBatteryCardConfig {
@@ -292,6 +297,11 @@ interface IBatteryCardConfig {
      * Name of the theme to apply (must be installed in Home Assistant)
      */
     theme?: string;
+
+    /**
+     * Whether to unpack entities having entity_id array attribute into separate batteries
+     */
+    unpack?: boolean;
 }
 
 /**
