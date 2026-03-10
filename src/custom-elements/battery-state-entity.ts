@@ -57,6 +57,12 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     public iconColor: string;
 
     /**
+     * Dynamic styles from custom style config
+     */
+    @property({ attribute: false })
+    public dynamicStyles: string = "";
+
+    /**
      * Tap action
      */
     @property({ attribute: false })
@@ -127,6 +133,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, this.entityData);
         this.icon = getIcon(this.config, level, isCharging, this.hass);
         this.iconColor = getColorForBatteryLevel(this.config, level, isCharging);
+        this.dynamicStyles = this.config.style || "";
     }
 
     connectedCallback() {
