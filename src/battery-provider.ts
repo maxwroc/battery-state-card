@@ -1,8 +1,8 @@
-import { extendEntityData, log, safeGetConfigArrayOfObjects } from "./utils";
-import { HomeAssistant } from "custom-card-helpers";
+import { log, safeGetConfigArrayOfObjects } from "./utils";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 import { createFilter, Filter } from "./filter";
 import { HomeAssistantExt } from "./type-extensions";
+import { hassRegistryCache } from "./hass-registry-cache";
 
 /**
  * Properties which should be copied over to individual entities from the card
@@ -177,6 +177,15 @@ export class BatteryProvider {
 
         const advancedInclude = this.include.some(filter => filter.is_advanced);
 
+        // Collect required registry fields from include filters
+        const requiredFields = advancedInclude
+            ? [...new Set(
+                this.include
+                    .filter(f => f.requiredFields)
+                    .reduce((acc, f) => [...acc, ...f.requiredFields!], [] as RegistryDataField[])
+              )]
+            : undefined;
+
         Object.keys(hass.states).forEach(entityId => {
 
             if (this.batteries[entityId]) {
@@ -186,7 +195,13 @@ export class BatteryProvider {
 
             let entityData = <IMap<any>>{};
             if (advancedInclude) {
-                entityData = extendEntityData(hass, entityId, { ...hass.states[entityId] });
+                entityData = { ...hass.states[entityId] };
+                const extData = hassRegistryCache.getExtendedData(hass, entityId, requiredFields);
+                if (extData.display) {
+                    entityData["display"] = extData.display;
+                    entityData["device"] = extData.device;
+                    entityData["area"] = extData.area;
+                }
             }
 
             // check if entity matches filter conditions
@@ -286,7 +301,7 @@ export class BatteryProvider {
 
             // we keep the view model to keep updating it
             // it might be shown/not-hidden after next update
-            isHidden? battery.hideEntity() : battery.showEntity();
+            isHidden ? battery.hideEntity() : battery.showEntity();
         });
 
         toBeRemoved.forEach(entityId => delete this.batteries[entityId]);

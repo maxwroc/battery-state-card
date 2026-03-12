@@ -1,4 +1,3 @@
-import { DeviceRegistryEntry, HomeAssistantExt } from "./type-extensions";
 
 export const printVersion = () => console.info(
     "%c BATTERY-STATE-CARD %c [VI]{version}[/VI]",
@@ -184,32 +183,6 @@ export const getValueFromObject = (dataObject: any, path: string): string | numb
 }
 
 
-
-/**
- * Adds display, device and area objects to entityData
- */
-export const extendEntityData = (hass: HomeAssistantExt, entity_id: string, entityData: IMap<any>): IMap<any> => {
-
-        if (!hass) {
-            return entityData;
-        }
-
-        const entityDisplayEntry = hass.entities && hass.entities[entity_id];
-
-        if (entityDisplayEntry) {
-            entityData["display"] = entityDisplayEntry;
-            entityData["device"] = entityDisplayEntry.device_id
-                ? hass.devices && hass.devices[entityDisplayEntry.device_id]
-                : undefined;
-
-            const area_id = entityDisplayEntry.area_id || (<DeviceRegistryEntry>entityData["device"])?.area_id;
-            if (area_id && hass.areas) {
-                entityData["area"] = hass.areas[area_id];
-            }
-    }
-
-    return entityData;
-}
 
 /**
  * Converts theme object to CSS variables string for inline styles
