@@ -59,9 +59,14 @@ const getDefaultChargingState = (hass?: HomeAssistantExt, siblings?: ISiblingEnt
     }
 
     for (const sibling of siblings) {
-        // enum sensor with charging states (higher priority - return immediately)
+        // enum sensor with charging states
         if (sibling.device_class === "enum") {
             return ["charging", "full"].includes(hass.states[sibling.entity_id]?.state);
+        }
+
+        // binary_sensor with device_class: plug
+        if (sibling.entity_id.startsWith("binary_sensor.") && sibling.device_class === "plug") {
+            return hass.states[sibling.entity_id]?.state === "on";
         }
     }
 
