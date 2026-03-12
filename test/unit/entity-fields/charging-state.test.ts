@@ -192,4 +192,78 @@ describe("Charging state", () => {
         expect(isCharging).toBe(true);
     })
 
+    test.each([
+        ["on", true],
+        ["off", false],
+    ])("default charging state from binary_sensor plug on same device (state: %s)", (plugState: string, expected: boolean) => {
+        const hassMock = new HomeAssistantMock(true);
+        const batteryEntity = hassMock.addEntity("Battery level", "80", {}, "sensor");
+        const plugEntity = hassMock.addEntity("Charger plug", plugState, { device_class: "plug" }, "binary_sensor");
+        const siblings = [makeSibling(plugEntity.entity_id, "plug")];
+
+        const isCharging = getChargingState(
+            { entity: batteryEntity.entity_id },
+            "80",
+            hassMock.hass,
+            siblings,
+        );
+
+        expect(isCharging).toBe(expected);
+    })
+
+    test("default charging state: enum entity takes precedence over plug on same device", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const batteryEntity = hassMock.addEntity("Battery level", "80", {}, "sensor");
+        const enumEntity = hassMock.addEntity("Battery state", "discharging", { device_class: "enum" }, "sensor");
+        const plugEntity = hassMock.addEntity("Charger plug", "on", { device_class: "plug" }, "binary_sensor");
+        const siblings = [
+            makeSibling(enumEntity.entity_id, "enum"),
+            makeSibling(plugEntity.entity_id, "plug"),
+        ];
+
+        const isCharging = getChargingState(
+            { entity: batteryEntity.entity_id },
+            "80",
+            hassMock.hass,
+            siblings,
+        );
+
+        // enum entity found first with "discharging" ? not a charging state
+        expect(isCharging).toBe(false);
+    })
+
+    test("plug entity on different device is ignored", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const batteryEntity = hassMock.addEntity("Battery level", "80", {}, "sensor");
+        hassMock.addEntity("Other plug", "on", { device_class: "plug" }, "binary_sensor");
+        // siblings is empty because plug is on a different device
+        const siblings: ISiblingEntity[] = [];
+
+        const isCharging = getChargingState(
+            { entity: batteryEntity.entity_id },
+            "80",
+            hassMock.hass,
+            siblings,
+        );
+
+        expect(isCharging).toBe(false);
+    })
+
+    test("plug entity without device_class plug is ignored", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const batteryEntity = hassMock.addEntity("Battery level", "80", {}, "sensor");
+        const binaryEntity = hassMock.addEntity("Some binary", "on", {}, "binary_sensor");
+        // no device_class ? undefined
+        const siblings = [makeSibling(binaryEntity.entity_id)];
+
+        const isCharging = getChargingState(
+            { entity: batteryEntity.entity_id },
+            "80",
+            hassMock.hass,
+            siblings,
+        );
+
+        expect(isCharging).toBe(false);
+    })
+
 });
