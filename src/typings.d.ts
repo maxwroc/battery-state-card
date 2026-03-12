@@ -130,7 +130,7 @@ interface IChargingState {
 /**
  * Filter group types
  */
-type FilterGroups = "exclude" | "include";
+type FilterGroupTypes = "exclude" | "include";
 
 /**
  * Supprted filter operators
@@ -163,6 +163,8 @@ interface IFilter {
 }
 
 type FilterSpec = IFilter | { not: FilterSpec | FilterSpec[] } | { and: FilterSpec[] } | { or: FilterSpec[] }
+
+type FilterGroup = { [key in FilterGroupTypes]: FilterSpec[] };
 
 interface IBatteryEntityConfig {
 
@@ -296,7 +298,12 @@ interface IBatteryCardConfig {
     /**
      * Filters for auto adding or removing entities
      */
-    filter?: { [key in FilterGroups]: FilterSpec[] };
+    filter?: FilterGroup;
+
+    /**
+     * Alias for filter
+     */
+    filters?: FilterGroup;
 
     /**
      * Name of the theme to apply (must be installed in Home Assistant)
@@ -337,6 +344,11 @@ interface IGroupConfig {
     icon_color?: string;
     min?: number;
     max?: number;
+    filter?: FilterSpec[];
+    /**
+     * Alias for filters
+     */
+    filters?: FilterSpec[];
 }
 
 interface IAction {

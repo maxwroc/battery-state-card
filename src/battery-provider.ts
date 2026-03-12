@@ -62,8 +62,9 @@ export class BatteryProvider {
     private initialized: boolean = false;
 
     constructor(private config: IBatteryStateCardConfig) {
-        this.include = config.filter?.include?.map(createFilter);
-        this.exclude = config.filter?.exclude?.map(createFilter);
+        const filterConfig = config.filter || config.filters;
+        this.include = filterConfig?.include?.map(createFilter);
+        this.exclude = filterConfig?.exclude?.map(createFilter);
 
         if (!this.include) {
             this.initialized = false;
