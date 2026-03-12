@@ -6,6 +6,7 @@
 [![hacs_badge][hacs-shield]][hacs]
 [![Coverage Status](https://coveralls.io/repos/github/maxwroc/battery-state-card/badge.svg?branch=master)](https://coveralls.io/github/maxwroc/battery-state-card?branch=master)
 [![Community Forum][forum-shield]][forum]
+[![Buy me a coffee][coffee-shield]][coffee-link]
 
 <!-- ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/maxwroc/battery-state-card/release-drafter.yml?label=tests) -->
 
@@ -1240,7 +1241,15 @@ Tests in `card` and `entity` directory are e2e tests which run in Electron (head
 
 ## Do you like the card?
 
-If you do like the card please star it on [github](https://github.com/maxwroc/battery-state-card)! This is a great way to give feedback and motivation boost for me to continue working on it. Thanks!
+If you do like the card please star it on [github](https://github.com/maxwroc/battery-state-card)!
+
+If you want to show your support please
+
+[![Buy me a coffee][coffee-image]][coffee-link]
+
+Thanks!
+
+If you think that I deserve
 
 ## License
 
@@ -1265,3 +1274,6 @@ Click on "copy url" button and paste it in your browser. If you have configured 
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=popout
 [hacs-shield]: https://img.shields.io/badge/HACS-Default-orange.svg
 [hacs]: https://hacs.xyz/docs/default_repositories
+[coffee-shield]: https://img.shields.io/badge/Buy_me_a-coffee-yellow?logo=buymeacoffee&logoColor=ffffff
+[coffee-link]: https://buymeacoffee.com/maxwroc
+[coffee-image]: https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png
