@@ -166,6 +166,21 @@ type FilterSpec = IFilter | { not: FilterSpec | FilterSpec[] } | { and: FilterSp
 
 type FilterGroup = { [key in FilterGroupTypes]: FilterSpec[] };
 
+type RegistryDataField = "display" | "device" | "area" | "siblings";
+
+interface ISiblingEntity {
+    entity_id: string;
+    device_class?: string;
+    state_class?: string;
+}
+
+interface IEntityRegistryCache {
+    display?: import("./type-extensions").EntityRegistryDisplayEntry;
+    device?: import("./type-extensions").DeviceRegistryEntry;
+    area?: import("./type-extensions").AreaRegistryEntry;
+    siblings: ISiblingEntity[];
+}
+
 interface IBatteryEntityConfig {
 
     /**

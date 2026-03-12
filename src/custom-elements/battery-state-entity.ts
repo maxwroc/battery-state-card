@@ -1,6 +1,6 @@
 import { css } from "lit";
 import { property } from "lit/decorators.js"
-import { extendEntityData, safeGetConfigObject } from "../utils";
+import { safeGetConfigObject } from "../utils";
 import { batteryHtml, debugOutput } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
@@ -14,6 +14,7 @@ import { getName } from "../entity-fields/get-name";
 import { getIcon } from "../entity-fields/get-icon";
 import { EntityRegistryDisplayEntry } from "../type-extensions";
 import { RichStringProcessor } from "../rich-string-processor";
+import { hassRegistryCache } from "../hass-registry-cache";
 
 /**
  * Battery entity element
@@ -106,9 +107,15 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         };
 
         if (this.config.extend_entity_data !== false) {
-            this.entityData = extendEntityData(this.hass, this.config.entity, this.entityData);
+            const extData = hassRegistryCache.getExtendedData(this.hass, this.config.entity);
 
-            // make sure entity is visible when it should be shown
+            if (extData?.display) {
+                this.entityData["display"] = extData.display;
+                this.entityData["device"] = extData.device;
+                this.entityData["area"] = extData.area;
+                this.entityData["siblings"] = extData.siblings;
+            }
+
             this.showEntity();
         }
 
@@ -124,7 +131,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         this.unit = unit;
         this.stateNumeric = level;
 
-        const isCharging = getChargingState(this.config, this.state, this.hass);
+        const isCharging = getChargingState(this.config, this.state, this.hass, this.entityData["siblings"]);
         const chargingText = this.config.charging_state?.secondary_info_text || "Charging"; // todo: think about i18n
         const processor = new RichStringProcessor(this.hass, this.entityData);
         this.entityData["charging"] = isCharging ? processor.process(chargingText) : "";

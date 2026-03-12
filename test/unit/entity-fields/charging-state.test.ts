@@ -1,6 +1,12 @@
 import { getChargingState } from "../../../src/entity-fields/charging-state";
 import { HomeAssistantMock } from "../../helpers";
 
+const makeSibling = (entity_id: string, device_class?: string, state_class?: string): ISiblingEntity => ({
+    entity_id,
+    device_class,
+    state_class,
+});
+
 describe("Charging state", () => {
 
     test("is false when there is no charging configuration", () => {
@@ -73,17 +79,35 @@ describe("Charging state", () => {
     test.each([
         ["charging", true],
         ["full", true],
-        ["full", false, " missing"],
-    ])("default charging state", (chargingEntityState: string, expected: boolean, missingEntitySuffix = "") => {
+        ["discharging", false],
+    ])(
+        "default charging state via device enum sibling (state: %s)",
+        (chargingEntityState: string, expected: boolean) => {
+            const hassMock = new HomeAssistantMock(true);
+            const batteryEntity = hassMock.addEntity("Battery level", "80", {}, "sensor");
+            const enumEntity = hassMock.addEntity("Battery state", chargingEntityState, { device_class: "enum" }, "sensor");
+            const siblings = [makeSibling(enumEntity.entity_id, "enum")];
+
+            const isCharging = getChargingState(
+                { entity: batteryEntity.entity_id },
+                batteryEntity.state,
+                hassMock.hass,
+                siblings,
+            );
+
+            expect(isCharging).toBe(expected);
+        },
+    )
+
+    test("default charging state returns false when no device info", () => {
         const hassMock = new HomeAssistantMock(true);
-        const entity = hassMock.addEntity("Sensor battery level", "80", { is_charging: "true" })
-        const entityChargingState = hassMock.addEntity("Sensor battery state" + missingEntitySuffix, chargingEntityState)
+        const batteryEntity = hassMock.addEntity("Battery level", "80", {}, "sensor");
         const isCharging = getChargingState(
-            { entity: entity.entity_id },
-            entity.state,
+            { entity: batteryEntity.entity_id },
+            batteryEntity.state,
             hassMock.hass);
 
-        expect(isCharging).toBe(expected);
+        expect(isCharging).toBe(false);
     })
 
     test("returns false when entity is not found in hass", () => {

@@ -84,6 +84,11 @@ export abstract class Filter {
     abstract get is_advanced(): boolean;
 
     /**
+     * Required registry data fields for the filter to work.
+     */
+    abstract get requiredFields(): RegistryDataField[] | undefined;
+
+    /**
      * Checks whether entity meets the filter conditions.
      * @param entityData Hass entity data
      * @param state State override - battery state/level
@@ -102,6 +107,14 @@ abstract class CompositeFilter extends Filter {
 
     override get is_advanced(): boolean {
         return this.filters.some(filter => filter.is_advanced);
+    }
+
+    override get requiredFields(): RegistryDataField[] | undefined {
+        const fields = this.filters
+            .filter(f => f.is_advanced && f.requiredFields)
+            // flatMap is not supported in all browsers, so we use map + reduce
+            .reduce((acc, f) => [...acc, ...f.requiredFields!], [] as RegistryDataField[]);
+        return fields.length > 0 ? fields : undefined;
     }
 }
 
@@ -131,6 +144,19 @@ export class FieldFilter extends Filter {
 
     override get is_advanced(): boolean {
         return this.config.name.startsWith("display.") || this.config.name.startsWith("device.") || this.config.name.startsWith("area.");
+    }
+
+    override get requiredFields(): RegistryDataField[] | undefined {
+        if (this.config.name.startsWith("display.")) {
+            return ["display"];
+        }
+        if (this.config.name.startsWith("device.")) {
+            return ["device"];
+        }
+        if (this.config.name.startsWith("area.")) {
+            return ["area"];
+        }
+        return undefined;
     }
 
     constructor(private config: IFilter) {
