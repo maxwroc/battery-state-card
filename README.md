@@ -393,6 +393,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | icon_color | string |  | v2.0.0 | Group icon color. It can be a static HTML (e.g. `#ff0000`) or dynamic (`first` or `last`) color value based on the battery colors in the group.
 | min | number |  | v1.4.0 | Minimal battery level. Batteries below that level won't be assigned to this group.
 | max | number |  | v1.4.0 | Maximal battery level. Batteries above that level won't be assigned to this group.
+| filter | list([Filter](#filter-object)) |  | v3.4.0 | Advanced filters for assigning batteries to the group (same filter syntax as card-level [filters](#filters)). When specified `min`/`max` are ignored. Supports [composite filters](#composite-filters).
 | entities | list(string) |  | v1.4.0 | List of endity ids
 
 ## Examples
@@ -550,7 +551,7 @@ entities:
 ```
 ### Battery groups
 
-Battery groups allow you to group together set of batteries/entities based on couple conditions. You can use HA group entities to tell which entities should go to the group, or you can set min/max battery levels, or specify explicit list of entities which should be assigned to particular group.
+Battery groups allow you to group together set of batteries/entities based on couple conditions. You can use HA group entities to tell which entities should go to the group, or you can set min/max battery levels, or specify explicit list of entities which should be assigned to particular group. You can also use advanced filters (same syntax as the card-level [filters](#filters)) for more flexible group assignment.
 
 Note: If you have battery groups defined in Home Assistant you can use their IDs instead of single entity ID (in `entities` collection).
 
@@ -581,6 +582,44 @@ entities:
     multiplier: 10
   # entities from below HA group won't be grouped as there is no corresponding collapsed group
   - group.switches_batteries
+```
+
+**Using filters in groups**
+
+You can use advanced filters instead of `min`/`max` for more flexible group assignment. The filters use the same syntax as the card-level [filters](#filters), including support for [composite filters](#composite-filters) (`and`, `or`, `not`). All filters must match for a battery to be assigned to the group.
+
+Note: The order of groups matters. Each battery is assigned to the first group whose filters match. If a battery meets the conditions of multiple groups it will only appear in the earliest matching one.
+
+```yaml
+type: 'custom:battery-state-card'
+title: Battery groups with filters
+sort: "state"
+filter:
+  include:
+    - name: attributes.device_class
+      value: battery
+collapse:
+  - name: "Office critical ({count})"
+    icon: 'mdi:battery-alert'
+    filter:
+      - name: state
+        operator: "<"
+        value: 20
+      - name: area.name
+        value: Office
+  - name: "Low ({count})"
+    icon: 'mdi:battery-low'
+    filter:
+      - name: state
+        operator: "<"
+        value: 20
+  - name: "OK ({count})"
+    icon: 'mdi:battery'
+    filter:
+      - not:
+          name: state
+          operator: "<"
+          value: 20
 ```
 
 ### Non-numeric state values

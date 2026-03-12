@@ -1,5 +1,6 @@
 import { log, toNumber } from "./utils";
 import { IBatteryCollection, IBatteryCollectionItem } from "./battery-provider";
+import { createFilter, Filter } from "./filter";
 
 export interface IBatteryGroup {
     title?: string;
@@ -37,9 +38,10 @@ export const getBatteryGroups = (batteries: IBatteryCollection, sortedIds: strin
     }
     else {// make sure that max property is set for every group
         populateMinMaxFields(config);
+        const compiledFilters = compileGroupFilters(config);
 
         sortedIds.forEach(id => {
-            const foundIndex = getGroupIndex(config, batteries[id], haGroupData);
+            const foundIndex = getGroupIndex(config, batteries[id], haGroupData, compiledFilters);
             if (foundIndex == -1) {
                 // batteries without group
                 result.list.push(id);
@@ -74,9 +76,10 @@ export const getBatteryGroups = (batteries: IBatteryCollection, sortedIds: strin
  * @param config Collapsing groups config
  * @param battery Batterry view model
  * @param haGroupData Home assistant group data
+ * @param compiledFilters Compiled filter instances for each group
  */
-const getGroupIndex = (config: IGroupConfig[], battery: IBatteryCollectionItem, haGroupData: IGroupDataMap): number => {
-    return config.findIndex(group => {
+const getGroupIndex = (config: IGroupConfig[], battery: IBatteryCollectionItem, haGroupData: IGroupDataMap, compiledFilters: (Filter[] | undefined)[]): number => {
+    return config.findIndex((group, index) => {
 
         if (group.group_id && !haGroupData[group.group_id]?.entity_id?.some(id => battery.entityId == id)) {
             return false;
@@ -86,11 +89,23 @@ const getGroupIndex = (config: IGroupConfig[], battery: IBatteryCollectionItem, 
             return false
         }
 
+        const filters = compiledFilters[index];
+        if (filters) {
+            return filters.every(f => f.isValid(battery.entityData, battery.state));
+        }
+
         const level = isNaN(toNumber(battery.state)) ? 0 : toNumber(battery.state);
 
         return level >= group.min! && level <= group.max!;
     });
 }
+
+/**
+ * Compiles filter specs into Filter instances for each group.
+ * Returns undefined for groups without filters.
+ */
+const compileGroupFilters = (config: IGroupConfig[]): (Filter[] | undefined)[] =>
+    config.map(group => (group.filters || group.filter)?.map(createFilter));
 
 /**
  * Sets missing max/min fields.

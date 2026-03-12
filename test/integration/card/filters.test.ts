@@ -105,3 +105,29 @@ hiddenStateTests.forEach(([isHidden, respectVisibilitySetting, numOfRenderedEnti
         expect(card.itemsCount).to.equal(numOfRenderedEntities);
     });
 });
+
+it("'filters' works as alias for 'filter' at card level", async () => {
+
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    hass.addEntity("Bedroom motion battery level", "90");
+    hass.addEntity("Temp sensor battery level", "50");
+
+    const cardElem = hass.addCard("battery-state-card", <any>{
+        title: "Header",
+        filters: {
+            include: [
+                {
+                    name: "entity_id",
+                    value: "*_battery_level"
+                }
+            ],
+        },
+        entities: []
+    });
+
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+
+    expect(card.itemsCount).to.equal(2);
+});
