@@ -1,4 +1,4 @@
-import { getValueFromObject, safeGetArray, safeGetConfigArrayOfObjects, isNumber, toNumber } from "../../src/utils";
+import { getValueFromObject, safeGetArray, safeGetConfigArrayOfObjects, isNumber, toNumber, parseRelativeTime } from "../../src/utils";
 
 describe("Utils", () => {
 
@@ -108,6 +108,29 @@ describe("Utils", () => {
             [45.5, 45.5],
         ])("toNumber(%p) returns %p", (value: any, expected: number) => {
             expect(toNumber(value)).toBe(expected);
+        });
+    });
+
+    describe("parseRelativeTime", () => {
+        test.each([
+            ["30m", 30 * 60 * 1000],
+            ["1h", 60 * 60 * 1000],
+            ["24h", 24 * 60 * 60 * 1000],
+            ["7d", 7 * 24 * 60 * 60 * 1000],
+            ["2w", 2 * 7 * 24 * 60 * 60 * 1000],
+            ["1.5h", 1.5 * 60 * 60 * 1000],
+        ])("parseRelativeTime(%p) returns %p", (value: string, expected: number) => {
+            expect(parseRelativeTime(value)).toBe(expected);
+        });
+
+        test.each([
+            ["invalid"],
+            ["24"],
+            ["h"],
+            ["24x"],
+            [""],
+        ])("parseRelativeTime(%p) returns undefined for invalid input", (value: string) => {
+            expect(parseRelativeTime(value)).toBeUndefined();
         });
     });
 });
