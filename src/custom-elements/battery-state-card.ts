@@ -65,6 +65,9 @@ export class BatteryStateCard extends LovelaceCard<IBatteryStateCardConfig> {
                 this.config = { ... defaultConfig };
             }
 
+            // resolve alias
+            this.config.collapse = this.config.collapse || this.config.group;
+
             this.batteryProvider = new BatteryProvider(this.config);
         }
 
