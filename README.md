@@ -1091,6 +1091,68 @@ colors:
 ```
 
 
+## Battery Notes
+
+This card has built-in support for the [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) integration. Battery Notes is a popular HACS integration that adds additional information about battery devices, such as battery type and quantity.
+
+When Battery Notes is installed it creates additional entities for each device (on the `battery_notes` platform). The card handles them in two ways:
+
+1. **Automatic filtering** - Battery Notes entities are automatically excluded when entities are discovered via include filters, preventing duplicate entries in the card.
+2. **Extra attributes** - Battery Notes data (e.g. `battery_type`, `battery_quantity`) is resolved from sibling entities and made available under the `battery_notes` key in entity data. This means you can use these values in templates such as `secondary_info`.
+
+This feature is **enabled by default**. If something doesn't work as expected you can turn it off:
+
+```yaml
+type: custom:battery-state-card
+battery_notes_enabled: false
+```
+
+Or per-entity:
+
+```yaml
+type: custom:battery-state-card
+entities:
+  - entity: sensor.my_device_battery
+    battery_notes_enabled: false
+```
+
+When enabled, you can reference Battery Notes attributes in `secondary_info`:
+
+```yaml
+type: custom:battery-state-card
+secondary_info: "{battery_notes.battery_type}"
+filter:
+  include:
+    - name: attributes.device_class
+      value: battery
+```
+
+You can also group batteries by battery type using [group filters](#group-object):
+
+```yaml
+type: custom:battery-state-card
+secondary_info: "{battery_notes.battery_type}"
+filter:
+  include:
+    - name: attributes.device_class
+      value: battery
+sort:
+  by: state
+collapse:
+  - name: "CR2032 ({count})"
+    icon: mdi:battery
+    filter:
+      - name: battery_notes.battery_type
+        value: CR2032
+  - name: "AAA ({count})"
+    icon: mdi:battery
+    filter:
+      - name: battery_notes.battery_type
+        value: AAA
+  - name: "Other ({count})"
+    icon: mdi:battery-unknown
+```
+
 ## Installation
 
 Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs/121727) add the following resource to your **lovelace** configuration (if you have yaml mode active)

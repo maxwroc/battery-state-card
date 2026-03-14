@@ -1,5 +1,7 @@
 import { AreaRegistryEntry, DeviceRegistryEntry, EntityRegistryDisplayEntry, HomeAssistantExt } from "./type-extensions";
 
+export const BATTERY_NOTES_PLATFORM = "battery_notes";
+
 /**
  * Caches Home Assistant registry data (areas, devices, entity display entries)
  * individually by their IDs, and provides extended entity data including siblings.
@@ -109,6 +111,34 @@ export class HassRegistryCache {
                     state_class: state?.attributes?.state_class,
                 };
             });
+    }
+
+    /**
+     * Resolves battery_notes attributes from sibling entities on the same device.
+     * This is NOT cached as battery_notes data can change dynamically.
+     */
+    resolveBatteryNotesData(hass: HomeAssistantExt, siblings: ISiblingEntity[]): IMap<any> | undefined {
+        if (!siblings || siblings.length === 0) {
+            return undefined;
+        }
+
+        for (const sibling of siblings) {
+            const display = this.getDisplay(hass, sibling.entity_id);
+            if (display?.platform !== BATTERY_NOTES_PLATFORM) {
+                continue;
+            }
+
+            const state = hass.states[sibling.entity_id];
+            if (!state ||
+                state.attributes?.device_class !== "battery" ||
+                state.attributes?.battery_quantity === undefined) {
+                continue;
+            }
+
+            return state.attributes;
+        }
+
+        return undefined;
     }
 }
 

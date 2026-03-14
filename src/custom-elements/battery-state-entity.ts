@@ -114,6 +114,14 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
                 this.entityData["device"] = extData.device;
                 this.entityData["area"] = extData.area;
                 this.entityData["siblings"] = extData.siblings;
+
+                // battery_notes data is resolved on every update (not cached) as it can change dynamically
+                if (this.config.battery_notes_enabled !== false && extData?.siblings && extData.siblings.length > 0) {
+                    const batteryNotesData = hassRegistryCache.resolveBatteryNotesData(this.hass, extData.siblings);
+                    if (batteryNotesData) {
+                        this.entityData["battery_notes"] = batteryNotesData;
+                    }
+                }
             }
 
             this.showEntity();

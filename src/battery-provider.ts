@@ -2,7 +2,7 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 import { createFilter, Filter } from "./filter";
 import { HomeAssistantExt } from "./type-extensions";
-import { hassRegistryCache } from "./hass-registry-cache";
+import { BATTERY_NOTES_PLATFORM, hassRegistryCache } from "./hass-registry-cache";
 
 /**
  * Properties which should be copied over to individual entities from the card
@@ -24,6 +24,7 @@ const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [
     "value_override",
     "unit",
     "style",
+    "battery_notes_enabled",
 ];
 
 /**
@@ -176,8 +177,9 @@ export class BatteryProvider {
         }
 
         const advancedInclude = this.include.some(filter => filter.is_advanced);
+        const filterBatteryNotes = this.config.battery_notes_enabled !== false;
 
-        // Collect required registry fields from include filters
+        // Collect required registry fields from include filters, we do it to optimize the initialization stage by fetching only necessary data
         const requiredFields = advancedInclude
             ? [...new Set(
                 this.include
@@ -196,6 +198,7 @@ export class BatteryProvider {
             let entityData = <IMap<any>>{};
             if (advancedInclude) {
                 entityData = { ...hass.states[entityId] };
+                // getting "partial" extended data based on filters requirements
                 const extData = hassRegistryCache.getExtendedData(hass, entityId, requiredFields);
                 if (extData.display) {
                     entityData["display"] = extData.display;
@@ -206,6 +209,15 @@ export class BatteryProvider {
 
             // check if entity matches filter conditions
             if (this.include!.some(filter => filter.isValid(advancedInclude ? entityData : hass.states[entityId]))) {
+
+                // Filter out battery_notes entities (duplicates created by the integration)
+                if (filterBatteryNotes) {
+                    const display = hassRegistryCache.getDisplay(hass, entityId);
+                    if (display?.platform === BATTERY_NOTES_PLATFORM) {
+                        return;
+                    }
+                }
+
                 this.batteries[entityId] = this.createBattery({ entity: entityId });
             }
         });
