@@ -179,6 +179,7 @@ interface IEntityRegistryCache {
     device?: import("./type-extensions").DeviceRegistryEntry;
     area?: import("./type-extensions").AreaRegistryEntry;
     siblings: ISiblingEntity[];
+    battery_notes?: IMap<any>;
 }
 
 interface IBatteryEntityConfig {
@@ -287,6 +288,11 @@ interface IBatteryEntityConfig {
      * Custom CSS styles to apply to the element
      */
     style?: string,
+
+    /**
+     * Whether to use battery_notes integration data (filter duplicates, add attributes)
+     */
+    battery_notes_enabled?: boolean;
 }
 
 interface IBatteryCardConfig {
