@@ -56,6 +56,27 @@ export const toNumber = (value: string | number | boolean | null | undefined): n
     return Number(value);
 }
 
+const timeUnits: { [key: string]: number } = {
+    "m": 60 * 1000,
+    "h": 60 * 60 * 1000,
+    "d": 24 * 60 * 60 * 1000,
+    "w": 7 * 24 * 60 * 60 * 1000,
+};
+
+/**
+ * Parses relative time string (e.g. "24h", "30m", "7d", "2w") into milliseconds
+ * @param val Relative time string
+ * @returns Duration in milliseconds or undefined if parsing fails
+ */
+export const parseRelativeTime = (val: string): number | undefined => {
+    const match = val.match(/^(\d+(?:\.\d+)?)\s*([mhdw])$/);
+    if (!match) {
+        return undefined;
+    }
+
+    return parseFloat(match[1]) * timeUnits[match[2]];
+}
+
 /**
  * Returns array of values regardles if given value is string array or null
  * @param val Value to process

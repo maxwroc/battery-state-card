@@ -1,4 +1,4 @@
-import { getRegexFromString, getValueFromObject, isNumber, log, safeGetArray, toNumber } from "./utils";
+import { getRegexFromString, getValueFromObject, isNumber, log, parseRelativeTime, safeGetArray, toNumber } from "./utils";
 
 /**
  * Helper to validate that operands are not arrays for numeric/equality operators
@@ -34,18 +34,38 @@ const operatorHandlers: { [key in FilterOperator]: (val: FilterValueType, expect
     },
     ">": (val, expectedVal) => {
         ensureNotArray(val, expectedVal, ">");
+        const durationMs = parseRelativeTime(String(expectedVal));
+        if (durationMs !== undefined) {
+            const timestamp = new Date(String(val)).getTime();
+            return !isNaN(timestamp) && Date.now() - timestamp > durationMs;
+        }
         return toNumber(val as any) > toNumber(expectedVal as any);
     },
     "<": (val, expectedVal) => {
         ensureNotArray(val, expectedVal, "<");
+        const durationMs = parseRelativeTime(String(expectedVal));
+        if (durationMs !== undefined) {
+            const timestamp = new Date(String(val)).getTime();
+            return !isNaN(timestamp) && Date.now() - timestamp < durationMs;
+        }
         return toNumber(val as any) < toNumber(expectedVal as any);
     },
     ">=": (val, expectedVal) => {
         ensureNotArray(val, expectedVal, ">=");
+        const durationMs = parseRelativeTime(String(expectedVal));
+        if (durationMs !== undefined) {
+            const timestamp = new Date(String(val)).getTime();
+            return !isNaN(timestamp) && Date.now() - timestamp >= durationMs;
+        }
         return toNumber(val as any) >= toNumber(expectedVal as any);
     },
     "<=": (val, expectedVal) => {
         ensureNotArray(val, expectedVal, "<=");
+        const durationMs = parseRelativeTime(String(expectedVal));
+        if (durationMs !== undefined) {
+            const timestamp = new Date(String(val)).getTime();
+            return !isNaN(timestamp) && Date.now() - timestamp <= durationMs;
+        }
         return toNumber(val as any) <= toNumber(expectedVal as any);
     },
     "matches": (val, pattern) => {

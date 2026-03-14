@@ -284,8 +284,8 @@ Operator is an optional property. If operator is not specified it depends on `va
 | `"exists"` | v1.3.0 | It checks if field is present (e.g. to match entities having particular attribute regardless of the attribute value). It doesn't require `value` to be specified.
 | `"not_exists"` | v3.1.0 | It checks if field is not present (e.g. to match entities without particular attribute). It doesn't require `value` to be specified.
 | `"="` | v1.3.0 | If value equals the one specified in `value` property.
-| `">"` | v1.3.0 | If value is greater than one specified in `value` property. Possible variant: `">="`. Value must be numeric type.
-| `"<"` | v1.3.0 | If value is lower than one specified in `value` property. Possible variant: `"<="`. Value must be numeric type.
+| `">"` | v1.3.0 | If value is greater than one specified in `value` property. Possible variant: `">="`. Value must be numeric or datetime type.
+| `"<"` | v1.3.0 | If value is lower than one specified in `value` property. Possible variant: `"<="`. Value must be numeric or datetime type.
 | `"contains"` | v1.3.0 | If value contains the one specified in `value` property. **Since v4.0.0**: Also supports arrays - checks if any array element contains the search string.
 | `"matches"` | v1.3.0 | If value matches the one specified in `value` property. You can use wildcards (e.g. `"*_battery_level"`) or regular expression (must be prefixed and followed by slash e.g. `"/[a-z_]+_battery_level/"`)
 
@@ -306,6 +306,18 @@ filter:
         name: "device.labels"
         operator: contains
         value: "ignore_battery"
+```
+
+**Example: Exclude entities not updated within the last 24 hours (show only stale devices)**
+```yaml
+filter:
+  include:
+    - name: attributes.device_class
+      value: battery
+  exclude:
+    - name: last_updated
+      operator: ">"
+      value: "24h"
 ```
 
 ### Tap-Action
