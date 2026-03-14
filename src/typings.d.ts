@@ -317,6 +317,11 @@ interface IBatteryCardConfig {
     collapse?: number | IGroupConfig[];
 
     /**
+     * Alias for collapse
+     */
+    group?: number | IGroupConfig[];
+
+    /**
      * Filters for auto adding or removing entities
      */
     filter?: FilterGroup;
@@ -370,6 +375,10 @@ interface IGroupConfig {
      * Alias for filters
      */
     filters?: FilterSpec[];
+    /**
+     * Property path to automatically create sub-groups by (e.g. "area.name", "battery_notes.attributes.battery_type")
+     */
+    by?: string;
 }
 
 interface IAction {

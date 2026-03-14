@@ -1,4 +1,4 @@
-import { log, toNumber } from "./utils";
+import { getValueFromObject, log, toNumber } from "./utils";
 import { IBatteryCollection, IBatteryCollectionItem } from "./battery-provider";
 import { createFilter, Filter } from "./filter";
 
@@ -37,18 +37,21 @@ export const getBatteryGroups = (batteries: IBatteryCollection, sortedIds: strin
         }
     }
     else {// make sure that max property is set for every group
-        populateMinMaxFields(config);
-        const compiledFilters = compileGroupFilters(config);
+        // Expand group-by entries into explicit group configs
+        const groupConfigs = expandGroupByConfigs(config, batteries, sortedIds);
+
+        populateMinMaxFields(groupConfigs);
+        const compiledFilters = compileGroupFilters(groupConfigs);
 
         sortedIds.forEach(id => {
-            const foundIndex = getGroupIndex(config, batteries[id], haGroupData, compiledFilters);
+            const foundIndex = getGroupIndex(groupConfigs, batteries[id], haGroupData, compiledFilters);
             if (foundIndex == -1) {
                 // batteries without group
                 result.list.push(id);
             }
             else {
                 // bumping group index as the first group is for the orphans
-                result.groups[foundIndex] = result.groups[foundIndex] || createGroup(haGroupData, [], config[foundIndex]);
+                result.groups[foundIndex] = result.groups[foundIndex] || createGroup(haGroupData, [], groupConfigs[foundIndex]);
                 result.groups[foundIndex].batteryIds.push(id);
             }
         });
@@ -69,6 +72,51 @@ export const getBatteryGroups = (batteries: IBatteryCollection, sortedIds: strin
     });
 
     return result;
+}
+
+/**
+ * Expands group configs with "by" into explicit group configs.
+ * For each "by" entry, discovers unique values from entity data and creates
+ * one group per unique value with a filter matching that value (plus any original filters).
+ * Entities with missing/null/empty "by" values won't match any expanded group.
+ */
+const expandGroupByConfigs = (config: IGroupConfig[], batteries: IBatteryCollection, sortedIds: string[]): IGroupConfig[] => {
+    if (!config.some(g => g.by)) {
+        return config;
+    }
+
+    const expanded: IGroupConfig[] = [];
+
+    for (const group of config) {
+        if (!group.by) {
+            expanded.push(group);
+            continue;
+        }
+
+        // Discover unique values for this by path
+        const uniqueValues = new Set<string>();
+        for (const id of sortedIds) {
+            const value = getValueFromObject(batteries[id].entityData, group.by);
+            if (value !== undefined && value !== null && value !== "") {
+                uniqueValues.add(value.toString());
+            }
+        }
+
+        // Create one group config per unique value
+        const originalFilters = group.filter || group.filters || [];
+        for (const value of uniqueValues) {
+            const valueFilter: FilterSpec = { name: group.by, value: value };
+            expanded.push({
+                name: group.name || value,
+                secondary_info: group.secondary_info,
+                icon: group.icon,
+                icon_color: group.icon_color,
+                filter: [valueFilter, ...originalFilters],
+            });
+        }
+    }
+
+    return expanded;
 }
 
 /**

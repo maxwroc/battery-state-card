@@ -1,4 +1,4 @@
-
+﻿
 
 # Battery State Card
 [![GitHub Release][releases-shield]][releases]
@@ -42,7 +42,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 When config is empty the card is initialized with the default config which you can find below. Once you start adding custom configuration the default configuration won't be applied hence if you wish to alter the default config please copy-paste it from the below listing.
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 secondary_info: "{last_changed}"
 filter:
   include:
@@ -73,7 +73,7 @@ colors:
 | entities | list([Entity](#entity-object) \| string) |  | v0.9.0 | List of entities. It can be collection of entity/group IDs (strings) instead of Entity objects.
 | title | string |  | v0.9.0 | Card title
 | sort | list([Sort](#sort-object) \| string) |  | v3.0.0 | Sets the sorting options
-| collapse | number \| list([Group](#group-object)) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view)). Or list of entity/battery groups ([example](#battery-groups))
+| group | number \| list([Group](#group-object)) |  | v1.0.0 | Number of entities to show. Rest will be available in expandable section ([example](#sorted-list-and-collapsed-view)). Or list of entity/battery groups ([example](#battery-groups))
 | filter | [Filters](#filters) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
 | bulk_rename | list([Convert](#convert)) \| [BulkRename](#bulk-rename) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
 | theme | string |  | v3.3.0 | Name of the theme to apply (must be installed in Home Assistant). ([example](#using-themes))
@@ -241,7 +241,7 @@ filter:
 ```yaml
 filter:
   include:
-    - name: attributes.device_class
+    - name: "attributes.device_class"
       value: battery
   exclude:
     - not:
@@ -258,7 +258,7 @@ filter:
         - or:
             - name: entity_id
               value: "sensor.*_battery"
-            - name: attributes.device_class
+            - name: "attributes.device_class"
               value: battery
         - not:
             name: entity_id
@@ -286,7 +286,7 @@ Operator is an optional property. If operator is not specified it depends on `va
 ```yaml
 filter:
   include:
-    - name: device.labels
+    - name: "device.labels"
       operator: contains
       value: "office_stuff"
 ```
@@ -296,7 +296,7 @@ filter:
 filter:
   include:
     - not:
-        name: device.labels
+        name: "device.labels"
         operator: contains
         value: "ignore_battery"
 ```
@@ -323,17 +323,17 @@ Note: From version 3.3.0 card supports all native Home Assistant actions and rel
 # Navigate to device page using device_id from entity attributes
 tap_action:
   action: navigate
-  navigation_path: /config/devices/device/{attributes.device_id}
+  navigation_path: "/config/devices/device/{attributes.device_id}"
 
 # Open URL with dynamic content
 tap_action:
   action: url
-  url_path: https://example.com/battery-report?level={state}&device={attributes.device_name}
+  url_path: "https://example.com/battery-report?level={state}&device={attributes.device_name}"
 
 # Call service with dynamic data
 tap_action:
   action: call-service
-  service: notify.mobile_app
+  service: "notify.mobile_app"
   service_data:
     message: "Low battery alert: {state}%"
     title: "Warning for {attributes.friendly_name}"
@@ -344,7 +344,7 @@ tap_action:
 # Use KString functions in actions
 tap_action:
   action: call-service
-  service: script.battery_notification
+  service: "script.battery_notification"
   data:
     rounded_level: "{state|round(0)}"
     doubled_value: "{state|multiply(2)|round(1)}"
@@ -395,6 +395,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | min | number |  | v1.4.0 | Minimal battery level. Batteries below that level won't be assigned to this group.
 | max | number |  | v1.4.0 | Maximal battery level. Batteries above that level won't be assigned to this group.
 | filter | list([Filter](#filter-object)) |  | v3.4.0 | Advanced filters for assigning batteries to the group (same filter syntax as card-level [filters](#filters)). When specified `min`/`max` are ignored. Supports [composite filters](#composite-filters).
+| by | string |  | v3.4.0 | Property path to automatically create sub-groups by (e.g. `"area.name"`). Each unique value becomes a separate group. Entities with missing values stay ungrouped. Can be combined with `filter`. ([example](#dynamic-grouping-with-by))
 | entities | list(string) |  | v1.4.0 | List of endity ids
 
 ## Examples
@@ -407,12 +408,12 @@ Card view is useful when you want to have cleaner config (you don't need to dupl
 ![image](https://user-images.githubusercontent.com/8268674/79760617-3c291300-8318-11ea-8b97-006e3d537568.png)
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "Battery levels"
 entities:
   - sensor.bathroom_motion_battery_level
   - sensor.bedroom_balcony_battery_level
-  - entity: sensor.bedroom_motion_battery_level
+  - entity: "sensor.bedroom_motion_battery_level"
     name: "Bedroom motion sensor"
 ```
 
@@ -432,8 +433,8 @@ entities:
   - sensor.home_assistant_v2_db
   - sensor.hassio_online
   - sensor.last_boot
-  - type: custom:battery-state-entity
-    entity: sensor.temp_outside_battery_numeric
+  - type: "custom:battery-state-entity"
+    entity: "sensor.temp_outside_battery_numeric"
 ```
 
 ### Custom colors
@@ -443,7 +444,7 @@ entities:
 ![image](https://user-images.githubusercontent.com/8268674/79862088-6e487c80-83cd-11ea-8a84-4eecc3601ae2.png)
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "Custom color thresholds"
 colors:
   steps:
@@ -456,15 +457,15 @@ colors:
     - value: 100 # applied to all values below/equal
       color: "#fe8fff"
 entities:
-  - entity: sensor.bathroom_motion_battery_level
+  - entity: "sensor.bathroom_motion_battery_level"
     name: "Bathroom motion sensor"
-  - entity: sensor.bedroom_balcony_battery_level
+  - entity: "sensor.bedroom_balcony_battery_level"
     name: "Bedroom balkony door sensor"
-  - entity: sensor.bedroom_motion_battery_level
+  - entity: "sensor.bedroom_motion_battery_level"
     name: "Bedroom motion sensor"
-  - entity: sensor.bedroom_switch_battery_level
+  - entity: "sensor.bedroom_switch_battery_level"
     name: "Bedroom Aqara switch"
-  - entity: sensor.bedroomtemp_battery_level
+  - entity: "sensor.bedroomtemp_battery_level"
     name: "Bedroom temp. sensor"
 ```
 
@@ -473,7 +474,7 @@ entities:
 ![image](https://user-images.githubusercontent.com/8268674/79856685-8ec00900-83c4-11ea-82bf-b3df6385850f.png)
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "Color gradient"
 colors:
   steps:
@@ -482,15 +483,15 @@ colors:
     - "#00ff00" # green
   gradient: true
 entities:
-  - entity: sensor.bathroom_motion_battery_level
+  - entity: "sensor.bathroom_motion_battery_level"
     name: "Bathroom motion sensor"
-  - entity: sensor.bedroom_balcony_battery_level
+  - entity: "sensor.bedroom_balcony_battery_level"
     name: "Bedroom balkony door sensor"
-  - entity: sensor.bedroom_motion_battery_level
+  - entity: "sensor.bedroom_motion_battery_level"
     name: "Bedroom motion sensor"
-  - entity: sensor.bedroom_switch_battery_level
+  - entity: "sensor.bedroom_switch_battery_level"
     name: "Bedroom Aqara switch"
-  - entity: sensor.bedroomtemp_battery_level
+  - entity: "sensor.bedroomtemp_battery_level"
     name: "Bedroom temp. sensor"
 ```
 
@@ -501,7 +502,7 @@ When you put empty array in `steps` property you can disable colors.
 ![image](https://user-images.githubusercontent.com/8268674/79975932-aa461500-8493-11ea-9947-f4513863ae53.png)
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "No color"
 colors:
   steps: []
@@ -518,7 +519,7 @@ You can setup as well colors only for lower battery levels and leave the default
 ![image](https://user-images.githubusercontent.com/8268674/79977247-d793c280-8495-11ea-82f1-78f48ad4fc5b.png)
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "No color - selective"
 colors:
   steps:
@@ -539,7 +540,7 @@ entities:
 ![ezgif com-resize](https://user-images.githubusercontent.com/8268674/80119122-31bd8200-8581-11ea-9221-aee943d0b1a0.gif)
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "Sorted list and collapsed view"
 sort: "state"
 collapse: 4
@@ -570,15 +571,15 @@ collapse:
       - sensor.bedroom_balcony_battery_level
       - sensor.main_door_battery_level
       - sensor.living_room_balcony_battery_level
-  - group_id: group.motion_sensors_batteries # using HA group
+  - group_id: "group.motion_sensors_batteries" # using HA group
     secondary_info: No icon # Secondary info text
     icon: null # removing default icon for this group (from HA group definition)
-  - group_id: group.temp_sensors_batteries
+  - group_id: "group.temp_sensors_batteries"
     min: 99 # all entities below that level should show up ungroupped
     icon: 'mdi:thermometer' # override for HA group icon
 entities:
   # if you need to specify some properties for any entity in the group
-  - entity: sensor.bedroom_balcony_battery_level
+  - entity: "sensor.bedroom_balcony_battery_level"
     name: "Bedroom balkony door"
     multiplier: 10
   # entities from below HA group won't be grouped as there is no corresponding collapsed group
@@ -597,7 +598,7 @@ title: Battery groups with filters
 sort: "state"
 filter:
   include:
-    - name: attributes.device_class
+    - name: "attributes.device_class"
       value: battery
 collapse:
   - name: "Office critical ({count})"
@@ -606,7 +607,7 @@ collapse:
       - name: state
         operator: "<"
         value: 20
-      - name: area.name
+      - name: "area.name"
         value: Office
   - name: "Low ({count})"
     icon: 'mdi:battery-low'
@@ -623,22 +624,58 @@ collapse:
           value: 20
 ```
 
+### Dynamic grouping with `by`
+
+Instead of defining groups manually, you can use the `by` property to automatically create groups based on an entity data property. Each unique value of the property becomes a separate group. Entities where the value is missing, null, or empty stay ungrouped.
+
+> **Note:** When using dot-notation paths (e.g. `battery_notes.battery_type` or `area.name`), always wrap the value in quotes in YAML to prevent it from being interpreted as a nested key.
+
+**Group by area:**
+```yaml
+type: "custom:battery-state-card"
+filter:
+  include:
+    - name: "attributes.device_class"
+      value: battery
+group:
+  - by: "area.name"
+```
+
+**Group by battery type (Battery Notes):**
+```yaml
+type: "custom:battery-state-card"
+secondary_info: "{battery_notes.battery_type}"
+filter:
+  include:
+    - name: "attributes.device_class"
+      value: battery
+collapse:
+  - by: "battery_notes.battery_type"
+    icon: "mdi:battery-alert"
+    icon_color: red
+    filter:
+      - name: state
+        operator: "<"
+        value: 50
+  - by: "area.name"
+```
+
 ### Non-numeric state values
 
 If your sensor doesn't produce numeric values you can use `state_map` property and provie mappings from one value to the other.
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "String values - state map"
 entities:
-  - entity: binary_sensor.battery_state
+  - entity: "binary_sensor.battery_state"
     name: "Binary sensor state"
     state_map:
       - from: "on"
         to: 100
       - from: "off"
         to: 25
-  - entity: sensor.bedroom_motion
+  - entity: "sensor.bedroom_motion"
     name: "Sensor string attribute"
     attribute: "replace_battery"
     state_map:
@@ -655,19 +692,19 @@ If your device provides charging state you can configure it in the following way
 ![image](https://user-images.githubusercontent.com/8268674/80610521-5e661380-8a31-11ea-9c71-75e11c2ec009.png)
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "Charging indicators"
 entities:
-  - entity: sensor.device_battery_numeric
+  - entity: "sensor.device_battery_numeric"
     charging_state: # uses other entity state value
-      entity_id: binary_sensor.device_charging
+      entity_id: "binary_sensor.device_charging"
       state: "on"
-  - entity: sensor.mi_roborock
+  - entity: "sensor.mi_roborock"
     charging_state: # uses sensor.mi_roborock state value
       state: "charging"
       icon: "mdi:flash"
       color: "yellow"
-  - entity: sensor.samsung
+  - entity: "sensor.samsung"
     charging_state: # uses is_charging attribute on sensor.samsung entity
       attribute:
         name: "is_charging"
@@ -677,7 +714,7 @@ entities:
 Card-level charging state configuration
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "Charging indicators"
 charging_state:
   attribute: # whenever one of below attributes is matching
@@ -712,14 +749,14 @@ bulk_rename:
     to: " temp. "
 entities:
   # entities requiring additional properties can be added explicitly
-  - entity: sensor.temp_outside_battery_numeric
+  - entity: "sensor.temp_outside_battery_numeric"
     multiplier: 10
     name: "Outside temp. sensor"
 filter:
   include: # filters for auto-adding
     - name: entity_id # entities which id ends with "_battery_level"
       value: "*_battery_level"
-    - name: attributes.device_class # and entities which device_class attribute equals "battery"
+    - name: "attributes.device_class" # and entities which device_class attribute equals "battery"
       value: battery
   exclude: # filters for removing
     - name: state # exclude entities above 99% of battery level
@@ -744,7 +781,7 @@ filter:
   include: # filters for auto-adding
     - name: entity_id # entities which id ends with "_battery_level"
       value: "*_battery_level"
-    - name: attributes.device_class # and entities which device_class attribute equals "battery"
+    - name: "attributes.device_class" # and entities which device_class attribute equals "battery"
       value: battery
 ```
 
@@ -753,20 +790,20 @@ filter:
 ![image](https://user-images.githubusercontent.com/8268674/80970635-63510b80-8e13-11ea-8a9a-6bc8d873092b.png)
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 name: Secondary info
 secondary_info: "{last_updated}" # applied to all entities which don't have the override
 entities:
-  - entity: sensor.bedroom_motion_battery_level
+  - entity: "sensor.bedroom_motion_battery_level"
     name: "Bedroom motion sensor"
-  - entity: sensor.mi_robrock
+  - entity: "sensor.mi_robrock"
     secondary_info: "{charging}" # only appears when charging is detected
     charging_state:
       attribute:
         name: "is_charging"
         value: true
       secondary_info_text: "Charging at {state}%" # supports KString - shows current battery level
-  - entity: sensor.jacks_motorola
+  - entity: "sensor.jacks_motorola"
     name: "Jack's phone"
     secondary_info: "Motorola" # Static text
 ```
@@ -784,32 +821,32 @@ colors:
     - '#00ff00'
   gradient: true
 entities:
-  - entity: sensor.bedroom_motion_battery_level
+  - entity: "sensor.bedroom_motion_battery_level"
     name: More info
     tap_action: more-info
     value_override: 100
-  - entity: sensor.bathroom_motion_battery_level
+  - entity: "sensor.bathroom_motion_battery_level"
     name: Navigation path
     tap_action:
       action: navigate
       navigation_path: /lovelace/1
     value_override: 0
-  - entity: sensor.bedroomtemp_battery_level
+  - entity: "sensor.bedroomtemp_battery_level"
     name: Call service - Pushover
     tap_action:
       action: call-service
-      service: notify.pushover
+      service: "notify.pushover"
       service_data:
         message: Call service works
         title: Some title
     value_override: 60
-  - entity: sensor.bedroom_balcony_battery_level
+  - entity: "sensor.bedroom_balcony_battery_level"
     name: Url
     tap_action:
       action: url
       url_path: 'http://reddit.com'
     value_override: 20
-  - entity: sensor.bedroom_switch_battery_level
+  - entity: "sensor.bedroom_switch_battery_level"
     name: No action
     value_override: 80
 
@@ -820,7 +857,7 @@ entities:
 You can apply any Home Assistant theme to the card using the `theme` property. The card will apply the theme's CSS variables to match your Home Assistant theme.
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 theme: slate  # Apply the "slate" theme
 entities:
   - sensor.bedroom_motion_battery_level
@@ -836,7 +873,7 @@ You can use the `style` property to inject custom CSS rules into the component's
 #### Card-level custom styles
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 style: |
   ha-card {
     background: #1E1E1E;
@@ -852,7 +889,7 @@ entities:
 You can also use CSS variables to customize the look:
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 style: ":host { --ha-card-background: #1E1E1E; --primary-text-color: #E0E0E0; }"
 entities:
   - sensor.bedroom_motion_battery_level
@@ -863,20 +900,20 @@ entities:
 Since `style` is a [common option](#common-options), it can be set per-entity to style individual battery elements:
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "Custom styled entities"
 entities:
-  - entity: sensor.bedroom_battery
+  - entity: "sensor.bedroom_battery"
     style: ".name { color: red; }"
   - sensor.bathroom_battery  # no custom style
 ```
 
 #### Combining with themes
 
-You can combine `style` with `theme`. Theme CSS variables are applied as inline styles on the host element, while custom `style` rules are injected into the shadow DOM — so both work independently:
+You can combine `style` with `theme`. Theme CSS variables are applied as inline styles on the host element, while custom `style` rules are injected into the shadow DOM â€” so both work independently:
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 theme: slate
 style: |
   :host { --primary-color: #ff5722; }
@@ -896,10 +933,10 @@ Entities in the `group` domain are always unpacked automatically. For entities i
 Use `unpack: true` on a specific entity to unpack only that one:
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "Sensor group batteries"
 entities:
-  - entity: sensor.battery_group
+  - entity: "sensor.battery_group"
     unpack: true
   - sensor.some_other_battery # this one is shown as-is
 ```
@@ -909,12 +946,12 @@ entities:
 Use `unpack: true` at the card level to automatically unpack all entities that have an `entity_id` array attribute:
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "Auto-unpack all groups"
 unpack: true
 filter:
   include:
-    - name: attributes.device_class
+    - name: "attributes.device_class"
       value: battery
 ```
 
@@ -927,13 +964,13 @@ Note: When card-level `unpack` is enabled, any entity (regardless of domain) who
 <img width="476" height="435" alt="image" src="https://github.com/user-attachments/assets/f807eec3-81e7-4ef7-a3fd-522d961d259f" />
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 secondary_info: "{last_changed}"
 icon: >-
   mdi:signal-cellular-{state|abs()|greaterthan(80,outline)|greaterthan(75,1)|greaterthan(60,2)|greaterthan(2,3)}
 filter:
   include:
-    - name: attributes.device_class
+    - name: "attributes.device_class"
       value: signal_strength
 collapse: 7
 sort: state
@@ -961,9 +998,9 @@ colors:
 ![image](https://user-images.githubusercontent.com/10567188/151678867-28bd47b9-fb66-42ed-a78a-390d55860634.png)
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: HDD temperatures
-icon: mdi:harddisk
+icon: "mdi:harddisk"
 colors:
   steps:
     - value: 26
@@ -980,21 +1017,21 @@ collapse: 3
 sort:
   by: state
   desc: true
-unit: °C
+unit: Â°C
 round: 0
 filter:
   include:
     - name: entity_id
-      value: sensor.nasos_sd*
+      value: "sensor.nasos_sd*"
     - name: entity_id
-      value: sensor.omv2_sd*
+      value: "sensor.omv2_sd*"
     - name: entity_id
-      value: sensor.exnas_st12*temper*
+      value: "sensor.exnas_st12*temper*"
     - name: entity_id
-      value: sensor.*_disk_*_temperature
+      value: "sensor.*_disk_*_temperature"
 entities:
-  - entity: sensor.vidik_temperature
-  - entity: sensor.exnas_d1_temperatures_temperature
+  - entity: "sensor.vidik_temperature"
+  - entity: "sensor.exnas_d1_temperatures_temperature"
 ```
 
 #### Motion sensors (sorted by state and last changed property)
@@ -1002,17 +1039,17 @@ entities:
 ![image](https://github.com/maxwroc/battery-state-card/assets/8268674/cd9291bf-1804-4783-9436-622c4b63fe56)
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 secondary_info: '{last_changed}'
 icon: '{state|equals(off,mdi:motion-sensor-off)|equals(on,mdi:motion-sensor)}'
 filter:
   include:
-    - name: attributes.device_class
+    - name: "attributes.device_class"
       value: motion
 sort:
   - by: state
     desc: true
-  - by: entity.last_changed
+  - by: "entity.last_changed"
     desc: true
 colors:
   steps:
@@ -1037,21 +1074,21 @@ collapse: 8
 If your entities already have appropriate icons defined and you want to keep them instead of using battery icons, set `icon` to `null`:
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "Devices with original icons"
 entities:
-  - entity: sensor.phone_battery
+  - entity: "sensor.phone_battery"
     icon: null
-  - entity: sensor.tablet_battery
+  - entity: "sensor.tablet_battery"
     icon: null
-  - entity: sensor.watch_battery
+  - entity: "sensor.watch_battery"
     icon: null
 ```
 
 You can also apply it to all entities using [common options](#common-options):
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 title: "Devices with original icons"
 icon: null  # Apply to all entities
 filter:
@@ -1067,7 +1104,7 @@ The "HA-Battery_Notes HACS integration automatically adds additional information
 [HA-Battery-notes]: https://github.com/andrew-codechimp/HA-Battery-Notes
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 secondary_info: "{attributes.battery_type_and_quantity}"
 filter:
   include:
@@ -1075,7 +1112,7 @@ filter:
       value: "*battery_plus"
   exclude:
     - name: entity_id
-      value: binary_sensor.*
+      value: "binary_sensor.*"
 sort:
   by: state
   desc: true
@@ -1103,54 +1140,43 @@ When Battery Notes is installed it creates additional entities for each device (
 This feature is **enabled by default**. If something doesn't work as expected you can turn it off:
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 battery_notes_enabled: false
 ```
 
 Or per-entity:
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 entities:
-  - entity: sensor.my_device_battery
+  - entity: "sensor.my_device_battery"
     battery_notes_enabled: false
 ```
 
 When enabled, you can reference Battery Notes attributes in `secondary_info`:
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 secondary_info: "{battery_notes.battery_type}"
 filter:
   include:
-    - name: attributes.device_class
+    - name: "attributes.device_class"
       value: battery
 ```
 
-You can also group batteries by battery type using [group filters](#group-object):
+You can also group batteries by battery type using the `by` property in [group config](#group-object):
 
 ```yaml
-type: custom:battery-state-card
+type: "custom:battery-state-card"
 secondary_info: "{battery_notes.battery_type}"
 filter:
   include:
-    - name: attributes.device_class
+    - name: "attributes.device_class"
       value: battery
 sort:
   by: state
 collapse:
-  - name: "CR2032 ({count})"
-    icon: mdi:battery
-    filter:
-      - name: battery_notes.battery_type
-        value: CR2032
-  - name: "AAA ({count})"
-    icon: mdi:battery
-    filter:
-      - name: battery_notes.battery_type
-        value: AAA
-  - name: "Other ({count})"
-    icon: mdi:battery-unknown
+  - by: "battery_notes.battery_type"
 ```
 
 ## Installation
@@ -1160,14 +1186,14 @@ Once added to [HACS](https://community.home-assistant.io/t/custom-component-hacs
 lovelace:
   mode: yaml
   resources:
-    - url: /hacsfiles/battery-state-card/battery-state-card.js
+    - url: "/hacsfiles/battery-state-card/battery-state-card.js"
       type: module
 ```
 
 If you don't have HACS you can download js file from [latest release](https://github.com/maxwroc/battery-state-card/releases/latest). Drop it then in `www` folder in your `config` directory. Next add the following entry in lovelace configuration
 ```yaml
 resources:
-  - url: /local/battery-state-card.js
+  - url: "/local/battery-state-card.js"
     type: module
 ```
 
@@ -1181,7 +1207,7 @@ debug: true
 
 Or single entity by specifying entity_id:
 ```yaml
-debug: sensor.owl_energy_signal_strength
+debug: "sensor.owl_energy_signal_strength"
 ```
 
 ![image](https://github.com/maxwroc/battery-state-card/assets/8268674/04a2b1c8-662a-4067-9231-1d8314914ed3)
@@ -1279,7 +1305,7 @@ The `watch` script starts web server exposing dist dir so you can reference the 
 ```yaml
 lovelace:
   resources:
-    - url: http://127.0.0.1:5501/dist/battery-state-card.js
+    - url: "http://127.0.0.1:5501/dist/battery-state-card.js"
       type: module
 ```
 
