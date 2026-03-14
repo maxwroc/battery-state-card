@@ -143,12 +143,12 @@ export class FieldFilter extends Filter {
     }
 
     override get is_advanced(): boolean {
-        return this.config.name.startsWith("display.") || this.config.name.startsWith("device.") || this.config.name.startsWith("area.");
+        return this.config.name.startsWith("entity.") || this.config.name.startsWith("device.") || this.config.name.startsWith("area.");
     }
 
     override get requiredFields(): RegistryDataField[] | undefined {
-        if (this.config.name.startsWith("display.")) {
-            return ["display"];
+        if (this.config.name.startsWith("entity.")) {
+            return ["entity"];
         }
         if (this.config.name.startsWith("device.")) {
             return ["device"];

@@ -12,7 +12,7 @@ import { getChargingState } from "../entity-fields/charging-state";
 import { getBatteryLevel } from "../entity-fields/battery-level";
 import { getName } from "../entity-fields/get-name";
 import { getIcon } from "../entity-fields/get-icon";
-import { EntityRegistryDisplayEntry } from "../type-extensions";
+import { EntityRegistryEntry } from "../type-extensions";
 import { RichStringProcessor } from "../rich-string-processor";
 import { hassRegistryCache } from "../hass-registry-cache";
 
@@ -109,8 +109,8 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         if (this.config.extend_entity_data !== false) {
             const extData = hassRegistryCache.getExtendedData(this.hass, this.config.entity);
 
-            if (extData?.display) {
-                this.entityData["display"] = extData.display;
+            if (extData?.entity) {
+                this.entityData["entity"] = extData.entity;
                 this.entityData["device"] = extData.device;
                 this.entityData["area"] = extData.area;
                 this.entityData["siblings"] = extData.siblings;
@@ -175,7 +175,7 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     }
 
     showEntity(): void {
-        if (this.config.respect_visibility_setting !== false && (<EntityRegistryDisplayEntry>this.entityData?.display)?.hidden) {
+        if (this.config.respect_visibility_setting !== false && (<EntityRegistryEntry>this.entityData?.entity)?.hidden) {
             // When entity is marked as hidden in the UI we should respect it
             this.isHidden = true;
             return;

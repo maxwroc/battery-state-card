@@ -1,7 +1,7 @@
 import { BatteryStateCard } from "../src/custom-elements/battery-state-card";
 import { BatteryStateEntity } from "../src/custom-elements/battery-state-entity";
 import { LovelaceCard } from "../src/custom-elements/lovelace-card";
-import { DeviceRegistryEntry, EntityRegistryDisplayEntry, HomeAssistantExt, AreaRegistryEntry } from "../src/type-extensions";
+import { DeviceRegistryEntry, EntityRegistryEntry, HomeAssistantExt, AreaRegistryEntry } from "../src/type-extensions";
 import { throttledCall } from "../src/utils";
 
 /**
@@ -273,7 +273,7 @@ interface IEntityMock {
 }
 
 interface HaEntityPropertyToTypeMap {
-    "display": EntityRegistryDisplayEntry,
+    "entity": EntityRegistryEntry,
     "device": DeviceRegistryEntry,
     "area": AreaRegistryEntry,
 }

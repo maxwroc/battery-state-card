@@ -80,7 +80,7 @@ hiddenStateTests.forEach(([isHidden, respectVisibilitySetting, numOfRenderedEnti
     it(`Entity filtered based on hidden state - hidden:${isHidden}, respect:${respectVisibilitySetting}`, async () => {
         const hass = new HomeAssistantMock<BatteryStateCard>();
         const entity = hass.addEntity("Bedroom motion battery level", "90");
-        entity.setProperty("display", { entity_id: "", hidden: isHidden as boolean });
+        entity.setProperty("entity", { entity_id: "", hidden: isHidden as boolean });
 
         const cardElem = hass.addCard("battery-state-card", <any>{
             title: "Header",

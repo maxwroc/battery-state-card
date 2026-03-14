@@ -4,7 +4,7 @@ import { HomeAssistant, Theme, Themes } from "custom-card-helpers";
  * https://github.com/home-assistant/frontend/blob/dev/src/types.ts
  */
 export interface HomeAssistantExt extends Omit<HomeAssistant, 'themes'> {
-  entities: { [id: string]: EntityRegistryDisplayEntry };
+  entities: { [id: string]: EntityRegistryEntry };
   devices: { [id: string]: DeviceRegistryEntry };
   areas: { [id: string]: AreaRegistryEntry };
 
@@ -48,7 +48,7 @@ export interface ThemeExt extends Theme {
 
 type entityCategory = "config" | "diagnostic";
 
-export interface EntityRegistryDisplayEntry {
+export interface EntityRegistryEntry {
   entity_id: string;
   name?: string;
   device_id?: string;
