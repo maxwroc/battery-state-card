@@ -24,6 +24,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
   <summary>Update to v4.X.X</summary>
 
 * The `display` entity data field has been renamed to `entity`. If you use `display.` prefix in filters (e.g. `name: "display.platform"`), update them to use `entity.` (e.g. `name: "entity.platform"`). The same applies to KString references like `{display.name}` — use `{entity.name}` instead.
+* The KString `between` function now uses an **inclusive** range. Previously `between(2,6,30)` would match values strictly between 2 and 6 (exclusive); now it matches values from 2 to 6 inclusive. If you relied on the exclusive behavior, adjust your thresholds accordingly.
 </details>
 
 <details>
@@ -140,7 +141,7 @@ Keywords support simple functions to convert the values
 | multiply(\[number\]) | `"{state\|multiply(10)}"` | Multiplies the value by given number
 | greaterthan(\[threshold_number\],\[result_value\]) | `"{state\|greaterthan(10,100)}"` | Changes the value to a given one when the threshold is met. In the given example the value will be replaced to 100 when the current value is greater than 10
 | lessthan(\[threshold_number\],\[result_value\]) | `"{state\|lessthan(10,0)}"` | Changes the value to a given one when the threshold is met. In the given example the value will be replaced to 0 when the current value is less than 10
-| between(\[lower_threshold_number\],[upper_threshold_number\],\[result_value\]) | `"{state\|between(2,6,30)}"` | Changes the value to a given one when the value is between two given numbers. In the given example the value will be replaced to 30 when the current value is between 2 and 6
+| between(\[lower_threshold_number\],[upper_threshold_number\],\[result_value\]) | `"{state\|between(2,6,30)}"` | Changes the value to a given one when the value is between two given numbers (inclusive). In the given example the value will be replaced to 30 when the current value is between 2 and 6 (including 2 and 6)
 | thresholds(\[number1\],\[number2\],...) | `"{state\|thresholds(22,89,200,450)}"` | Converts the value to percentage based on given thresholds. In the given example values will be converted in the following way 20=>0, 30=>25, 99=>50, 250=>75, 555=>100
 | abs() | `"{state\|abs()}"` | Produces the absolute value
 | equals(\[value\],\[result_value\]) | `"{state\|equals(on,1)}"` | Changes the value conditionally - whenever the initial value is equal the given one

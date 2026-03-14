@@ -169,7 +169,7 @@ const availableProcessors: IMap<IProcessorCtor> = {
         const compareGreater = Number(chunks[1]);
         return val => {
             const numericVal = Number(val);
-            return compareLower < numericVal && compareGreater > numericVal ? chunks[2] : val;
+            return compareLower <= numericVal && compareGreater >= numericVal ? chunks[2] : val;
         }
     },
     "thresholds": (params) => {

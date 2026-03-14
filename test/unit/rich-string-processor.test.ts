@@ -118,8 +118,14 @@ describe("RichStringProcessor", () => {
         ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "7", "50"],
         ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "8", "100"],
         ["{state|lessthan(2,0)|greaterthan(7,100)|between(1,8,50)}", "70", "100"],
+        // between boundary values (inclusive range)
+        ["{state|between(5,10,50)}", "4", "4"],
+        ["{state|between(5,10,50)}", "5", "50"],
+        ["{state|between(5,10,50)}", "7", "50"],
+        ["{state|between(5,10,50)}", "10", "50"],
+        ["{state|between(5,10,50)}", "11", "11"],
         // missing params
-        ["{state|lessthan()|greaterthan(7,100)|between(1,8,50)}", "1", "1"],
+        ["{state|lessthan()|greaterthan(7,100)|between(1,8,50)}", "1", "50"],
         ["{state|lessthan(2,0)|greaterthan(7,100)|between()}", "5", "5"],
         ["{state|lessthan(2,0)|greaterthan()|between(1,8,50)}", "70", "70"],
     ])("greater, lessthan, between functions", (text: string, state:string, expectedResult: string) => {
