@@ -1,14 +1,14 @@
-import { AreaRegistryEntry, DeviceRegistryEntry, EntityRegistryDisplayEntry, HomeAssistantExt } from "./type-extensions";
+import { AreaRegistryEntry, DeviceRegistryEntry, EntityRegistryEntry, HomeAssistantExt } from "./type-extensions";
 
 export const BATTERY_NOTES_PLATFORM = "battery_notes";
 
 /**
- * Caches Home Assistant registry data (areas, devices, entity display entries)
+ * Caches Home Assistant registry data (areas, devices, entity registry entries)
  * individually by their IDs, and provides extended entity data including siblings.
  */
 export class HassRegistryCache {
 
-    private displays = new Map<string, EntityRegistryDisplayEntry>();
+    private entities = new Map<string, EntityRegistryEntry>();
     private devices = new Map<string, DeviceRegistryEntry>();
     private areas = new Map<string, AreaRegistryEntry>();
     private entityExtendedData = new Map<string, IEntityRegistryCache>();
@@ -24,18 +24,18 @@ export class HassRegistryCache {
         }
 
         const resolveAll = !requiredFields;
-        const needDisplay = resolveAll || requiredFields.includes("display") || requiredFields.includes("device") || requiredFields.includes("area");
+        const needEntity = resolveAll || requiredFields.includes("entity") || requiredFields.includes("device") || requiredFields.includes("area");
         const needDevice = resolveAll || requiredFields.includes("device") || requiredFields.includes("area");
         const needArea = resolveAll || requiredFields.includes("area");
         const needSiblings = resolveAll || requiredFields.includes("siblings");
 
-        const display = needDisplay ? this.getDisplay(hass, entityId) : undefined;
-        const device = needDevice && display?.device_id ? this.getDevice(hass, display.device_id) : undefined;
-        const areaId = needArea ? (display?.area_id || device?.area_id) : undefined;
+        const entityEntry = needEntity ? this.getEntity(hass, entityId) : undefined;
+        const device = needDevice && entityEntry?.device_id ? this.getDevice(hass, entityEntry.device_id) : undefined;
+        const areaId = needArea ? (entityEntry?.area_id || device?.area_id) : undefined;
         const area = areaId ? this.getArea(hass, areaId) : undefined;
-        const siblings = needSiblings ? this.resolveSiblings(hass, entityId, display?.device_id) : [];
+        const siblings = needSiblings ? this.resolveSiblings(hass, entityId, entityEntry?.device_id) : [];
 
-        const result: IEntityRegistryCache = { display, device, area, siblings };
+        const result: IEntityRegistryCache = { entity: entityEntry, device, area, siblings };
 
         // Only cache full resolutions to avoid incomplete data in cache
         if (resolveAll) {
@@ -46,17 +46,17 @@ export class HassRegistryCache {
     }
 
     /**
-     * Returns cached display entry for the given entity ID.
+     * Returns cached entity registry entry for the given entity ID.
      */
-    getDisplay(hass: HomeAssistantExt, entityId: string): EntityRegistryDisplayEntry | undefined {
-        let entry = this.displays.get(entityId);
+    getEntity(hass: HomeAssistantExt, entityId: string): EntityRegistryEntry | undefined {
+        let entry = this.entities.get(entityId);
         if (entry) {
             return entry;
         }
 
         entry = hass.entities?.[entityId];
         if (entry) {
-            this.displays.set(entityId, entry);
+            this.entities.set(entityId, entry);
         }
 
         return entry;
@@ -123,8 +123,8 @@ export class HassRegistryCache {
         }
 
         for (const sibling of siblings) {
-            const display = this.getDisplay(hass, sibling.entity_id);
-            if (display?.platform !== BATTERY_NOTES_PLATFORM) {
+            const entityEntry = this.getEntity(hass, sibling.entity_id);
+            if (entityEntry?.platform !== BATTERY_NOTES_PLATFORM) {
                 continue;
             }
 

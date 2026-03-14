@@ -166,7 +166,7 @@ type FilterSpec = IFilter | { not: FilterSpec | FilterSpec[] } | { and: FilterSp
 
 type FilterGroup = { [key in FilterGroupTypes]: FilterSpec[] };
 
-type RegistryDataField = "display" | "device" | "area" | "siblings";
+type RegistryDataField = "entity" | "device" | "area" | "siblings";
 
 interface ISiblingEntity {
     entity_id: string;
@@ -175,7 +175,7 @@ interface ISiblingEntity {
 }
 
 interface IEntityRegistryCache {
-    display?: import("./type-extensions").EntityRegistryDisplayEntry;
+    entity?: import("./type-extensions").EntityRegistryEntry;
     device?: import("./type-extensions").DeviceRegistryEntry;
     area?: import("./type-extensions").AreaRegistryEntry;
     siblings: ISiblingEntity[];

@@ -21,6 +21,12 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 ## Breaking changes
 
 <details>
+  <summary>Update to v4.X.X</summary>
+
+* The `display` entity data field has been renamed to `entity`. If you use `display.` prefix in filters (e.g. `name: "display.platform"`), update them to use `entity.` (e.g. `name: "entity.platform"`). The same applies to KString references like `{display.name}` — use `{entity.name}` instead.
+</details>
+
+<details>
   <summary>Update to v3.X.X</summary>
 
 * Secondary info last_updated / last_changed values. Now these values has to be put in quotes and curly braces e.g. `secondary_info: "{last_updated}"`
@@ -111,8 +117,8 @@ These options can be specified both per-entity and at the top level (affecting a
 | default_state_formatting | boolean | `true` | v3.1.0 | Can be used to disable default state formatting e.g. entity display precission setting
 | debug | boolean \| string | `false` | v3.2.0 | Whether to show debug output (all available entity data). You can use entity_id if you want to debug specific one.
 | respect_visibility_setting | boolean | `true` | v3.3.0 | Whether to hide entities which are marked in the UI as hidden on dashboards.
-| unpack | boolean | `false` | v3.4.0 | Whether to unpack entities that have an `entity_id` array attribute (e.g. sensor groups) into separate batteries. ([example](#unpacking-grouped-entities))
-| style | string |  | v3.4.0 | Custom CSS rules injected into the element's shadow DOM. Allows targeting inner elements (e.g. `.name`, `.state`, `.icon`). Can be used together with card-level `theme`. ([example](#custom-styles))
+| unpack | boolean | `false` | v4.0.0 | Whether to unpack entities that have an `entity_id` array attribute (e.g. sensor groups) into separate batteries. ([example](#unpacking-grouped-entities))
+| style | string |  | v4.0.0 | Custom CSS rules injected into the element's shadow DOM. Allows targeting inner elements (e.g. `.name`, `.state`, `.icon`). Can be used together with card-level `theme`. ([example](#custom-styles))
 
 ### Keyword string (KString)
 
@@ -279,7 +285,7 @@ Operator is an optional property. If operator is not specified it depends on `va
 | `"="` | v1.3.0 | If value equals the one specified in `value` property.
 | `">"` | v1.3.0 | If value is greater than one specified in `value` property. Possible variant: `">="`. Value must be numeric type.
 | `"<"` | v1.3.0 | If value is lower than one specified in `value` property. Possible variant: `"<="`. Value must be numeric type.
-| `"contains"` | v1.3.0 | If value contains the one specified in `value` property. **Since v3.4.0**: Also supports arrays - checks if any array element contains the search string.
+| `"contains"` | v1.3.0 | If value contains the one specified in `value` property. **Since v4.0.0**: Also supports arrays - checks if any array element contains the search string.
 | `"matches"` | v1.3.0 | If value matches the one specified in `value` property. You can use wildcards (e.g. `"*_battery_level"`) or regular expression (must be prefixed and followed by slash e.g. `"/[a-z_]+_battery_level/"`)
 
 **Example: Include entities with specific device label**
@@ -394,8 +400,8 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | icon_color | string |  | v2.0.0 | Group icon color. It can be a static HTML (e.g. `#ff0000`) or dynamic (`first` or `last`) color value based on the battery colors in the group.
 | min | number |  | v1.4.0 | Minimal battery level. Batteries below that level won't be assigned to this group.
 | max | number |  | v1.4.0 | Maximal battery level. Batteries above that level won't be assigned to this group.
-| filter | list([Filter](#filter-object)) |  | v3.4.0 | Advanced filters for assigning batteries to the group (same filter syntax as card-level [filters](#filters)). When specified `min`/`max` are ignored. Supports [composite filters](#composite-filters).
-| by | string |  | v3.4.0 | Property path to automatically create sub-groups by (e.g. `"area.name"`). Each unique value becomes a separate group. Entities with missing values stay ungrouped. Can be combined with `filter`. ([example](#dynamic-grouping-with-by))
+| filter | list([Filter](#filter-object)) |  | v4.0.0 | Advanced filters for assigning batteries to the group (same filter syntax as card-level [filters](#filters)). When specified `min`/`max` are ignored. Supports [composite filters](#composite-filters).
+| by | string |  | v4.0.0 | Property path to automatically create sub-groups by (e.g. `"area.name"`). Each unique value becomes a separate group. Entities with missing values stay ungrouped. Can be combined with `filter`. ([example](#dynamic-grouping-with-by))
 | entities | list(string) |  | v1.4.0 | List of endity ids
 
 ## Examples
@@ -1238,7 +1244,7 @@ After clicking on show/hide you will see the entity data which is available for 
   },
   "last_changed": "2024-02-11T14:24:59.597Z",
   "last_updated": "2024-02-11T14:24:59.597Z",
-  "display": {
+  "entity": {
     "entity_id": "sensor.owl_energy_signal_strength",
     "device_id": "91b4ffe9a73db4d1ee9482d0e7d94a84",
     "platform": "rfxtrx",

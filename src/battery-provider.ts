@@ -200,8 +200,8 @@ export class BatteryProvider {
                 entityData = { ...hass.states[entityId] };
                 // getting "partial" extended data based on filters requirements
                 const extData = hassRegistryCache.getExtendedData(hass, entityId, requiredFields);
-                if (extData.display) {
-                    entityData["display"] = extData.display;
+                if (extData.entity) {
+                    entityData["entity"] = extData.entity;
                     entityData["device"] = extData.device;
                     entityData["area"] = extData.area;
                 }
@@ -212,8 +212,8 @@ export class BatteryProvider {
 
                 // Filter out battery_notes entities (duplicates created by the integration)
                 if (filterBatteryNotes) {
-                    const display = hassRegistryCache.getDisplay(hass, entityId);
-                    if (display?.platform === BATTERY_NOTES_PLATFORM) {
+                    const entityEntry = hassRegistryCache.getEntity(hass, entityId);
+                    if (entityEntry?.platform === BATTERY_NOTES_PLATFORM) {
                         return;
                     }
                 }

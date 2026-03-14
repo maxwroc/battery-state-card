@@ -291,8 +291,8 @@ describe("Filter", () => {
         expect(filter.is_permanent).toBe(true);
     })
 
-    test("is_advanced is true for display filters", () => {
-        const filter = createFilter({ name: "display.entity_id", value: "sensor.battery" });
+    test("is_advanced is true for entity filters", () => {
+        const filter = createFilter({ name: "entity.entity_id", value: "sensor.battery" });
 
         expect(filter.is_advanced).toBe(true);
     })
@@ -330,7 +330,7 @@ describe("Filter", () => {
         const filter = createFilter({
             or: [
                 { name: "state", value: "50" },
-                { name: "display.entity_id", value: "sensor.battery" }
+                { name: "entity.entity_id", value: "sensor.battery" }
             ]
         });
 
