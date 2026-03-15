@@ -7,20 +7,26 @@ import { getBatteryGroups, IBatteryGroup } from "../grouping";
 import sharedStyles from "./shared.css"
 import cardStyles from "./battery-state-card.css"
 import { getIdsOfSortedBatteries } from "../sorting";
-import { safeGetConfigArrayOfObjects } from "../utils";
+import { safeGetConfigArrayOfObjects, getThemeStyles } from "../utils";
 import defaultConfig from "../default-config";
 
 
 /**
  * Battery Card element
  */
-export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
+export class BatteryStateCard extends LovelaceCard<IBatteryStateCardConfig> {
 
     /**
      * Card title
      */
     @property({attribute: false})
     public header: string | undefined;
+
+    /**
+     * Dynamic styles from theme and custom style config
+     */
+    @property({attribute: false})
+    public dynamicStyles: string = "";
 
     /**
      * List of entity IDs to render (without group)
@@ -53,11 +59,16 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
 
     async internalUpdate(configUpdated: boolean, hassUpdated: boolean) {
         if (this.batteryProvider == undefined || configUpdated) {
-            // checking whether we should apply default config
-            if (Object.keys(this.config).length == 1) {
-                // cloning default config
-                this.config = { ... defaultConfig };
+            // resolve aliases before merging so user-provided aliases override their default counterparts
+            if (this.config.filters && !this.config.filter) {
+                this.config.filter = this.config.filters;
             }
+            if (this.config.group && !this.config.collapse) {
+                this.config.collapse = this.config.group;
+            }
+
+            // shallow merge: default config values are used for any properties the user doesn't specify
+            this.config = { ...defaultConfig, ...this.config };
 
             this.batteryProvider = new BatteryProvider(this.config);
         }
@@ -67,6 +78,13 @@ export class BatteryStateCard extends LovelaceCard<IBatteryCardConfig> {
         }
 
         this.header = this.config.title;
+
+        // Apply theme styles to host element via style attribute
+        const themeStyles = getThemeStyles(<any>this.hass, this.config.theme);
+        this.style.cssText = themeStyles || "";
+
+        // Custom style config goes into shadow DOM style block
+        this.dynamicStyles = this.config.style || "";
 
         this.batteries = this.batteryProvider.getBatteries();
 

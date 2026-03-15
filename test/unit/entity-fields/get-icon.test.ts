@@ -81,4 +81,31 @@ describe("Get icon", () => {
         let icon = getIcon({ entity: "battery_state", icon: "attribute.icon_non_existing" }, 45, false, hassMock.hass);
         expect(icon).toBe("mdi:battery-unknown");
     })
+
+    test("default entity icon", () => {
+        const hassMock = new HomeAssistantMock();
+        hassMock.addEntity("Battery state", "45");
+
+        let icon = getIcon({ entity: "battery_state", icon: null }, 45, false, hassMock.hass);
+        // When icon is null, getIcon returns DefaultIcon (view layer uses ha-state-icon)
+        expect(icon).toBe("<default_icon>");
+    })
+
+    test("default entity icon - fallback to battery icon when entity has no icon", () => {
+        const hassMock = new HomeAssistantMock();
+        hassMock.addEntity("Battery state", "45");
+
+        let icon = getIcon({ entity: "battery_state", icon: null }, 45, false, hassMock.hass);
+        // When icon is null, getIcon returns DefaultIcon (view layer uses ha-state-icon)
+        expect(icon).toBe("<default_icon>");
+    })
+
+    test("default entity icon - custom icon override takes precedence", () => {
+        const hassMock = new HomeAssistantMock();
+        hassMock.addEntity("Battery state", "45");
+
+        // When icon is explicitly set to a value, it takes precedence over null
+        let icon = getIcon({ entity: "battery_state", icon: "mdi:custom-override" }, 45, false, hassMock.hass);
+        expect(icon).toBe("mdi:custom-override");
+    })
 });

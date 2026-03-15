@@ -49,7 +49,7 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistan
         }
     }
     else {
-        const candidates: (string | number | undefined)[] = [
+        const candidates: (string | number | null | undefined)[] = [
             config.non_battery_entity ? null: entityData.attributes.battery_level,
             config.non_battery_entity ? null: entityData.attributes.battery,
             entityData.state

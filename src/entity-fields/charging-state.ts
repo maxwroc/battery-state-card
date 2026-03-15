@@ -1,4 +1,4 @@
-import { HomeAssistant } from "custom-card-helpers/dist/types";
+import { HomeAssistantExt } from "../type-extensions";
 import { log, safeGetArray } from "../utils";
 
 /**
@@ -8,10 +8,10 @@ import { log, safeGetArray } from "../utils";
  * @param hass HomeAssistant state object
  * @returns Whether battery is in chargin mode
  */
- export const getChargingState = (config: IBatteryEntityConfig, state: string, hass: HomeAssistant): boolean => {
+ export const getChargingState = (config: IBatteryEntityConfig, state: string, hass: HomeAssistantExt, siblings?: ISiblingEntity[]): boolean => {
     const chargingConfig = config.charging_state;
     if (!chargingConfig) {
-        return getDefaultChargingState(config, hass);
+        return getDefaultChargingState(hass, siblings);
     }
 
     let entityWithChargingState = hass.states[config.entity];
@@ -53,19 +53,24 @@ import { log, safeGetArray } from "../utils";
     return statesIndicatingCharging.length == 0 ? !!state : statesIndicatingCharging.some(s => s == state);
 }
 
-const standardBatteryLevelEntitySuffix = "_battery_level";
-const standardBatteryStateEntitySuffix = "_battery_state";
-const getDefaultChargingState = (config: IBatteryEntityConfig, hass?: HomeAssistant): boolean => {
-    if (!config.entity.endsWith(standardBatteryLevelEntitySuffix)) {
+const getDefaultChargingState = (hass?: HomeAssistantExt, siblings?: ISiblingEntity[]): boolean => {
+    if (!hass || !siblings || siblings.length === 0) {
         return false;
     }
 
-    const batteryStateEntity = hass?.states[config.entity.replace(standardBatteryLevelEntitySuffix, standardBatteryStateEntitySuffix)];
-    if (!batteryStateEntity) {
-        return false;
+    for (const sibling of siblings) {
+        // enum sensor with charging states
+        if (sibling.device_class === "enum") {
+            return ["charging", "full"].includes(hass.states[sibling.entity_id]?.state);
+        }
+
+        // binary_sensor with device_class: plug
+        if (sibling.entity_id.startsWith("binary_sensor.") && sibling.device_class === "plug") {
+            return hass.states[sibling.entity_id]?.state === "on";
+        }
     }
 
-    return ["charging", "full"].includes(batteryStateEntity.state);
+    return false;
 }
 
 /**

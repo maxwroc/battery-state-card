@@ -27,7 +27,7 @@
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run-script",
-                "test+debug"
+                "test:debug"
             ],
             "args": [
                 "--",
@@ -61,7 +61,7 @@
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run-script",
-                "test+debug"
+                "test:debug"
             ],
             "args": [
                 "--",

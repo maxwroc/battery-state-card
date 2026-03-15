@@ -1,7 +1,7 @@
 import { BatteryStateCard } from "../src/custom-elements/battery-state-card";
 import { BatteryStateEntity } from "../src/custom-elements/battery-state-entity";
 import { LovelaceCard } from "../src/custom-elements/lovelace-card";
-import { DeviceRegistryEntry, EntityRegistryDisplayEntry, HomeAssistantExt, AreaRegistryEntry } from "../src/type-extensions";
+import { DeviceRegistryEntry, EntityRegistryEntry, HomeAssistantExt, AreaRegistryEntry } from "../src/type-extensions";
 import { throttledCall } from "../src/utils";
 
 /**
@@ -81,6 +81,12 @@ export class EntityElements {
     }
 
     get iconName() {
+        // Check for ha-state-icon (used for default entity icons)
+        const stateIcon = this.root.querySelector("ha-state-icon");
+        if (stateIcon) {
+            return "__ha-state-icon__"; // Special marker to indicate state icon is being used
+        }
+        // Check for ha-icon (used for battery/custom icons)
         return this.root.querySelector("ha-icon")?.getAttribute("icon");
     }
 
@@ -155,8 +161,8 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
 
     public hass: HomeAssistantExt = <any>{
         states: {},
-        localize: jest.fn((...data: string[]) => `[${data.join(", ")}]`),
-        formatEntityState: jest.fn((entityData: any) => `${entityData.state} %`),
+        localize: (...data: string[]) => `[${data.join(", ")}]`,
+        formatEntityState: (entityData: any) => `${entityData.state} %`,
     };
 
     private throttledUpdate = throttledCall(() => {
@@ -170,7 +176,7 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
     }
 
     mockFunc(funcName: keyof HomeAssistantExt, mockedFunc: Function) {
-        (<any>this.hass)[funcName] = jest.fn(<any>mockedFunc)
+        (<any>this.hass)[funcName] = <any>mockedFunc;
     }
 
     addCard<K extends LovelaceCard<T>>(type: string, config: extractGeneric<T>): T {
@@ -230,6 +236,7 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
             },
             setProperty: <K extends keyof HaEntityPropertyToTypeMap>(name: K, val: HaEntityPropertyToTypeMap[K]) => {
                 (<any>entity)[name] = val;
+                this.throttledUpdate();
             }
         };
 
@@ -266,7 +273,7 @@ interface IEntityMock {
 }
 
 interface HaEntityPropertyToTypeMap {
-    "display": EntityRegistryDisplayEntry,
+    "entity": EntityRegistryEntry,
     "device": DeviceRegistryEntry,
     "area": AreaRegistryEntry,
 }
