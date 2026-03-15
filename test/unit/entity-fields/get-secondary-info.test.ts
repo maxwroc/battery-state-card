@@ -46,9 +46,9 @@ describe("Secondary info", () => {
 
         const entityData = {
             ...hassMock.hass.states[entity.entity_id],
-            "charging": "Charging"
+            "charging": { text: "Charging", is_active: true }
         }
-        const result = getSecondaryInfo({ entity: entity.entity_id, secondary_info: "{charging}" }, hassMock.hass, entityData);
+        const result = getSecondaryInfo({ entity: entity.entity_id, secondary_info: "{charging.text}" }, hassMock.hass, entityData);
 
         expect(result).toBe("Charging");
     })
@@ -65,15 +65,15 @@ describe("Secondary info", () => {
     test("Actual dates should still be detected and wrapped", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("Test sensor", "50", {}, "sensor");
-        
+
         // Test ISO date format
         const result1 = getSecondaryInfo({ entity: entity.entity_id, secondary_info: "2023-12-25" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
         expect(result1).toBe("<rt>2023-12-25</rt>");
-        
+
         // Test datetime format (ISO 8601)
         const result2 = getSecondaryInfo({ entity: entity.entity_id, secondary_info: "2023-12-25T10:30:00" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
         expect(result2).toBe("<rt>2023-12-25T10:30:00</rt>");
-        
+
         // Test full datetime with timezone
         const result3 = getSecondaryInfo({ entity: entity.entity_id, secondary_info: "2023-12-25T10:30:00Z" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
         expect(result3).toBe("<rt>2023-12-25T10:30:00Z</rt>");

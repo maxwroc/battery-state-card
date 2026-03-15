@@ -135,7 +135,10 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         const isCharging = getChargingState(this.config, this.state, this.hass, this.entityData["siblings"]);
         const chargingText = this.config.charging_state?.secondary_info_text || "Charging"; // todo: think about i18n
         const processor = new RichStringProcessor(this.hass, this.entityData);
-        this.entityData["charging"] = isCharging ? processor.process(chargingText) : "";
+        this.entityData["charging"] = {
+            text: isCharging ? processor.process(chargingText) : "",
+            is_active: isCharging,
+        };
 
         if (this.config.debug === true || this.config.debug === this.config.entity) {
             this.alert = {
