@@ -110,11 +110,12 @@ const commandPattern = /(?<func>[a-z]+)\((?<params>[^\)]*)\)/;
 
 const availableProcessors: IMap<IProcessorCtor> = {
     "replace": (params) => {
-        const replaceDataChunks = params.split(",");
-        if (replaceDataChunks.length != 2) {
+        const separatorIndex = params.indexOf(",");
+        if (separatorIndex == -1) {
             log("'replace' function requires two params");
             return undefined;
         }
+        const replaceDataChunks = [params.substring(0, separatorIndex), params.substring(separatorIndex + 1)];
 
         return val => {
             return val.replace(replaceDataChunks[0], replaceDataChunks[1])

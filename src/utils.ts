@@ -155,7 +155,7 @@ export const throttledCall = function <T extends Function>(func: T, throttleMs: 
         }
 
         // schedule new call
-        timeoutHook = setTimeout(() => func.apply(null, args), 100);
+        timeoutHook = setTimeout(() => func.apply(null, args), throttleMs);
     })) as T
 }
 
@@ -167,14 +167,19 @@ const regexPattern = /\/(.*?)\/([igm]{1,3})/
  * @returns Parsed regex
  */
 export const getRegexFromString = (ruleVal: string): RegExp | null => {
-    if (ruleVal[0] == "/" && ruleVal[ruleVal.length - 1] == "/") {
-        return new RegExp(ruleVal.substr(1, ruleVal.length - 2));
-    }
-    else {
-        let matches = ruleVal.match(regexPattern)
-        if (matches && matches.length == 3) {
-            return new RegExp(matches[1], matches[2]);
+    try {
+        if (ruleVal[0] == "/" && ruleVal[ruleVal.length - 1] == "/") {
+            return new RegExp(ruleVal.substr(1, ruleVal.length - 2));
         }
+        else {
+            let matches = ruleVal.match(regexPattern)
+            if (matches && matches.length == 3) {
+                return new RegExp(matches[1], matches[2]);
+            }
+        }
+    }
+    catch (e) {
+        log(`Invalid regex pattern: ${ruleVal}`);
     }
 
     return null;

@@ -166,7 +166,7 @@ const getColorInterpolationForPercentage = function (colors: string[], pct: numb
 
     for (const color of gradientColors) {
         if (!htmlColorPattern.test(color)) {
-            log("Color '${color}' is not valid. Please provide valid HTML hex color in #XXXXXX format.");
+            log(`Color '${color}' is not valid. Please provide valid HTML hex color in #XXXXXX format.`);
             return false;
         }
     }
