@@ -680,6 +680,21 @@ collapse:
   - by: "area.name"
 ```
 
+**Group by area, excluding charging batteries:**
+```yaml
+type: "custom:battery-state-card"
+filter:
+  include:
+    - name: "attributes.device_class"
+      value: battery
+group:
+  - by: "area.name"
+    secondary_info: "Devices: {count}, {min}-{max}%"
+    filter:
+      - name: "charging.is_active"
+        value: false
+```
+
 ### Non-numeric state values
 
 If your sensor doesn't produce numeric values you can use `state_map` property and provie mappings from one value to the other.
