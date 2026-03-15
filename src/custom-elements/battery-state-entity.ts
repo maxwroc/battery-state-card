@@ -176,6 +176,22 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
 
     showEntity(): void {
         if (this.config.respect_visibility_setting !== false && (<EntityRegistryEntry>this.entityData?.entity)?.hidden) {
+            // When entity is hidden by battery_notes integration we should still show it
+            // because we filter out the battery_notes duplicate entity
+            if (this.config.battery_notes_enabled !== false && this.entityData?.["battery_notes"]) {
+                // battery_notes data is already validated by resolveBatteryNotesData (platform, device_class, battery_quantity)
+                // we only need to additionally check the battery_notes sibling itself is not hidden
+                const siblings: ISiblingEntity[] | undefined = this.entityData["siblings"];
+                const isBatteryNotesSiblingHidden = siblings?.some(s => {
+                    const entry = hassRegistryCache.getEntity(this.hass!, s.entity_id);
+                    return entry?.platform === "battery_notes" && entry.hidden;
+                });
+                if (!isBatteryNotesSiblingHidden) {
+                    this.isHidden = false;
+                    return;
+                }
+            }
+
             // When entity is marked as hidden in the UI we should respect it
             this.isHidden = true;
             return;
