@@ -127,13 +127,6 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
             this.showEntity();
         }
 
-        if (this.config.debug === true || this.config.debug === this.config.entity) {
-            this.alert = {
-                title: `Debug: ${this.config.entity}`,
-                content: debugOutput(JSON.stringify(this.entityData, null, 2)),
-            }
-        }
-
         var { state, level, unit} = getBatteryLevel(this.config, this.hass, this.entityData);
         this.state = state;
         this.unit = unit;
@@ -143,6 +136,13 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         const chargingText = this.config.charging_state?.secondary_info_text || "Charging"; // todo: think about i18n
         const processor = new RichStringProcessor(this.hass, this.entityData);
         this.entityData["charging"] = isCharging ? processor.process(chargingText) : "";
+
+        if (this.config.debug === true || this.config.debug === this.config.entity) {
+            this.alert = {
+                title: `Debug: ${this.config.entity}`,
+                content: debugOutput(JSON.stringify(this.entityData, null, 2)),
+            }
+        }
 
         this.name = getName(this.config, this.hass, this.entityData);
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, this.entityData);
