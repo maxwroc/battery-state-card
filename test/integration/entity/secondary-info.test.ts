@@ -22,7 +22,7 @@ it("Secondary info charging text", async () => {
     const sensor = hass.addEntity("Motion sensor battery level", "80", { is_charging: "true" });
     const cardElem = hass.addCard("battery-state-entity", {
         entity: sensor.entity_id,
-        secondary_info: "{charging}",
+        secondary_info: "{charging.text}",
         charging_state: {
             secondary_info_text: "Charging now",
             attribute: {
@@ -43,7 +43,7 @@ it("Secondary info charging text with KString", async () => {
     const sensor = hass.addEntity("Motion sensor battery level", "80", { is_charging: "true" });
     const cardElem = hass.addCard("battery-state-entity", {
         entity: sensor.entity_id,
-        secondary_info: "{charging}",
+        secondary_info: "{charging.text}",
         charging_state: {
             secondary_info_text: "Charging at {state}%",
             attribute: {

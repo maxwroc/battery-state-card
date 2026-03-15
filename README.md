@@ -25,6 +25,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 * The `display` entity data field has been renamed to `entity`. If you use `display.` prefix in filters (e.g. `name: "display.platform"`), update them to use `entity.` (e.g. `name: "entity.platform"`). The same applies to KString references like `{display.name}` — use `{entity.name}` instead.
 * The KString `between` function now uses an **inclusive** range. Previously `between(2,6,30)` would match values strictly between 2 and 6 (exclusive); now it matches values from 2 to 6 inclusive. If you relied on the exclusive behavior, adjust your thresholds accordingly.
+* The `{charging}` entity data field is now an object with `text` (string) and `is_active` (boolean) properties. If you use `{charging}` in `secondary_info` or other KStrings, update it to `{charging.text}`. You can also use `{charging.is_active}` to access the boolean charging state.
 </details>
 
 <details>
@@ -127,7 +128,7 @@ This is a string value containing dynamic values. Data for dynamic values can be
 
 | Type | Example | Description |
 |:-----|:-----|:-----|
-| Charging state | `"{charging}"` | Shows text specified in [ChargingState](#charging-state-object)
+| Charging state | `"{charging.text}"` | Shows text specified in [ChargingState](#charging-state-object)
 | Entity property | `"{last_updated}"` | Current entity property. To ensure relative time, use the reltime() function via "\|" (see below). E.g.: `"Changed: {last_updated\|reltime()}"`
 | Entity attributes | `"Remaining time: {attributes.remaining_time}"` | Current entity attribute value.
 | Other entity data | `"Since last charge: {sensor.tesla.attributes.distance}"` | You can use full "path" to the other entity data
@@ -394,7 +395,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | attribute | list([Attribute](#attribute-object)) |  | v1.2.0 | List of attribute name-values indicating charging in progress
 | state | list(any) |  | v1.1.0 | List of values indicating charging in progress
 | icon | string |  | v1.1.0 | Icon to show when charging is in progress
-| secondary_info_text | [KString](#keyword-string-kstring) |  | v1.1.0 | Text to be shown when battery is charging. Supports dynamic values (e.g., `{state}`, `{attributes.x}`). To show it you need to have `secondary_info: "{charging}"` property set on entity. ([example](#secondary-info))
+| secondary_info_text | [KString](#keyword-string-kstring) |  | v1.1.0 | Text to be shown when battery is charging. Supports dynamic values (e.g., `{state}`, `{attributes.x}`). To show it you need to have `secondary_info: "{charging.text}"` property set on entity. ([example](#secondary-info))
 
 ### Attribute object
 
@@ -679,6 +680,21 @@ collapse:
   - by: "area.name"
 ```
 
+**Group by area, excluding charging batteries:**
+```yaml
+type: "custom:battery-state-card"
+filter:
+  include:
+    - name: "attributes.device_class"
+      value: battery
+group:
+  - by: "area.name"
+    secondary_info: "Devices: {count}, {min}-{max}%"
+    filter:
+      - name: "charging.is_active"
+        value: false
+```
+
 ### Non-numeric state values
 
 If your sensor doesn't produce numeric values you can use `state_map` property and provie mappings from one value to the other.
@@ -816,7 +832,7 @@ entities:
   - entity: "sensor.bedroom_motion_battery_level"
     name: "Bedroom motion sensor"
   - entity: "sensor.mi_robrock"
-    secondary_info: "{charging}" # only appears when charging is detected
+    secondary_info: "{charging.text}" # only appears when charging is detected
     charging_state:
       attribute:
         name: "is_charging"
