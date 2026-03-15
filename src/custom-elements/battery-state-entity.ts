@@ -1,6 +1,6 @@
 import { css } from "lit";
 import { property } from "lit/decorators.js"
-import { extendEntityData, safeGetConfigObject } from "../utils";
+import { safeGetConfigObject } from "../utils";
 import { batteryHtml, debugOutput } from "./battery-state-entity.views";
 import { LovelaceCard } from "./lovelace-card";
 import sharedStyles from "./shared.css"
@@ -12,7 +12,9 @@ import { getChargingState } from "../entity-fields/charging-state";
 import { getBatteryLevel } from "../entity-fields/battery-level";
 import { getName } from "../entity-fields/get-name";
 import { getIcon } from "../entity-fields/get-icon";
-import { EntityRegistryDisplayEntry } from "../type-extensions";
+import { EntityRegistryEntry } from "../type-extensions";
+import { RichStringProcessor } from "../rich-string-processor";
+import { hassRegistryCache } from "../hass-registry-cache";
 
 /**
  * Battery entity element
@@ -54,6 +56,12 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
      */
     @property({ attribute: false })
     public iconColor: string;
+
+    /**
+     * Dynamic styles from custom style config
+     */
+    @property({ attribute: false })
+    public dynamicStyles: string = "";
 
     /**
      * Tap action
@@ -99,9 +107,23 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         };
 
         if (this.config.extend_entity_data !== false) {
-            this.entityData = extendEntityData(this.hass, this.config.entity, this.entityData);
+            const extData = hassRegistryCache.getExtendedData(this.hass, this.config.entity);
 
-            // make sure entity is visible when it should be shown
+            if (extData?.entity) {
+                this.entityData["entity"] = extData.entity;
+                this.entityData["device"] = extData.device;
+                this.entityData["area"] = extData.area;
+                this.entityData["siblings"] = extData.siblings;
+
+                // battery_notes data is resolved on every update (not cached) as it can change dynamically
+                if (this.config.battery_notes_enabled !== false && extData?.siblings && extData.siblings.length > 0) {
+                    const batteryNotesData = hassRegistryCache.resolveBatteryNotesData(this.hass, extData.siblings);
+                    if (batteryNotesData) {
+                        this.entityData["battery_notes"] = batteryNotesData;
+                    }
+                }
+            }
+
             this.showEntity();
         }
 
@@ -117,13 +139,16 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
         this.unit = unit;
         this.stateNumeric = level;
 
-        const isCharging = getChargingState(this.config, this.state, this.hass);
-        this.entityData["charging"] = isCharging ? (this.config.charging_state?.secondary_info_text || "Charging") : "" // todo: think about i18n
+        const isCharging = getChargingState(this.config, this.state, this.hass, this.entityData["siblings"]);
+        const chargingText = this.config.charging_state?.secondary_info_text || "Charging"; // todo: think about i18n
+        const processor = new RichStringProcessor(this.hass, this.entityData);
+        this.entityData["charging"] = isCharging ? processor.process(chargingText) : "";
 
         this.name = getName(this.config, this.hass, this.entityData);
         this.secondaryInfo = getSecondaryInfo(this.config, this.hass, this.entityData);
         this.icon = getIcon(this.config, level, isCharging, this.hass);
         this.iconColor = getColorForBatteryLevel(this.config, level, isCharging);
+        this.dynamicStyles = this.config.style || "";
     }
 
     connectedCallback() {
@@ -150,7 +175,23 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
     }
 
     showEntity(): void {
-        if (this.config.respect_visibility_setting !== false && (<EntityRegistryDisplayEntry>this.entityData?.display)?.hidden) {
+        if (this.config.respect_visibility_setting !== false && (<EntityRegistryEntry>this.entityData?.entity)?.hidden) {
+            // When entity is hidden by battery_notes integration we should still show it
+            // because we filter out the battery_notes duplicate entity
+            if (this.config.battery_notes_enabled !== false && this.entityData?.["battery_notes"]) {
+                // battery_notes data is already validated by resolveBatteryNotesData (platform, device_class, battery_quantity)
+                // we only need to additionally check the battery_notes sibling itself is not hidden
+                const siblings: ISiblingEntity[] | undefined = this.entityData["siblings"];
+                const isBatteryNotesSiblingHidden = siblings?.some(s => {
+                    const entry = hassRegistryCache.getEntity(this.hass!, s.entity_id);
+                    return entry?.platform === "battery_notes" && entry.hidden;
+                });
+                if (!isBatteryNotesSiblingHidden) {
+                    this.isHidden = false;
+                    return;
+                }
+            }
+
             // When entity is marked as hidden in the UI we should respect it
             this.isHidden = true;
             return;
@@ -176,6 +217,8 @@ export class BatteryStateEntity extends LovelaceCard<IBatteryEntityConfig> {
                             tap_action: safeGetConfigObject(tapAction!, "action"),
                         },
                         "tap",
+                        this.hass,
+                        this.entityData,
                     );
                 }
 

@@ -1,8 +1,8 @@
-import { extendEntityData, log, safeGetConfigArrayOfObjects } from "./utils";
-import { HomeAssistant } from "custom-card-helpers";
+import { log, safeGetConfigArrayOfObjects } from "./utils";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 import { createFilter, Filter } from "./filter";
 import { HomeAssistantExt } from "./type-extensions";
+import { BATTERY_NOTES_PLATFORM, hassRegistryCache } from "./hass-registry-cache";
 
 /**
  * Properties which should be copied over to individual entities from the card
@@ -23,6 +23,8 @@ const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [
     "tap_action",
     "value_override",
     "unit",
+    "style",
+    "battery_notes_enabled",
 ];
 
 /**
@@ -60,9 +62,10 @@ export class BatteryProvider {
      */
     private initialized: boolean = false;
 
-    constructor(private config: IBatteryCardConfig) {
-        this.include = config.filter?.include?.map(createFilter);
-        this.exclude = config.filter?.exclude?.map(createFilter);
+    constructor(private config: IBatteryStateCardConfig) {
+        const filterConfig = config.filter || config.filters;
+        this.include = filterConfig?.include?.map(createFilter);
+        this.exclude = filterConfig?.exclude?.map(createFilter);
 
         if (!this.include) {
             this.initialized = false;
@@ -77,6 +80,10 @@ export class BatteryProvider {
             this.initialized = true;
             this.processGroupEntities(hass);
             this.processIncludes(hass);
+
+            if (this.config.unpack) {
+                this.processUnpackEntities(hass);
+            }
         }
 
         const updateComplete = Object.keys(this.batteries).map(id => {
@@ -126,7 +133,7 @@ export class BatteryProvider {
                 throw new Error("Invalid configuration - missing property 'entity' on:\n" + JSON.stringify(e));
             }
 
-            if (e.entity.startsWith("group.")) {
+            if (e.entity.startsWith("group.") || e.unpack) {
                 this.groupsToResolve.push(e.entity);
                 return false;
             }
@@ -170,6 +177,16 @@ export class BatteryProvider {
         }
 
         const advancedInclude = this.include.some(filter => filter.is_advanced);
+        const filterBatteryNotes = this.config.battery_notes_enabled !== false;
+
+        // Collect required registry fields from include filters, we do it to optimize the initialization stage by fetching only necessary data
+        const requiredFields = advancedInclude
+            ? [...new Set(
+                this.include
+                    .filter(f => f.requiredFields)
+                    .reduce((acc, f) => [...acc, ...f.requiredFields!], [] as RegistryDataField[])
+              )]
+            : undefined;
 
         Object.keys(hass.states).forEach(entityId => {
 
@@ -180,11 +197,27 @@ export class BatteryProvider {
 
             let entityData = <IMap<any>>{};
             if (advancedInclude) {
-                entityData = extendEntityData(hass, entityId, { ...hass.states[entityId] });
+                entityData = { ...hass.states[entityId] };
+                // getting "partial" extended data based on filters requirements
+                const extData = hassRegistryCache.getExtendedData(hass, entityId, requiredFields);
+                if (extData.entity) {
+                    entityData["entity"] = extData.entity;
+                    entityData["device"] = extData.device;
+                    entityData["area"] = extData.area;
+                }
             }
 
             // check if entity matches filter conditions
             if (this.include!.some(filter => filter.isValid(advancedInclude ? entityData : hass.states[entityId]))) {
+
+                // Filter out battery_notes entities (duplicates created by the integration)
+                if (filterBatteryNotes) {
+                    const entityEntry = hassRegistryCache.getEntity(hass, entityId);
+                    if (entityEntry?.platform === BATTERY_NOTES_PLATFORM) {
+                        return;
+                    }
+                }
+
                 this.batteries[entityId] = this.createBattery({ entity: entityId });
             }
         });
@@ -194,7 +227,7 @@ export class BatteryProvider {
      * Adds batteries from group entities (if they were on the list)
      * @param hass Home Assistant instance
      */
-    private processGroupEntities(hass: HomeAssistant): void {
+    private processGroupEntities(hass: HomeAssistantExt): void {
         this.groupsToResolve.forEach(group_id => {
             const groupEntity = hass.states[group_id];
             if (!groupEntity) {
@@ -221,6 +254,31 @@ export class BatteryProvider {
         });
 
         this.groupsToResolve = [];
+    }
+
+    /**
+     * Checks existing batteries for entity_id array attribute and unpacks them.
+     * @param hass Home Assistant instance
+     */
+    private processUnpackEntities(hass: HomeAssistantExt): void {
+        const toUnpack: string[] = [];
+
+        Object.keys(this.batteries).forEach(entityId => {
+            const entity = hass.states[entityId];
+            if (entity && Array.isArray(entity.attributes?.entity_id)) {
+                toUnpack.push(entityId);
+            }
+        });
+
+        toUnpack.forEach(entityId => {
+            delete this.batteries[entityId];
+            const entityIds = hass.states[entityId].attributes.entity_id as string[];
+            entityIds.forEach(childId => {
+                if (!this.batteries[childId]) {
+                    this.batteries[childId] = this.createBattery({ entity: childId });
+                }
+            });
+        });
     }
 
     /**
@@ -255,7 +313,7 @@ export class BatteryProvider {
 
             // we keep the view model to keep updating it
             // it might be shown/not-hidden after next update
-            isHidden? battery.hideEntity() : battery.showEntity();
+            isHidden ? battery.hideEntity() : battery.showEntity();
         });
 
         toBeRemoved.forEach(entityId => delete this.batteries[entityId]);

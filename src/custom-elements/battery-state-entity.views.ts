@@ -1,8 +1,10 @@
-import { HomeAssistant } from "custom-card-helpers";
+import { HomeAssistantExt } from "../type-extensions";
 import { TemplateResult, html } from "lit";
 import { BatteryStateEntity } from "./battery-state-entity";
+import { DefaultIcon } from "../entity-fields/get-icon";
 
 const relativeTimeTag = new RegExp("<rt>([^<]+)</rt>", "g");
+
 
 /**
  * Replaces temporary RT tages with proper HA "relative-time" ones
@@ -11,46 +13,66 @@ const relativeTimeTag = new RegExp("<rt>([^<]+)</rt>", "g");
  * @param hass HomeAssistant instance
  * @returns Rendered templates
  */
-const replaceTags = (text: string, hass?: HomeAssistant): TemplateResult[] => {
+const replaceTags = (text: string | undefined, hass?: HomeAssistantExt): TemplateResult[] => {
+    if (!text) {
+        return [];
+    }
 
-    const result: TemplateResult[] = []
-
-    let matches: string[] | null = [];
+    const result: TemplateResult[] = [];
+    let matches: RegExpExecArray | null;
     let currentPos = 0;
-    while(matches = relativeTimeTag.exec(text)) {
-        const matchPos = text.indexOf(matches[0], currentPos);
 
-        if (matchPos != 0) {
+    while(matches = relativeTimeTag.exec(text)) {
+        const matchPos = matches.index;
+
+        if (matchPos !== currentPos) {
             result.push(html`${text.substring(currentPos, matchPos)}`);
         }
 
         result.push(html`<ha-relative-time .hass="${hass}" .datetime="${new Date(matches[1])}"></ha-relative-time>`);
 
-        currentPos += matchPos + matches[0].length;
+        currentPos = matchPos + matches[0].length;
     }
 
     if (currentPos < text.length) {
-        result.push(html`${text.substring(currentPos, text.length)}`);
+        result.push(html`${text.substring(currentPos)}`);
     }
 
     return result;
 }
 
-export const secondaryInfo = (text?: string, hass?: HomeAssistant) => text && html`
+export const secondaryInfo = (text?: string, hass?: HomeAssistantExt) => text && html`
 <div class="secondary">${replaceTags(text, hass)}</div>
 `;
 
-export const icon = (icon?: string, color?: string) => icon && html`
+export const icon = (icon: string | undefined, iconColor: string | undefined) =>  icon && html`
 <div class="icon">
     <ha-icon
-        style="color: ${color}"
+        style="color: ${iconColor}"
         icon="${icon}"
     ></ha-icon>
 </div>
 `;
 
+export const customOrDefaultIcon = (model: BatteryStateEntity) => {
+    if (model.icon === DefaultIcon) {
+        return html`
+<div class="icon">
+    <ha-state-icon
+        style="color: ${model.iconColor}"
+        .hass="${model.hass}"
+        .stateObj="${model.entityData}"
+    ></ha-state-icon>
+</div>
+`;
+    }
+
+    return icon(model.icon, model.iconColor);
+}
+
 export const batteryHtml = (model: BatteryStateEntity) => html`
-${icon(model.icon, model.iconColor)}
+${model.dynamicStyles ? html`<style>${model.dynamicStyles}</style>` : ""}
+${customOrDefaultIcon(model)}
 <div class="name truncate">
     ${model.name}
     ${secondaryInfo(model.secondaryInfo, model.hass)}

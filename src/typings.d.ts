@@ -39,6 +39,13 @@ interface IColorSettings {
  */
 type NativeHomeAssistantActionConfig = {
     action: string;
+    navigation_path?: string;
+    url_path?: string;
+    service?: string;
+    service_data?: any;
+    data?: any;
+    target?: any;
+    confirmation?: any;
 } | string;
 
 /**
@@ -123,7 +130,7 @@ interface IChargingState {
 /**
  * Filter group types
  */
-type FilterGroups = "exclude" | "include";
+type FilterGroupTypes = "exclude" | "include";
 
 /**
  * Supprted filter operators
@@ -157,6 +164,24 @@ interface IFilter {
 
 type FilterSpec = IFilter | { not: FilterSpec | FilterSpec[] } | { and: FilterSpec[] } | { or: FilterSpec[] }
 
+type FilterGroup = { [key in FilterGroupTypes]: FilterSpec[] };
+
+type RegistryDataField = "entity" | "device" | "area" | "siblings";
+
+interface ISiblingEntity {
+    entity_id: string;
+    device_class?: string;
+    state_class?: string;
+}
+
+interface IEntityRegistryCache {
+    entity?: import("./type-extensions").EntityRegistryEntry;
+    device?: import("./type-extensions").DeviceRegistryEntry;
+    area?: import("./type-extensions").AreaRegistryEntry;
+    siblings: ISiblingEntity[];
+    battery_notes?: IMap<any>;
+}
+
 interface IBatteryEntityConfig {
 
     /**
@@ -170,9 +195,9 @@ interface IBatteryEntityConfig {
     name?: string;
 
     /**
-     * Icon override
+     * Icon override. Set to null to use entity's default icon.
      */
-    icon?: string;
+    icon?: string | null;
 
     /**
      * Attribute name to extract batterly level from
@@ -253,6 +278,21 @@ interface IBatteryEntityConfig {
      * Whether to respect HA entity visibility setting
      */
     respect_visibility_setting?: boolean,
+
+    /**
+     * Whether to unpack entity_id attribute and create separate batteries for each entity
+     */
+    unpack?: boolean,
+
+    /**
+     * Custom CSS styles to apply to the element
+     */
+    style?: string,
+
+    /**
+     * Whether to use battery_notes integration data (filter duplicates, add attributes)
+     */
+    battery_notes_enabled?: boolean;
 }
 
 interface IBatteryCardConfig {
@@ -277,15 +317,30 @@ interface IBatteryCardConfig {
     collapse?: number | IGroupConfig[];
 
     /**
+     * Alias for collapse
+     */
+    group?: number | IGroupConfig[];
+
+    /**
      * Filters for auto adding or removing entities
      */
-    filter?: { [key in FilterGroups]: FilterSpec[] };
+    filter?: FilterGroup;
+
+    /**
+     * Alias for filter
+     */
+    filters?: FilterGroup;
+
+    /**
+     * Name of the theme to apply (must be installed in Home Assistant)
+     */
+    theme?: string;
 }
 
 /**
  * Battery card root config
  */
-interface IBatteryStateCardConfig extends IBatteryCardConfig, IBatteryEntityConfig  {
+interface IBatteryStateCardConfig extends IBatteryCardConfig, Omit<IBatteryEntityConfig, "entity"> {
 
 }
 
@@ -315,6 +370,15 @@ interface IGroupConfig {
     icon_color?: string;
     min?: number;
     max?: number;
+    filter?: FilterSpec[];
+    /**
+     * Alias for filters
+     */
+    filters?: FilterSpec[];
+    /**
+     * Property path to automatically create sub-groups by (e.g. "area.name", "battery_notes.attributes.battery_type")
+     */
+    by?: string;
 }
 
 interface IAction {

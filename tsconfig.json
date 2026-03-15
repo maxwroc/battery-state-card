@@ -8,6 +8,7 @@
         "strict": true,
         "strictPropertyInitialization": false,
         "moduleResolution": "node",
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true
     }
 }

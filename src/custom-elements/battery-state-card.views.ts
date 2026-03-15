@@ -35,6 +35,7 @@ export const collapsableWrapper = (model: IBatteryGroup, batteries: IBatteryColl
 
 
 export const cardHtml = (model: BatteryStateCard) => html`
+${model.dynamicStyles ? html`<style>${model.dynamicStyles}</style>` : ""}
 <ha-card>
     ${header(model.header)}
     <div class="card-content">

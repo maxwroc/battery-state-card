@@ -1,7 +1,8 @@
-import { BatteryStateEntity } from "../../src/custom-elements/battery-state-entity";
-import { EntityElements, HomeAssistantMock } from "../helpers";
+import { expect } from '@esm-bundle/chai';
+import { BatteryStateEntity } from "../../../src/custom-elements/battery-state-entity";
+import { EntityElements, HomeAssistantMock } from "../../helpers";
 
-test("Secondary info custom text", async () => {
+it("Secondary info custom text", async () => {
 
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", "80");
@@ -13,10 +14,10 @@ test("Secondary info custom text", async () => {
     await cardElem.cardUpdated;
 
     const entity = new EntityElements(cardElem);
-    expect(entity.secondaryInfoText).toBe("my info text");
+    expect(entity.secondaryInfoText).to.equal("my info text");
 });
 
-test("Secondary info charging text", async () => {
+it("Secondary info charging text", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", "80", { is_charging: "true" });
     const cardElem = hass.addCard("battery-state-entity", {
@@ -34,10 +35,31 @@ test("Secondary info charging text", async () => {
     await cardElem.cardUpdated;
 
     const entity = new EntityElements(cardElem);
-    expect(entity.secondaryInfoText).toBe("Charging now");
+    expect(entity.secondaryInfoText).to.equal("Charging now");
 });
 
-test("Secondary info other entity attribute value", async () => {
+it("Secondary info charging text with KString", async () => {
+    const hass = new HomeAssistantMock<BatteryStateEntity>();
+    const sensor = hass.addEntity("Motion sensor battery level", "80", { is_charging: "true" });
+    const cardElem = hass.addCard("battery-state-entity", {
+        entity: sensor.entity_id,
+        secondary_info: "{charging}",
+        charging_state: {
+            secondary_info_text: "Charging at {state}%",
+            attribute: {
+                name: "is_charging",
+                value: "true"
+            }
+        }
+    });
+
+    await cardElem.cardUpdated;
+
+    const entity = new EntityElements(cardElem);
+    expect(entity.secondaryInfoText).to.equal("Charging at 80%");
+});
+
+it("Secondary info other entity attribute value", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const flowerBattery = hass.addEntity("Flower sensor battery level", "80", {});
     const flowerEntity = hass.addEntity("Flower needs", "needs water", { sun_level: "good" }, "sensor");
@@ -49,10 +71,10 @@ test("Secondary info other entity attribute value", async () => {
     await cardElem.cardUpdated;
 
     const entity = new EntityElements(cardElem);
-    expect(entity.secondaryInfoText).toBe("Sun level is good");
+    expect(entity.secondaryInfoText).to.equal("Sun level is good");
 });
 
-test("Secondary info date value - renders relative time element", async () => {
+it("Secondary info date value - renders relative time element", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const flowerBattery = hass.addEntity("Flower sensor battery level", "80", {});
 
@@ -69,11 +91,11 @@ test("Secondary info date value - renders relative time element", async () => {
 
     const entity = new EntityElements(cardElem);
     const relTimeElem = <HTMLElement>entity.secondaryInfo?.firstElementChild;
-    expect(relTimeElem.tagName).toBe("HA-RELATIVE-TIME");
-    expect(JSON.stringify((<any>relTimeElem).datetime)).toBe(dateStringSerialized);
+    expect(relTimeElem.tagName).to.equal("HA-RELATIVE-TIME");
+    expect(JSON.stringify((<any>relTimeElem).datetime)).to.equal(dateStringSerialized);
 });
 
-// test("Secondary info date value - renders relative time element with text", async () => {
+// it("Secondary info date value - renders relative time element with text", async () => {
 //     const hass = new HomeAssistantMock<BatteryStateEntity>();
 //     const flowerBattery = hass.addEntity("Flower sensor battery level", "80", {});
 
@@ -91,6 +113,6 @@ test("Secondary info date value - renders relative time element", async () => {
 
 //     const entity = new EntityElements(cardElem);
 //     const relTimeElem = <HTMLElement>entity.secondaryInfo?.firstElementChild;
-//     expect(relTimeElem.tagName).toBe("HA-RELATIVE-TIME");
-//     expect((<any>relTimeElem).datetime).toBe(date);
+//     expect(relTimeElem.tagName).to.equal("HA-RELATIVE-TIME");
+//     expect((<any>relTimeElem).datetime).to.equal(date);
 // });

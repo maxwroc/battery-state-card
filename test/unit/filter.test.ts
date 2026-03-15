@@ -291,8 +291,8 @@ describe("Filter", () => {
         expect(filter.is_permanent).toBe(true);
     })
 
-    test("is_advanced is true for display filters", () => {
-        const filter = createFilter({ name: "display.entity_id", value: "sensor.battery" });
+    test("is_advanced is true for entity filters", () => {
+        const filter = createFilter({ name: "entity.entity_id", value: "sensor.battery" });
 
         expect(filter.is_advanced).toBe(true);
     })
@@ -330,10 +330,88 @@ describe("Filter", () => {
         const filter = createFilter({
             or: [
                 { name: "state", value: "50" },
-                { name: "display.entity_id", value: "sensor.battery" }
+                { name: "entity.entity_id", value: "sensor.battery" }
             ]
         });
 
         expect(filter.is_advanced).toBe(true);
+    })
+
+    describe("relative time comparison", () => {
+        test("'>' returns true when timestamp is older than duration", () => {
+            const oldDate = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90");
+            entity.setLastUpdated(oldDate);
+
+            const filter = createFilter({ name: "last_updated", operator: ">", value: "24h" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+        });
+
+        test("'>' returns false when timestamp is newer than duration", () => {
+            const recentDate = new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString();
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90");
+            entity.setLastUpdated(recentDate);
+
+            const filter = createFilter({ name: "last_updated", operator: ">", value: "24h" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(false);
+        });
+
+        test("'<' returns true when timestamp is newer than duration", () => {
+            const recentDate = new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString();
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90");
+            entity.setLastUpdated(recentDate);
+
+            const filter = createFilter({ name: "last_updated", operator: "<", value: "24h" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+        });
+
+        test("'<' returns false when timestamp is older than duration", () => {
+            const oldDate = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90");
+            entity.setLastUpdated(oldDate);
+
+            const filter = createFilter({ name: "last_updated", operator: "<", value: "24h" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(false);
+        });
+
+        test("works with last_changed field", () => {
+            const oldDate = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90");
+            entity.setLastChanged(oldDate);
+
+            const filter = createFilter({ name: "last_changed", operator: ">", value: "24h" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+        });
+
+        test("works with days unit", () => {
+            const oldDate = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString();
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90");
+            entity.setLastUpdated(oldDate);
+
+            const filter = createFilter({ name: "last_updated", operator: ">", value: "7d" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+        });
+
+        test("returns false for empty timestamp", () => {
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90");
+
+            const filter = createFilter({ name: "last_updated", operator: ">", value: "24h" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(false);
+        });
+
+        test("falls back to numeric comparison for non-time values", () => {
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90", { battery_level: "45" });
+
+            const filter = createFilter({ name: "attributes.battery_level", operator: ">", value: "30" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+        });
     })
 });

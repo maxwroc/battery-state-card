@@ -1,8 +1,13 @@
-import { HomeAssistant } from "custom-card-helpers";
+import { HomeAssistantExt } from "../type-extensions";
 import { log } from "../utils";
 import { RichStringProcessor } from "../rich-string-processor";
 
 const batteryUnknownIcon = "mdi:battery-unknown";
+
+/**
+ * Special marker for default entity icon
+ */
+export const DefaultIcon = "<default_icon>";
 
 /**
  * Gets MDI icon class
@@ -12,9 +17,13 @@ const batteryUnknownIcon = "mdi:battery-unknown";
  * @param hass HomeAssistant state object
  * @returns Mdi icon string
  */
-export const getIcon = (config: IBatteryEntityConfig, level: number | undefined, isCharging: boolean, hass: HomeAssistant): string => {
+export const getIcon = (config: IBatteryEntityConfig, level: number | undefined, isCharging: boolean, hass: HomeAssistantExt): string => {
     if (isCharging && config.charging_state?.icon) {
         return config.charging_state.icon;
+    }
+
+    if (config.icon === null) {
+        return DefaultIcon;
     }
 
     if (config.icon) {

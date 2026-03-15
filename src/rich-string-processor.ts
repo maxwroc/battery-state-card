@@ -1,4 +1,4 @@
-import { HomeAssistant } from "custom-card-helpers";
+import { HomeAssistantExt } from "./type-extensions";
 import { log } from "./utils";
 
 const validEntityDomains = [
@@ -35,7 +35,7 @@ const validEntityDomains = [
  */
  export class RichStringProcessor {
 
-    constructor(private hass: HomeAssistant, private entityData: IMap<any> | undefined) {
+    constructor(private hass: HomeAssistantExt, private entityData: IMap<any> | undefined) {
     }
 
     /**
@@ -169,7 +169,7 @@ const availableProcessors: IMap<IProcessorCtor> = {
         const compareGreater = Number(chunks[1]);
         return val => {
             const numericVal = Number(val);
-            return compareLower < numericVal && compareGreater > numericVal ? chunks[2] : val;
+            return compareLower <= numericVal && compareGreater >= numericVal ? chunks[2] : val;
         }
     },
     "thresholds": (params) => {

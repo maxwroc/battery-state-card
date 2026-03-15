@@ -1,7 +1,8 @@
-import { BatteryStateEntity } from "../../src/custom-elements/battery-state-entity";
-import { EntityElements, HomeAssistantMock } from "../helpers";
+import { expect } from '@esm-bundle/chai';
+import { BatteryStateEntity } from "../../../src/custom-elements/battery-state-entity";
+import { EntityElements, HomeAssistantMock } from "../../helpers";
 
-test("Name taken from friendly_name attribute", async () => {
+it("Name taken from friendly_name attribute", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", "80");
     const cardElem = hass.addCard("battery-state-entity", {
@@ -12,10 +13,10 @@ test("Name taken from friendly_name attribute", async () => {
 
     const entity = new EntityElements(cardElem);
 
-    expect(entity.nameText).toBe("Motion sensor battery level");
+    expect(entity.nameText).to.equal("Motion sensor battery level");
 });
 
-test("Name taken from config override", async () => {
+it("Name taken from config override", async () => {
     const hass = new HomeAssistantMock<BatteryStateEntity>();
     const sensor = hass.addEntity("Motion sensor battery level", "80");
     const cardElem = hass.addCard("battery-state-entity", {
@@ -27,5 +28,5 @@ test("Name taken from config override", async () => {
 
     const entity = new EntityElements(cardElem);
 
-    expect(entity.nameText).toBe("Static name");
+    expect(entity.nameText).to.equal("Static name");
 });

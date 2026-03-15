@@ -1,0 +1,65 @@
+name: Bug report
+description: Create a report to help improve the card
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: Steps to reproduce the behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: yaml
+    attributes:
+      label: YAML configuration
+      description: Please paste your card configuration here.
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: debug
+    attributes:
+      label: Entity debug data
+      description: Add `debug: true` in your card configuration and paste entity data from the debug output.
+      render: json
+    validations:
+      required: false
+  - type: textarea
+    id: console
+    attributes:
+      label: Dev console errors
+      description: Open dev console in your browser (F12) and check whether errors appear which seem to be related to the card.
+    validations:
+      required: false
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain your problem.
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: >-
+        Card version (check Developer Tools Console in browser - F12, or add `debug: true` in card config).
+        If regression happened after updating Home Assistant please add HA version as well.
+      placeholder: e.g. 4.0.0
+    validations:
+      required: true
