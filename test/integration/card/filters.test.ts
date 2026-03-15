@@ -206,6 +206,7 @@ it("Hidden entity stays hidden when battery_notes_enabled is false", async () =>
     const cardElem = hass.addCard("battery-state-card", <any>{
         entities: [{ entity: batteryEntity.entity_id }],
         battery_notes_enabled: false,
+        filter: {},
     });
 
     await cardElem.cardUpdated;
