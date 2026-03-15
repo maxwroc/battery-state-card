@@ -26,6 +26,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 * The `display` entity data field has been renamed to `entity`. If you use `display.` prefix in filters (e.g. `name: "display.platform"`), update them to use `entity.` (e.g. `name: "entity.platform"`). The same applies to KString references like `{display.name}` — use `{entity.name}` instead.
 * The KString `between` function now uses an **inclusive** range. Previously `between(2,6,30)` would match values strictly between 2 and 6 (exclusive); now it matches values from 2 to 6 inclusive. If you relied on the exclusive behavior, adjust your thresholds accordingly.
 * The `{charging}` entity data field is now an object with `text` (string) and `is_active` (boolean) properties. If you use `{charging}` in `secondary_info` or other KStrings, update it to `{charging.text}`. You can also use `{charging.is_active}` to access the boolean charging state.
+* Default configuration is now shallow-merged with your custom config. Previously, specifying any custom config would discard all defaults. Now, default values (e.g. `sort`, `filter`, `collapse`, `bulk_rename`, `colors`, `secondary_info`) are applied for any properties you don't explicitly set. If you relied on the old behavior where defaults were fully replaced, you may need to explicitly override specific properties (e.g. `filter: {}` to disable the default filter).
 </details>
 
 <details>
@@ -48,7 +49,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 
 ### Default card config
 
-When config is empty the card is initialized with the default config which you can find below. Once you start adding custom configuration the default configuration won't be applied hence if you wish to alter the default config please copy-paste it from the below listing.
+The card comes with built-in defaults shown below. These defaults are shallow-merged with your custom config — any property you don't explicitly set will use its default value. To disable a default, override it explicitly (e.g. `filter: {}` to remove the default filter).
 ```yaml
 type: "custom:battery-state-card"
 secondary_info: "{last_changed}"

@@ -50,8 +50,9 @@ it("Entities as objects with custom settings", async () => {
     const card = new CardElements(cardElem);
 
     expect(card.itemsCount).to.equal(2);
-    expect(card.item(0).nameText).to.equal("Entity 1");
-    expect(card.item(1).nameText).to.equal("Entity 2");
+    // default sort by state applies: Entity 2 (50%) comes before Entity 1 (90%)
+    expect(card.item(0).nameText).to.equal("Entity 2");
+    expect(card.item(1).nameText).to.equal("Entity 1");
 });
 
 it("Missing entity", async () => {
@@ -105,9 +106,10 @@ describe("Unpack", () => {
         const card = new CardElements(cardElem);
 
         expect(card.itemsCount).to.equal(3);
-        expect(card.item(0).stateText).to.equal("90 %");
+        // default sort by state applies
+        expect(card.item(0).stateText).to.equal("30 %");
         expect(card.item(1).stateText).to.equal("50 %");
-        expect(card.item(2).stateText).to.equal("30 %");
+        expect(card.item(2).stateText).to.equal("90 %");
     });
 
     it("Sensor entity without unpack is not unpacked", async () => {
@@ -205,9 +207,10 @@ describe("Unpack", () => {
         const card = new CardElements(cardElem);
 
         expect(card.itemsCount).to.equal(3);
-        expect(card.item(0).stateText).to.equal("90 %");
+        // default sort by state applies
+        expect(card.item(0).stateText).to.equal("30 %");
         expect(card.item(1).stateText).to.equal("50 %");
-        expect(card.item(2).stateText).to.equal("30 %");
+        expect(card.item(2).stateText).to.equal("90 %");
     });
 
     it("Card-level unpack: true does not affect entities without entity_id array", async () => {
@@ -227,8 +230,9 @@ describe("Unpack", () => {
 
         // regular entities should remain as-is
         expect(card.itemsCount).to.equal(2);
-        expect(card.item(0).stateText).to.equal("90 %");
-        expect(card.item(1).stateText).to.equal("50 %");
+        // default sort by state applies
+        expect(card.item(0).stateText).to.equal("50 %");
+        expect(card.item(1).stateText).to.equal("90 %");
     });
 
     it("Card-level unpack: true works with mixed regular and group-like entities", async () => {

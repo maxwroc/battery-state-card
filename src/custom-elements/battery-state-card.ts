@@ -59,14 +59,16 @@ export class BatteryStateCard extends LovelaceCard<IBatteryStateCardConfig> {
 
     async internalUpdate(configUpdated: boolean, hassUpdated: boolean) {
         if (this.batteryProvider == undefined || configUpdated) {
-            // checking whether we should apply default config
-            if (Object.keys(this.config).length == 1) {
-                // cloning default config
-                this.config = { ... defaultConfig };
+            // resolve aliases before merging so user-provided aliases override their default counterparts
+            if (this.config.filters && !this.config.filter) {
+                this.config.filter = this.config.filters;
+            }
+            if (this.config.group && !this.config.collapse) {
+                this.config.collapse = this.config.group;
             }
 
-            // resolve alias
-            this.config.collapse = this.config.collapse || this.config.group;
+            // shallow merge: default config values are used for any properties the user doesn't specify
+            this.config = { ...defaultConfig, ...this.config };
 
             this.batteryProvider = new BatteryProvider(this.config);
         }
