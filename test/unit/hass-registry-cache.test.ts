@@ -265,4 +265,139 @@ describe("HassRegistryCache", () => {
             expect(full.device).toBe(deviceEntry);
         });
     });
+
+    describe("resolveBatteryNotesData", () => {
+        test("returns undefined when siblings is empty", () => {
+            const cache = new HassRegistryCache();
+            const hass = { entities: {}, states: {} };
+            const result = cache.resolveBatteryNotesData(<any>hass, []);
+
+            expect(result).toBeUndefined();
+        });
+
+        test("returns undefined when siblings is undefined", () => {
+            const cache = new HassRegistryCache();
+            const hass = { entities: {}, states: {} };
+            const result = cache.resolveBatteryNotesData(<any>hass, <any>undefined);
+
+            expect(result).toBeUndefined();
+        });
+
+        test("returns attributes when battery_notes sibling found", () => {
+            const cache = new HassRegistryCache();
+            const batteryNotesAttrs = { device_class: "battery", battery_quantity: 2, battery_type: "CR2032" };
+            const hass = {
+                entities: {
+                    "sensor.notes": { entity_id: "sensor.notes", platform: "battery_notes" },
+                },
+                states: {
+                    "sensor.notes": { state: "80", attributes: batteryNotesAttrs },
+                },
+            };
+
+            const siblings: ISiblingEntity[] = [
+                { entity_id: "sensor.notes", device_class: "battery" },
+            ];
+
+            const result = cache.resolveBatteryNotesData(<any>hass, siblings);
+            expect(result).toBe(batteryNotesAttrs);
+        });
+
+        test("returns undefined when sibling is not battery_notes platform", () => {
+            const cache = new HassRegistryCache();
+            const hass = {
+                entities: {
+                    "sensor.other": { entity_id: "sensor.other", platform: "some_other" },
+                },
+                states: {
+                    "sensor.other": { state: "80", attributes: { device_class: "battery", battery_quantity: 1 } },
+                },
+            };
+
+            const siblings: ISiblingEntity[] = [
+                { entity_id: "sensor.other", device_class: "battery" },
+            ];
+
+            const result = cache.resolveBatteryNotesData(<any>hass, siblings);
+            expect(result).toBeUndefined();
+        });
+
+        test("returns undefined when battery_notes entity has no state", () => {
+            const cache = new HassRegistryCache();
+            const hass = {
+                entities: {
+                    "sensor.notes": { entity_id: "sensor.notes", platform: "battery_notes" },
+                },
+                states: {},
+            };
+
+            const siblings: ISiblingEntity[] = [
+                { entity_id: "sensor.notes", device_class: "battery" },
+            ];
+
+            const result = cache.resolveBatteryNotesData(<any>hass, siblings);
+            expect(result).toBeUndefined();
+        });
+
+        test("returns undefined when battery_notes entity has wrong device_class", () => {
+            const cache = new HassRegistryCache();
+            const hass = {
+                entities: {
+                    "sensor.notes": { entity_id: "sensor.notes", platform: "battery_notes" },
+                },
+                states: {
+                    "sensor.notes": { state: "80", attributes: { device_class: "energy", battery_quantity: 1 } },
+                },
+            };
+
+            const siblings: ISiblingEntity[] = [
+                { entity_id: "sensor.notes", device_class: "battery" },
+            ];
+
+            const result = cache.resolveBatteryNotesData(<any>hass, siblings);
+            expect(result).toBeUndefined();
+        });
+
+        test("returns undefined when battery_notes entity has no battery_quantity", () => {
+            const cache = new HassRegistryCache();
+            const hass = {
+                entities: {
+                    "sensor.notes": { entity_id: "sensor.notes", platform: "battery_notes" },
+                },
+                states: {
+                    "sensor.notes": { state: "80", attributes: { device_class: "battery" } },
+                },
+            };
+
+            const siblings: ISiblingEntity[] = [
+                { entity_id: "sensor.notes", device_class: "battery" },
+            ];
+
+            const result = cache.resolveBatteryNotesData(<any>hass, siblings);
+            expect(result).toBeUndefined();
+        });
+
+        test("skips non-battery_notes siblings and finds the correct one", () => {
+            const cache = new HassRegistryCache();
+            const batteryNotesAttrs = { device_class: "battery", battery_quantity: 1, battery_type: "AA" };
+            const hass = {
+                entities: {
+                    "sensor.other": { entity_id: "sensor.other", platform: "zwave" },
+                    "sensor.notes": { entity_id: "sensor.notes", platform: "battery_notes" },
+                },
+                states: {
+                    "sensor.other": { state: "on", attributes: { device_class: "plug" } },
+                    "sensor.notes": { state: "80", attributes: batteryNotesAttrs },
+                },
+            };
+
+            const siblings: ISiblingEntity[] = [
+                { entity_id: "sensor.other", device_class: "plug" },
+                { entity_id: "sensor.notes", device_class: "battery" },
+            ];
+
+            const result = cache.resolveBatteryNotesData(<any>hass, siblings);
+            expect(result).toBe(batteryNotesAttrs);
+        });
+    });
 });

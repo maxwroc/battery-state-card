@@ -414,4 +414,88 @@ describe("Filter", () => {
             expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
         });
     })
+
+    describe("ensureNotArray - throws for array operands", () => {
+        test("= operator throws when filter value is an array", () => {
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90", { battery_level: "45" });
+
+            const filter = createFilter({ name: "attributes.battery_level", operator: "=", value: <any>["a", "b"] });
+            expect(() => filter.isValid(entity)).toThrow("does not support array values");
+        });
+
+        test("> operator throws when filter value is an array", () => {
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90", { battery_level: "45" });
+
+            const filter = createFilter({ name: "attributes.battery_level", operator: ">", value: <any>["1", "2"] });
+            expect(() => filter.isValid(entity)).toThrow("does not support array values");
+        });
+    })
+
+    describe(">= and <= with relative time", () => {
+        test("'>=' returns true when timestamp is exactly at or beyond duration", () => {
+            const oldDate = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90");
+            entity.setLastUpdated(oldDate);
+
+            const filter = createFilter({ name: "last_updated", operator: ">=", value: "24h" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+        });
+
+        test("'>=' returns false when timestamp is newer than duration", () => {
+            const recentDate = new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString();
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90");
+            entity.setLastUpdated(recentDate);
+
+            const filter = createFilter({ name: "last_updated", operator: ">=", value: "24h" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(false);
+        });
+
+        test("'<=' returns true when timestamp is newer than duration", () => {
+            const recentDate = new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString();
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90");
+            entity.setLastUpdated(recentDate);
+
+            const filter = createFilter({ name: "last_updated", operator: "<=", value: "24h" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+        });
+
+        test("'<=' returns false when timestamp is older than duration", () => {
+            const oldDate = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+            const hassMock = new HomeAssistantMock();
+            const entity = hassMock.addEntity("Entity name", "90");
+            entity.setLastUpdated(oldDate);
+
+            const filter = createFilter({ name: "last_updated", operator: "<=", value: "24h" });
+            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(false);
+        });
+    })
+
+    describe("composite filter requiredFields", () => {
+        test("returns required fields from advanced child filters", () => {
+            const filter = createFilter({
+                and: [
+                    { name: "entity.platform", value: "test" },
+                    { name: "device.name", value: "My Device" },
+                ]
+            });
+
+            expect(filter.requiredFields).toEqual(["entity", "device"]);
+        });
+
+        test("returns undefined when no child filters are advanced", () => {
+            const filter = createFilter({
+                and: [
+                    { name: "state", value: "50" },
+                    { name: "attributes.battery_level", value: "45" },
+                ]
+            });
+
+            expect(filter.requiredFields).toBeUndefined();
+        });
+    })
 });
