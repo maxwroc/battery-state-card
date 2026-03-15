@@ -131,3 +131,85 @@ it("'filters' works as alias for 'filter' at card level", async () => {
 
     expect(card.itemsCount).to.equal(2);
 });
+
+it("Hidden entity with battery_notes sibling is shown", async () => {
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    const batteryEntity = hass.addEntity("BN visible battery", "80", { device_class: "battery" }, "sensor");
+    const batteryNotesEntity = hass.addEntity("BN visible battery notes", "80", { device_class: "battery", battery_quantity: 1 }, "sensor");
+
+    // Set up entity registry with device linkage
+    hass.hass.entities = <any>{
+        [batteryEntity.entity_id]: { entity_id: batteryEntity.entity_id, device_id: "device_bn1", hidden: true },
+        [batteryNotesEntity.entity_id]: { entity_id: batteryNotesEntity.entity_id, device_id: "device_bn1", platform: "battery_notes" },
+    };
+
+    const cardElem = hass.addCard("battery-state-card", <any>{
+        entities: [{ entity: batteryEntity.entity_id }],
+    });
+
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+    expect(card.itemsCount).to.equal(1);
+});
+
+it("Hidden entity without battery_notes sibling stays hidden", async () => {
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    const batteryEntity = hass.addEntity("BN hidden no sibling battery", "80", { device_class: "battery" }, "sensor");
+
+    // Entity is hidden but no battery_notes sibling exists
+    hass.hass.entities = <any>{
+        [batteryEntity.entity_id]: { entity_id: batteryEntity.entity_id, device_id: "device_bn2", hidden: true },
+    };
+
+    const cardElem = hass.addCard("battery-state-card", <any>{
+        entities: [{ entity: batteryEntity.entity_id }],
+    });
+
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+    expect(card.itemsCount).to.equal(0);
+});
+
+it("Hidden entity stays hidden when battery_notes sibling is also hidden", async () => {
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    const batteryEntity = hass.addEntity("BN both hidden battery", "80", { device_class: "battery" }, "sensor");
+    const batteryNotesEntity = hass.addEntity("BN both hidden battery notes", "80", { device_class: "battery", battery_quantity: 1 }, "sensor");
+
+    // Both entities are hidden
+    hass.hass.entities = <any>{
+        [batteryEntity.entity_id]: { entity_id: batteryEntity.entity_id, device_id: "device_bn3", hidden: true },
+        [batteryNotesEntity.entity_id]: { entity_id: batteryNotesEntity.entity_id, device_id: "device_bn3", platform: "battery_notes", hidden: true },
+    };
+
+    const cardElem = hass.addCard("battery-state-card", <any>{
+        entities: [{ entity: batteryEntity.entity_id }],
+    });
+
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+    expect(card.itemsCount).to.equal(0);
+});
+
+it("Hidden entity stays hidden when battery_notes_enabled is false", async () => {
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    const batteryEntity = hass.addEntity("BN disabled battery", "80", { device_class: "battery" }, "sensor");
+    const batteryNotesEntity = hass.addEntity("BN disabled battery notes", "80", { device_class: "battery", battery_quantity: 1 }, "sensor");
+
+    hass.hass.entities = <any>{
+        [batteryEntity.entity_id]: { entity_id: batteryEntity.entity_id, device_id: "device_bn4", hidden: true },
+        [batteryNotesEntity.entity_id]: { entity_id: batteryNotesEntity.entity_id, device_id: "device_bn4", platform: "battery_notes" },
+    };
+
+    const cardElem = hass.addCard("battery-state-card", <any>{
+        entities: [{ entity: batteryEntity.entity_id }],
+        battery_notes_enabled: false,
+    });
+
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+    expect(card.itemsCount).to.equal(0);
+});
