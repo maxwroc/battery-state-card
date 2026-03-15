@@ -1,0 +1,33 @@
+name: Question
+description: Ask for help if your card doesn't work as expected
+labels: [question]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe what is wrong
+    validations:
+      required: true
+  - type: textarea
+    id: yaml
+    attributes:
+      label: YAML configuration
+      description: Paste your card configuration here.
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshot
+      description: Add a screenshot if applicable.
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Card version (available in HACS and in browser developer console - Ctrl+Shift+J / F12).
+      placeholder: e.g. 4.0.0
+    validations:
+      required: true
