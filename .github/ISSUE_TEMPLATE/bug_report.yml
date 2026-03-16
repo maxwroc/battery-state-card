@@ -35,7 +35,7 @@ body:
     id: debug
     attributes:
       label: Entity debug data
-      description: Add 'debug: true' in your card configuration and paste entity data from the debug output.
+      description: "Add 'debug: true' in your card configuration and paste entity data from the debug output."
       render: json
     validations:
       required: false
