@@ -74,6 +74,17 @@ colors:
   gradient: true
 ```
 
+The following config resets all the above defaults, you can use it as a base config if you want to fully configure the card on your own
+```yaml
+type: "custom:battery-state-card"
+secondary_info: null
+filter: {}
+sort: {}
+collapse: 0
+bulk_rename: []
+colors: {}
+```
+
 ### Card config
 
 | Name | Type | Default | Since | Description |
