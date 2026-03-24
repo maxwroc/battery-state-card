@@ -68,7 +68,7 @@
     "rollup-plugin-version-injector": "^1.3.3",
     "ts-jest": "^29.4.6",
     "tslib": "^2.5.3",
-    "typescript": "^5.2.2"
+    "typescript": "^6.0.2"
   },
   "dependencies": {
     "custom-card-helpers": "^2.0.0",
