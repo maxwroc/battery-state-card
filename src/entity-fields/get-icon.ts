@@ -1,6 +1,6 @@
-import { HomeAssistantExt } from "../type-extensions";
 import { log } from "../utils";
 import { RichStringProcessor } from "../rich-string-processor";
+import { EntityDataAccessor } from "../entity-data-accessor";
 
 const batteryUnknownIcon = "mdi:battery-unknown";
 
@@ -13,11 +13,11 @@ export const DefaultIcon = "<default_icon>";
  * Gets MDI icon class
  * @param config Entity config
  * @param level Battery level/state
- * @param isCharging Whether battery is in chargin mode
+ * @param isCharging Whether battery is in charging mode
  * @param hass HomeAssistant state object
  * @returns Mdi icon string
  */
-export const getIcon = (config: IBatteryEntityConfig, level: number | undefined, isCharging: boolean, hass: HomeAssistantExt): string => {
+export const getIcon = (config: IBatteryEntityConfig, level: number | undefined, isCharging: boolean, accessor: EntityDataAccessor): string => {
     if (isCharging && config.charging_state?.icon) {
         return config.charging_state.icon;
     }
@@ -28,8 +28,7 @@ export const getIcon = (config: IBatteryEntityConfig, level: number | undefined,
 
     if (config.icon) {
 
-        const entityData = hass.states[config.entity];
-        if (!entityData) {
+        if (!accessor.state) {
             log(`Entity '${config.entity}' not found`, "error");
             return batteryUnknownIcon;
         }
@@ -39,7 +38,7 @@ export const getIcon = (config: IBatteryEntityConfig, level: number | undefined,
         if (config.icon.startsWith(attribPrefix)) {
             const attribName = config.icon.substr(attribPrefix.length);
 
-            const val = entityData.attributes[attribName] as string | undefined;
+            const val = accessor.attributes?.[attribName] as string | undefined;
             if (!val) {
                 log(`Icon attribute missing in '${config.entity}' entity`, "error");
                 return batteryUnknownIcon;
@@ -48,7 +47,7 @@ export const getIcon = (config: IBatteryEntityConfig, level: number | undefined,
             return val;
         }
 
-        const processor = new RichStringProcessor(hass, { ...entityData });
+        const processor = new RichStringProcessor(accessor);
         return processor.process(config.icon);
     }
 

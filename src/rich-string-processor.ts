@@ -1,41 +1,12 @@
-import { HomeAssistantExt } from "./type-extensions";
 import { log } from "./utils";
-
-const validEntityDomains = [
-    "automation",
-    "binary_sensor",
-    "button",
-    "calendar",
-    "camera",
-    "climate",
-    "device_tracker",
-    "group",
-    "input_boolean",
-    "input_datetime",
-    "input_number",
-    "input_select",
-    "input_text",
-    "light",
-    "media_player",
-    "number",
-    "person",
-    "remote",
-    "scene",
-    "script",
-    "select",
-    "sensor",
-    "switch",
-    "update",
-    "weather",
-    "zone",
-];
+import { EntityDataAccessor } from "./entity-data-accessor";
 
 /**
  * Class for processing keyword strings
  */
  export class RichStringProcessor {
 
-    constructor(private hass: HomeAssistantExt, private entityData: IMap<any> | undefined) {
+    constructor(private accessor: EntityDataAccessor | undefined) {
     }
 
     /**
@@ -82,27 +53,15 @@ const validEntityDomains = [
             return dataSource;
         }
 
-        const chunks = dataSource.split(".");
-        let data = { ...<any>this.entityData };
-
-        if (validEntityDomains.includes(chunks[0])) {
-            data = {
-                ...this.hass.states[chunks.splice(0, 2).join(".")]
-            };
-        }
-
-        for (let i = 0; i < chunks.length; i++) {
-            data = data[chunks[i]];
-            if (data === undefined) {
-                break;
+        if (this.accessor) {
+            let data = this.accessor.resolve(dataSource);
+            if (typeof data == "object") {
+                data = JSON.stringify(data);
             }
+            return data === undefined ? undefined : data.toString();
         }
 
-        if (typeof data == "object") {
-            data = JSON.stringify(data);
-        }
-
-        return data === undefined ? undefined : data.toString();
+        return undefined;
     }
 }
 

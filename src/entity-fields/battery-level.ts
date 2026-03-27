@@ -1,6 +1,7 @@
 import { RichStringProcessor } from "../rich-string-processor";
 import { HomeAssistantExt } from "../type-extensions";
 import { isNumber, log, toNumber } from "../utils";
+import { EntityDataAccessor } from "../entity-data-accessor";
 
 /**
  * Some sensor may produce string value like "45%". This regex is meant to parse such values.
@@ -14,17 +15,17 @@ const stringValuePattern = /\b([0-9]{1,3})\s?%/;
 const formattedStatePattern = /(-?[0-9,.]+)\s?(.*)/;
 
 /**
- * Getts battery level/state
+ * Gets battery level/state
  * @param config Entity config
  * @param hass HomeAssistant state object
  * @returns Battery level
  */
-export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistantExt, entityData: IMap<any> | undefined): IBatteryState => {
+export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistantExt, accessor: EntityDataAccessor | undefined): IBatteryState => {
     const UnknownLevel = hass?.localize("state.default.unknown") || "Unknown";
     let state: string;
     let unit: string | undefined;
 
-    const stringProcessor = new RichStringProcessor(hass, entityData);
+    const stringProcessor = new RichStringProcessor(accessor);
 
     if (config.value_override !== undefined) {
         const processedValue = stringProcessor.process(config.value_override.toString());
@@ -35,14 +36,17 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistan
         }
     }
 
-    if (!entityData) {
+    if (!accessor?.state) {
         return {
             state: UnknownLevel
         };
     }
 
+    const entityState = accessor.state;
+    const rawStateValue = entityState.state;
+
     if (config.attribute) {
-        state = entityData.attributes[config.attribute]?.toString();
+        state = accessor.attributes?.[config.attribute]?.toString();
         if (state == undefined) {
             log(`Attribute "${config.attribute}" doesn't exist on "${config.entity}" entity`);
             state = UnknownLevel;
@@ -50,9 +54,9 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistan
     }
     else {
         const candidates: (string | number | null | undefined)[] = [
-            config.non_battery_entity ? null: entityData.attributes.battery_level,
-            config.non_battery_entity ? null: entityData.attributes.battery,
-            entityData.state
+            config.non_battery_entity ? null: accessor.attributes?.battery_level,
+            config.non_battery_entity ? null: accessor.attributes?.battery,
+            rawStateValue
         ];
 
         state = candidates.find(val => isNumber(val))?.toString() ||
@@ -101,8 +105,8 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistan
     }
 
     // check if HA should format the value
-    if (config.default_state_formatting !== false && !displayValue && state === entityData.state && hass) {
-        const formattedState = hass.formatEntityState(entityData);
+    if (config.default_state_formatting !== false && !displayValue && state === rawStateValue && hass) {
+        const formattedState = hass.formatEntityState(entityState);
 
         const matches = formattedState.match(formattedStatePattern);
         if (matches != null) {

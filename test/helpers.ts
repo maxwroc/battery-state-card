@@ -3,9 +3,10 @@ import { BatteryStateEntity } from "../src/custom-elements/battery-state-entity"
 import { LovelaceCard } from "../src/custom-elements/lovelace-card";
 import { DeviceRegistryEntry, EntityRegistryEntry, HomeAssistantExt, AreaRegistryEntry } from "../src/type-extensions";
 import { throttledCall } from "../src/utils";
+import { EntityDataAccessor } from "../src/entity-data-accessor";
 
 /**
- * Removing all custome elements
+ * Removing all custom elements
  */
 afterEach(() => {
     ["battery-state-card", "battery-state-entity"].forEach(cardTagName => Array
@@ -74,7 +75,7 @@ export class EntityElements {
     constructor(private card: BatteryStateEntity, isShadowRoot: boolean = true) {
 
         if (isShadowRoot && !card.shadowRoot) {
-            throw Error("Missing shaddow root");
+            throw Error("Missing shadow root");
         }
 
         this.root = isShadowRoot ? <any>card.shadowRoot! : card;
@@ -161,8 +162,11 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
 
     public hass: HomeAssistantExt = <any>{
         states: {},
+        entities: {},
+        devices: {},
+        areas: {},
         localize: (...data: string[]) => `[${data.join(", ")}]`,
-        formatEntityState: (entityData: any) => `${entityData.state} %`,
+        formatEntityState: (entityData: any, state?: string) => `${state ?? entityData.state} %`,
     };
 
     private throttledUpdate = throttledCall(() => {
@@ -197,8 +201,9 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
     }
 
     addEntity(name: string, state?: string, attribs?: IEntityAttributes, domain?: string): IEntityMock {
+        const entityId = convertToEntityId(name, domain);
         const entity = {
-            entity_id: convertoToEntityId(name, domain),
+            entity_id: entityId,
             state: state || "",
             attributes: {
                 friendly_name: name,
@@ -235,7 +240,23 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
                 this.throttledUpdate();
             },
             setProperty: <K extends keyof HaEntityPropertyToTypeMap>(name: K, val: HaEntityPropertyToTypeMap[K]) => {
-                (<any>entity)[name] = val;
+                if (name === "entity") {
+                    this.hass.entities![entity.entity_id] = <any>{ ...val, entity_id: entity.entity_id };
+                } else if (name === "device") {
+                    const deviceId = (<any>val).id || "mock_device";
+                    this.hass.devices![deviceId] = <any>val;
+                    if (!this.hass.entities![entity.entity_id]) {
+                        this.hass.entities![entity.entity_id] = <any>{ entity_id: entity.entity_id };
+                    }
+                    (<any>this.hass.entities![entity.entity_id]).device_id = deviceId;
+                } else if (name === "area") {
+                    const areaId = (<any>val).area_id || "mock_area";
+                    this.hass.areas![areaId] = <any>val;
+                    if (!this.hass.entities![entity.entity_id]) {
+                        this.hass.entities![entity.entity_id] = <any>{ entity_id: entity.entity_id };
+                    }
+                    (<any>this.hass.entities![entity.entity_id]).area_id = areaId;
+                }
                 this.throttledUpdate();
             }
         };
@@ -244,10 +265,14 @@ export class HomeAssistantMock<T extends LovelaceCard<any>> {
 
         return entity
     }
+
+    createAccessor(entityId: string): EntityDataAccessor {
+        return new EntityDataAccessor(this.hass, entityId);
+    }
 }
 
 
-export const convertoToEntityId = (input: string, domain?: string) => {
+export const convertToEntityId = (input: string, domain?: string) => {
     return (domain ? domain + "." : "") + input.toLocaleLowerCase().replace(/[-\s]/g, "_");
 }
 

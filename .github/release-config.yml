@@ -1,5 +1,5 @@
-name-template: 'v$NEXT_MINOR_VERSION'
-tag-template: 'v$NEXT_MINOR_VERSION'
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
 categories:
   - title: '🚀 Features'
     labels:
@@ -37,4 +37,4 @@ template: |
   If you want to show your support please
   [![Buy me a coffee](https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png)](https://buymeacoffee.com/maxwroc)
 
-  ![GitHub Releases (by Release)](https://img.shields.io/github/downloads/maxwroc/battery-state-card/v$NEXT_MINOR_VERSION/total)
+  ![GitHub Releases (by Release)](https://img.shields.io/github/downloads/maxwroc/battery-state-card/v$RESOLVED_VERSION/total)

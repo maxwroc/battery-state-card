@@ -1,0 +1,6 @@
+_extends: release-config.yml
+prerelease: true
+prerelease-identifier: beta
+filter-by-commitish: true
+version-resolver:
+  default: minor

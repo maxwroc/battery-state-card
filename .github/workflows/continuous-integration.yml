@@ -1,4 +1,4 @@
-name: Continous integration
+name: Continuous integration
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
       - vNext
 
 jobs:
-  continous_integration:
+  continuous_integration:
     runs-on: macOS-latest
     steps:
       - name: Checkout files

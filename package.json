@@ -1,6 +1,6 @@
 {
   "name": "battery-state-card",
-  "version": "4.0.1",
+  "version": "4.1.0-beta.1",
   "description": "Battery State card for Home Assistant",
   "main": "dist/battery-state-card.js",
   "type": "module",
@@ -62,7 +62,7 @@
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.3.0",
     "nyc": "^18.0.0",
-    "rollup": "^4.59.0",
+    "rollup": "^4.60.0",
     "rollup-plugin-import-css": "^4.2.0",
     "rollup-plugin-serve": "^3.0.0",
     "rollup-plugin-version-injector": "^1.3.3",

@@ -78,7 +78,7 @@ export const parseRelativeTime = (val: string): number | undefined => {
 }
 
 /**
- * Returns array of values regardles if given value is string array or null
+ * Returns array of values regardless if given value is string array or null
  * @param val Value to process
  */
 export const safeGetArray = <T>(val: T | T[] | undefined): T[] => {

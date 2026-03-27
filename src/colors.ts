@@ -4,7 +4,7 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
  * Gets icon color
  * @param config Entity config
  * @param batteryLevel Battery level/state
- * @param isCharging Whether battery is in chargin mode
+ * @param isCharging Whether battery is in charging mode
  * @returns Icon color
  */
  export const getColorForBatteryLevel = (config: IBatteryEntityConfig, batteryLevel: number | undefined, isCharging: boolean): string => {
@@ -191,7 +191,7 @@ const convertToPercentage = (colorSteps: IColorSteps[], value: number) => {
 
 /**
  * Returns last object in the collection or default
- * @param collelction Array of objects
+ * @param collection Array of objects
  * @returns Last object in the collection or default
  */
-const lastObject = <T>(collelction: T[]): T => collelction && collelction.length > 0 ? collelction[collelction.length - 1] : <T>{};
+const lastObject = <T>(collection: T[]): T => collection && collection.length > 0 ? collection[collection.length - 1] : <T>{};

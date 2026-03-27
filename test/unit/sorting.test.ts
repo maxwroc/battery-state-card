@@ -1,6 +1,8 @@
 import { IBatteryCollection, IBatteryCollectionItem } from "../../src/battery-provider";
 import { getIdsOfSortedBatteries } from "../../src/sorting";
-import { convertoToEntityId } from "../helpers";
+import { convertToEntityId } from "../helpers";
+import { EntityDataAccessor } from "../../src/entity-data-accessor";
+import { HomeAssistantExt } from "../../src/type-extensions";
 
 describe("Entity sorting", () => {
 
@@ -9,9 +11,9 @@ describe("Entity sorting", () => {
         [<SortByOption>"name", true, ["z_sensor", "m_sensor", "g_sensor", "b_sensor", "a_sensor"]],
         [<SortByOption>"state", false, ["m_sensor", "g_sensor", "b_sensor", "a_sensor", "z_sensor"]],
         [<SortByOption>"state", true, ["z_sensor", "b_sensor", "a_sensor", "g_sensor", "m_sensor"]],
-    ])("Sorting with single option", (sortyBy: SortByOption, desc: boolean, expectedOrder: string[]) => {
+    ])("Sorting with single option", (sortBy: SortByOption, desc: boolean, expectedOrder: string[]) => {
 
-        const sortedIds = getIdsOfSortedBatteries({ entities: [], sort: [{ by: sortyBy, desc: desc }]}, convertToCollection(batteries));
+        const sortedIds = getIdsOfSortedBatteries({ entities: [], sort: [{ by: sortBy, desc: desc }]}, convertToCollection(batteries));
 
         expect(sortedIds).toStrictEqual(expectedOrder);
     })
@@ -79,6 +81,13 @@ describe("Entity sorting", () => {
         expect(sortedIds).toStrictEqual(expectedOrder);
     });
 
+    test("Empty sort object does not throw", () => {
+        const sortedIds = getIdsOfSortedBatteries({ entities: [], sort: <any>{} }, convertToCollection(batteries));
+
+        // original insertion order preserved
+        expect(sortedIds).toStrictEqual(["z_sensor", "b_sensor", "m_sensor", "a_sensor", "g_sensor"]);
+    });
+
     test.each([
         ["state", "38", "38,5", "38,4", ["a_sensor", "c_sensor", "b_sensor"]],
         ["state", "38", "99,5", "99,4", ["a_sensor", "c_sensor", "b_sensor"]],
@@ -98,14 +107,23 @@ describe("Entity sorting", () => {
     });
 });
 
+const mockHass: HomeAssistantExt = <any>{ states: {}, entities: {}, devices: {}, areas: {} };
+
 const createBattery = (name: string, state: string | undefined, last_changed?: string | undefined) => {
+    const entityId = convertToEntityId(name);
+    const stateData: any = {
+        entity_id: entityId,
+        state: state,
+        attributes: { friendly_name: name },
+        last_changed: last_changed?.substring(1, last_changed.length - 2),
+    };
+    mockHass.states[entityId] = stateData;
+
     const b = <IBatteryCollectionItem><any>{
-        entityId: convertoToEntityId(name),
+        entityId: entityId,
         name: name,
         state: state,
-        entityData: {
-            "last_changed": last_changed?.substring(1,last_changed.length - 2),
-        }
+        accessor: new EntityDataAccessor(mockHass, entityId),
     }
 
     return b;

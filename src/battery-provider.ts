@@ -2,12 +2,12 @@ import { log, safeGetConfigArrayOfObjects } from "./utils";
 import { BatteryStateEntity } from "./custom-elements/battery-state-entity";
 import { createFilter, Filter } from "./filter";
 import { HomeAssistantExt } from "./type-extensions";
-import { BATTERY_NOTES_PLATFORM, hassRegistryCache } from "./hass-registry-cache";
+import { EntityDataAccessor, BATTERY_NOTES_PLATFORM } from "./entity-data-accessor";
 
 /**
  * Properties which should be copied over to individual entities from the card
  */
-const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [
+const entitiesGlobalProps: (keyof IBatteryEntityConfig)[] = [
     "bulk_rename",
     "charging_state",
     "colors",
@@ -24,11 +24,11 @@ const entititesGlobalProps: (keyof IBatteryEntityConfig)[] = [
     "value_override",
     "unit",
     "style",
-    "battery_notes_enabled",
+    "battery_notes_dedup",
 ];
 
 /**
- * Class responsible for intializing Battery view models based on given configuration.
+ * Class responsible for initializing battery view models based on given configuration.
  */
 export class BatteryProvider {
 
@@ -38,7 +38,7 @@ export class BatteryProvider {
     private include: Filter[] | undefined;
 
     /**
-     * Filters to remove entitites from collection.
+     * Filters to remove entities from collection.
      */
     private exclude: Filter[] | undefined;
 
@@ -56,6 +56,11 @@ export class BatteryProvider {
      * Collection of groups and their properties taken from HA
      */
     public groupsData: IGroupDataMap = {};
+
+    /**
+     * Entities explicitly configured by the user (protected from dedup removal).
+     */
+    private explicitEntities: Set<string> = new Set();
 
     /**
      * Whether include filters were processed already.
@@ -84,6 +89,8 @@ export class BatteryProvider {
             if (this.config.unpack) {
                 this.processUnpackEntities(hass);
             }
+
+            this.processBatteryNotesDedup(hass);
         }
 
         const updateComplete = Object.keys(this.batteries).map(id => {
@@ -109,8 +116,8 @@ export class BatteryProvider {
      * Creates and returns new Battery View Model
      */
     private createBattery(entityConfig: IBatteryEntityConfig): IBatteryCollectionItem {
-        // assing card-level values if they were not defined on entity-level
-        entititesGlobalProps
+        // assign card-level values if they were not defined on entity-level
+        entitiesGlobalProps
             .filter(p => (<any>entityConfig)[p] == undefined)
             .forEach(p => (<any>entityConfig)[p] = (<any>this.config)[p]);
 
@@ -164,6 +171,7 @@ export class BatteryProvider {
 
         entities.forEach(entityConf => {
             this.batteries[entityConf.entity] = this.createBattery(entityConf);
+            this.explicitEntities.add(entityConf.entity);
         });
     }
 
@@ -176,18 +184,6 @@ export class BatteryProvider {
             return;
         }
 
-        const advancedInclude = this.include.some(filter => filter.is_advanced);
-        const filterBatteryNotes = this.config.battery_notes_enabled !== false;
-
-        // Collect required registry fields from include filters, we do it to optimize the initialization stage by fetching only necessary data
-        const requiredFields = advancedInclude
-            ? [...new Set(
-                this.include
-                    .filter(f => f.requiredFields)
-                    .reduce((acc, f) => [...acc, ...f.requiredFields!], [] as RegistryDataField[])
-              )]
-            : undefined;
-
         Object.keys(hass.states).forEach(entityId => {
 
             if (this.batteries[entityId]) {
@@ -195,29 +191,10 @@ export class BatteryProvider {
                 return;
             }
 
-            let entityData = <IMap<any>>{};
-            if (advancedInclude) {
-                entityData = { ...hass.states[entityId] };
-                // getting "partial" extended data based on filters requirements
-                const extData = hassRegistryCache.getExtendedData(hass, entityId, requiredFields);
-                if (extData.entity) {
-                    entityData["entity"] = extData.entity;
-                    entityData["device"] = extData.device;
-                    entityData["area"] = extData.area;
-                }
-            }
+            const accessor = new EntityDataAccessor(hass, entityId);
 
             // check if entity matches filter conditions
-            if (this.include!.some(filter => filter.isValid(advancedInclude ? entityData : hass.states[entityId]))) {
-
-                // Filter out battery_notes entities (duplicates created by the integration)
-                if (filterBatteryNotes) {
-                    const entityEntry = hassRegistryCache.getEntity(hass, entityId);
-                    if (entityEntry?.platform === BATTERY_NOTES_PLATFORM) {
-                        return;
-                    }
-                }
-
+            if (this.include!.some(filter => filter.isValid(accessor))) {
                 this.batteries[entityId] = this.createBattery({ entity: entityId });
             }
         });
@@ -297,7 +274,7 @@ export class BatteryProvider {
             let isHidden = false;
             for (let filter of filters) {
                 // we want to show batteries for which entities are missing in HA
-                if (filter.isValid(battery.entityData, battery.state)) {
+                if (filter.isValid(battery.accessor)) {
                     if (filter.is_permanent) {
                         // permanent filters have conditions based on static values so we can safely
                         // remove such battery to avoid updating them unnecessarily
@@ -317,6 +294,64 @@ export class BatteryProvider {
         });
 
         toBeRemoved.forEach(entityId => delete this.batteries[entityId]);
+    }
+
+    /**
+     * Deduplicates battery_notes entities per device.
+     * Prefers battery_plus (platform=battery_notes + state_class=measurement) over original battery entities.
+     * Explicit entities (from config.entities) are never removed.
+     */
+    private processBatteryNotesDedup(hass: HomeAssistantExt): void {
+        if (this.config.battery_notes_dedup === false) {
+            return;
+        }
+
+        // Group battery entity IDs by device_id
+        const deviceGroups: { [deviceId: string]: string[] } = {};
+        const accessors: { [entityId: string]: EntityDataAccessor } = {};
+        Object.keys(this.batteries).forEach(entityId => {
+            const accessor = new EntityDataAccessor(hass, entityId);
+            accessors[entityId] = accessor;
+            const deviceId = accessor.entity?.device_id;
+            if (!deviceId) return;
+            if (!deviceGroups[deviceId]) deviceGroups[deviceId] = [];
+            deviceGroups[deviceId].push(entityId);
+        });
+
+        const toRemove: string[] = [];
+
+        Object.keys(deviceGroups).forEach(deviceId => {
+            const entityIds = deviceGroups[deviceId];
+            if (entityIds.length <= 1) return;
+
+            // Check if any entity in this device group has device_class "battery"
+            const hasBatteryEntity = entityIds.some(id =>
+                accessors[id].attributes?.device_class === "battery"
+            );
+            if (!hasBatteryEntity) return;
+
+            // Identify battery_plus entity: battery_notes platform + state_class measurement + device_class battery
+            const batteryPlusId = entityIds.find(id => {
+                const accessor = accessors[id];
+                return accessor.entity?.platform === BATTERY_NOTES_PLATFORM
+                    && accessor.attributes?.device_class === "battery"
+                    && accessor.attributes?.state_class === "measurement";
+            });
+
+            if (batteryPlusId) {
+                // Remove original (non-BN) battery entities, keep battery_plus
+                entityIds.forEach(id => {
+                    if (id === batteryPlusId) return;
+                    if (this.explicitEntities.has(id)) return;
+
+                    if (accessors[id].attributes?.device_class === "battery") {
+                        toRemove.push(id);
+                    }
+                });
+            }
+        });
+
+        toRemove.forEach(entityId => delete this.batteries[entityId]);
     }
 }
 

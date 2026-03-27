@@ -1,3 +1,4 @@
+import { EntityDataAccessor } from "./entity-data-accessor";
 import { getRegexFromString, getValueFromObject, isNumber, log, parseRelativeTime, safeGetArray, toNumber } from "./utils";
 
 /**
@@ -97,23 +98,10 @@ export abstract class Filter {
     abstract get is_permanent(): boolean;
 
     /**
-     * Whether filter is advanced.
-     *
-     * Advanced means relies on extra fields like display, device, area.
-     */
-    abstract get is_advanced(): boolean;
-
-    /**
-     * Required registry data fields for the filter to work.
-     */
-    abstract get requiredFields(): RegistryDataField[] | undefined;
-
-    /**
      * Checks whether entity meets the filter conditions.
-     * @param entityData Hass entity data
-     * @param state State override - battery state/level
+     * @param data Entity data accessor
      */
-    abstract isValid(entityData: any, state?: string): boolean;
+    abstract isValid(data: EntityDataAccessor): boolean;
 }
 
 abstract class CompositeFilter extends Filter {
@@ -124,86 +112,52 @@ abstract class CompositeFilter extends Filter {
     override get is_permanent(): boolean {
         return this.filters.every(filter => filter.is_permanent);
     }
-
-    override get is_advanced(): boolean {
-        return this.filters.some(filter => filter.is_advanced);
-    }
-
-    override get requiredFields(): RegistryDataField[] | undefined {
-        const fields = this.filters
-            .filter(f => f.is_advanced && f.requiredFields)
-            // flatMap is not supported in all browsers, so we use map + reduce
-            .reduce((acc, f) => [...acc, ...f.requiredFields!], [] as RegistryDataField[]);
-        return fields.length > 0 ? fields : undefined;
-    }
 }
 
 export class NotFilter extends CompositeFilter {
-    override isValid(entityData: any, state?: string): boolean {
-        return !this.filters.every(filter => filter.isValid(entityData, state));
+    override isValid(data: EntityDataAccessor): boolean {
+        return !this.filters.every(filter => filter.isValid(data));
     }
 }
 
 export class AndFilter extends CompositeFilter {
-    override isValid(entityData: any, state?: string): boolean {
-        return this.filters.every(filter => filter.isValid(entityData, state));
+    override isValid(data: EntityDataAccessor): boolean {
+        return this.filters.every(filter => filter.isValid(data));
     }
 }
 
 export class OrFilter extends CompositeFilter {
-    override isValid(entityData: any, state?: string): boolean {
-        return this.filters.some(filter => filter.isValid(entityData, state));
+    override isValid(data: EntityDataAccessor): boolean {
+        return this.filters.some(filter => filter.isValid(data));
     }
 }
 
 export class FieldFilter extends Filter {
 
     override get is_permanent(): boolean {
-        return this.config.name != "state";
-    }
-
-    override get is_advanced(): boolean {
-        return this.config.name.startsWith("entity.") || this.config.name.startsWith("device.") || this.config.name.startsWith("area.");
-    }
-
-    override get requiredFields(): RegistryDataField[] | undefined {
-        if (this.config.name.startsWith("entity.")) {
-            return ["entity"];
-        }
-        if (this.config.name.startsWith("device.")) {
-            return ["device"];
-        }
-        if (this.config.name.startsWith("area.")) {
-            return ["area"];
-        }
-        return undefined;
+        return this.config.name != "state" && !this.config.name.startsWith("computed.");
     }
 
     constructor(private config: IFilter) {
         super();
     }
 
-    isValid(entityData: any, state?: string): boolean {
-        const val = this.getValue(entityData, state);
+    isValid(data: EntityDataAccessor): boolean {
+        const val = this.getValue(data);
         return this.meetsExpectations(val);
     }
 
     /**
      * Gets the value to validate.
-     * @param entityData Hass entity data
-     * @param state State override - battery state/level
+     * @param data Entity data accessor
      */
-    private getValue(entityData: any, state?: string): FilterValueType {
+    private getValue(data: EntityDataAccessor): FilterValueType {
         if (!this.config.name) {
             log("Missing filter 'name' property");
             return;
         }
 
-        if (this.config.name == "state" && state !== undefined) {
-            return state;
-        }
-
-        return getValueFromObject(entityData, this.config.name);
+        return data.resolve(this.config.name);
     }
 
     /**

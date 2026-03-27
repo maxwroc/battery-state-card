@@ -7,7 +7,7 @@ const relativeTimeTag = new RegExp("<rt>([^<]+)</rt>", "g");
 
 
 /**
- * Replaces temporary RT tages with proper HA "relative-time" ones
+ * Replaces temporary RT tags with proper HA "relative-time" ones
  *
  * @param text Text to be processed
  * @param hass HomeAssistant instance
@@ -61,7 +61,7 @@ export const customOrDefaultIcon = (model: BatteryStateEntity) => {
     <ha-state-icon
         style="color: ${model.iconColor}"
         .hass="${model.hass}"
-        .stateObj="${model.entityData}"
+        .stateObj="${model.accessor?.state}"
     ></ha-state-icon>
 </div>
 `;

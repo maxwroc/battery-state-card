@@ -9,7 +9,7 @@ describe("Filter", () => {
         const entity = hassMock.addEntity("Entity name", "90", { battery_level: "45" });
 
         const filter = createFilter({ name: "attributes.battery_level", operator: <any>"unsupported" });
-        const isValid = filter.isValid(entity);
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
         expect(isValid).toBe(false);
     })
@@ -23,7 +23,7 @@ describe("Filter", () => {
         const entity = hassMock.addEntity("Entity name", "90", { battery_level: "45" });
 
         const filter = createFilter({ name: <any>filterName });
-        const isValid = filter.isValid(entity);
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
         expect(isValid).toBe(false);
     })
@@ -31,13 +31,15 @@ describe("Filter", () => {
     test.each([
         ["45", true],
         ["90", false],
-    ])("filter based on state - state coming from custom source", (filterValue: string, expectedIsValid: boolean) => {
+    ])("filter based on computed.state", (filterValue: string, expectedIsValid: boolean) => {
         const hassMock = new HomeAssistantMock();
 
         const entity = hassMock.addEntity("Entity name", "90");
+        const accessor = hassMock.createAccessor(entity.entity_id);
+        accessor.setComputed("state", "45");
 
-        const filter = createFilter({ name: "state", value: filterValue });
-        const isValid = filter.isValid(entity, "45");
+        const filter = createFilter({ name: "computed.state", value: filterValue });
+        const isValid = filter.isValid(accessor);
 
         expect(isValid).toBe(expectedIsValid);
     })
@@ -51,16 +53,16 @@ describe("Filter", () => {
         ["Bedroom motion", "/BEDroom_motion/", false],
         ["Bedroom motion", "/BEDroom_motion/i", true],
         ["sensor.bot_outside_power_battery", "sensor.*bot_*battery", true],
-    ])("matches func returns correct results", (entityName: string, filterValue: string, expectedIsVlid: boolean) => {
+    ])("matches func returns correct results", (entityName: string, filterValue: string, expectedIsValid: boolean) => {
         const hassMock = new HomeAssistantMock();
 
         const entity = hassMock.addEntity(entityName, "90");
 
         const filter = createFilter({ name: "entity_id", value: filterValue });
-        const isValid = filter.isValid(entity);
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
         expect(filter.is_permanent).toBeTruthy();
-        expect(isValid).toBe(expectedIsVlid);
+        expect(isValid).toBe(expectedIsValid);
     })
 
     test.each([
@@ -69,16 +71,16 @@ describe("Filter", () => {
         ["attributes.battery_state", { battery_level: "45" }, false, <FilterOperator>"exists"],
         ["attributes.battery_level", { battery_level: "45" }, false, <FilterOperator>"not_exists"],
         ["attributes.battery_state", { battery_level: "45" }, true, <FilterOperator>"not_exists"],
-    ])("exists/not_exists func returns correct results", (fileterName: string, attribs: IMap<string>, expectedIsVlid: boolean, operator: FilterOperator | undefined) => {
+    ])("exists/not_exists func returns correct results", (filterName: string, attribs: IMap<string>, expectedIsValid: boolean, operator: FilterOperator | undefined) => {
         const hassMock = new HomeAssistantMock();
 
         const entity = hassMock.addEntity("Entity name", "90", attribs);
 
-        const filter = createFilter({ name: fileterName, operator });
-        const isValid = filter.isValid(entity);
+        const filter = createFilter({ name: filterName, operator });
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
         expect(filter.is_permanent).toBeTruthy();
-        expect(isValid).toBe(expectedIsVlid);
+        expect(isValid).toBe(expectedIsValid);
     })
 
     test.each([
@@ -108,15 +110,15 @@ describe("Filter", () => {
         ["44,1", <FilterOperator>">", "44", true],
         ["44", <FilterOperator>"<", "44.1", true],
         ["44", <FilterOperator>"<", "44,1", true],
-    ])("matching functions return correct results", (state: string | undefined, operator: FilterOperator | undefined, value: string | number, expectedIsVlid: boolean) => {
+    ])("matching functions return correct results", (state: string | undefined, operator: FilterOperator | undefined, value: string | number, expectedIsValid: boolean) => {
         const hassMock = new HomeAssistantMock();
 
         const entity = hassMock.addEntity("Entity name", "ok", { battery_level: state });
 
         const filter = createFilter({ name: "attributes.battery_level", operator, value });
-        const isValid = filter.isValid(entity);
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
-        expect(isValid).toBe(expectedIsVlid);
+        expect(isValid).toBe(expectedIsValid);
     })
 
     test.each([
@@ -131,7 +133,7 @@ describe("Filter", () => {
         const entity = hassMock.addEntity("Entity name", "ok", { labels: attributeValue });
 
         const filter = createFilter({ name: "attributes.labels", operator, value });
-        const isValid = filter.isValid(entity);
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
         expect(isValid).toBe(expectedIsValid);
     })
@@ -147,28 +149,31 @@ describe("Filter", () => {
         [true, undefined, false, false],
         [true, undefined, null, false],
         [null, undefined, null, true],
-    ])("non mixed types of values", (attributeValue: FilterValueType, operator: FilterOperator | undefined, value: FilterValueType, expectedIsVlid: boolean) => {
+    ])("non mixed types of values", (attributeValue: FilterValueType, operator: FilterOperator | undefined, value: FilterValueType, expectedIsValid: boolean) => {
         const hassMock = new HomeAssistantMock();
 
         const entity = hassMock.addEntity("Entity name", "ok", { entity_attrib: attributeValue });
 
         const filter = createFilter({ name: "attributes.entity_attrib", operator, value });
-        const isValid = filter.isValid(entity);
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
-        expect(isValid).toBe(expectedIsVlid);
+        expect(isValid).toBe(expectedIsValid);
     })
 
     test.each([
-        [{ state: "45", device: { name: "Device name" } }, "path.missing", "Device name", false],
-        [{ state: "45", device: { name: "Device name" } }, "device.name", "Device name", true],
-        [{ state: "45", device: { name: "Device name" } }, "device.name", "Device other name", false],
-        [{ state: "45", device: { name: "Device name", manufacturer: { name: "Contoso" } } }, "device.manufacturer", "Contoso", false],
-        [{ state: "45", device: { name: "Device name", manufacturer: { name: "Contoso" } } }, "device.manufacturer.name", "Contoso", true],
-    ])("filter based on nested entity data", (entityData: any, filterName: string, filterValue: string, expectedIsValid: boolean) => {
+        ["path.missing", "Device name", false],
+        ["device.name", "Device name", true],
+        ["device.name", "Device other name", false],
+        ["device.manufacturer", "Contoso", true],
+    ])("filter based on nested entity data", (filterName: string, filterValue: string, expectedIsValid: boolean) => {
         const hassMock = new HomeAssistantMock();
+        const entity = hassMock.addEntity("Entity name", "45");
+
+        hassMock.hass.entities[entity.entity_id] = <any>{ entity_id: entity.entity_id, device_id: "dev_1" };
+        hassMock.hass.devices["dev_1"] = <any>{ id: "dev_1", name: "Device name", manufacturer: "Contoso" };
 
         const filter = createFilter({ name: filterName, value: filterValue });
-        const isValid = filter.isValid(entityData, "45");
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
         expect(isValid).toBe(expectedIsValid);
     })
@@ -176,15 +181,15 @@ describe("Filter", () => {
     test.each([
         ["45", <FilterOperator>"=", "45", false],
         ["45", <FilterOperator>"=", "55", true],
-    ])("not negates the underlying filter", (state: string | undefined, operator: FilterOperator | undefined, value: string | number, expectedIsVlid: boolean) => {
+    ])("not negates the underlying filter", (state: string | undefined, operator: FilterOperator | undefined, value: string | number, expectedIsValid: boolean) => {
         const hassMock = new HomeAssistantMock();
 
         const entity = hassMock.addEntity("Entity name", "ok", { battery_level: state });
 
         const filter = createFilter({ not: { name: "attributes.battery_level", operator, value } });
-        const isValid = filter.isValid(entity);
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
-        expect(isValid).toBe(expectedIsVlid);
+        expect(isValid).toBe(expectedIsValid);
     })
 
     test.each([
@@ -203,7 +208,7 @@ describe("Filter", () => {
                 { name: "state", operator: "=", value: "Charging" },
             ]
         });
-        const isValid = filter.isValid(entity);
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
         expect(isValid).toBe(expectedIsValid);
     })
@@ -224,7 +229,7 @@ describe("Filter", () => {
                 { name: "state", operator: "=", value: "Charging" },
             ]
         });
-        const isValid = filter.isValid(entity);
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
         expect(isValid).toBe(expectedIsValid);
     })
@@ -240,7 +245,7 @@ describe("Filter", () => {
         const entity = hassMock.addEntity("Entity name", "ok", { test_attr: attributeValue });
 
         const filter = createFilter({ name: "attributes.test_attr", operator: "contains", value: searchValue });
-        const isValid = filter.isValid(entity);
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
         expect(isValid).toBe(expectedIsValid);
     })
@@ -254,7 +259,7 @@ describe("Filter", () => {
         const entity = hassMock.addEntity("Entity name", "ok", { test_attr: attributeValue });
 
         const filter = createFilter({ name: "attributes.test_attr", operator: "matches", value: pattern });
-        const isValid = filter.isValid(entity);
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
 
         expect(isValid).toBe(false);
     })
@@ -291,28 +296,10 @@ describe("Filter", () => {
         expect(filter.is_permanent).toBe(true);
     })
 
-    test("is_advanced is true for entity filters", () => {
-        const filter = createFilter({ name: "entity.entity_id", value: "sensor.battery" });
+    test("is_permanent is false for computed.state filters", () => {
+        const filter = createFilter({ name: "computed.state", value: "50" });
 
-        expect(filter.is_advanced).toBe(true);
-    })
-
-    test("is_advanced is true for device filters", () => {
-        const filter = createFilter({ name: "device.name", value: "My Device" });
-
-        expect(filter.is_advanced).toBe(true);
-    })
-
-    test("is_advanced is true for area filters", () => {
-        const filter = createFilter({ name: "area.name", value: "Living Room" });
-
-        expect(filter.is_advanced).toBe(true);
-    })
-
-    test("is_advanced is false for other filters", () => {
-        const filter = createFilter({ name: "state", value: "50" });
-
-        expect(filter.is_advanced).toBe(false);
+        expect(filter.is_permanent).toBe(false);
     })
 
     test("composite filter is_permanent is false if any child is not permanent", () => {
@@ -326,17 +313,6 @@ describe("Filter", () => {
         expect(filter.is_permanent).toBe(false);
     })
 
-    test("composite filter is_advanced is true if any child is advanced", () => {
-        const filter = createFilter({
-            or: [
-                { name: "state", value: "50" },
-                { name: "entity.entity_id", value: "sensor.battery" }
-            ]
-        });
-
-        expect(filter.is_advanced).toBe(true);
-    })
-
     describe("relative time comparison", () => {
         test("'>' returns true when timestamp is older than duration", () => {
             const oldDate = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
@@ -345,7 +321,7 @@ describe("Filter", () => {
             entity.setLastUpdated(oldDate);
 
             const filter = createFilter({ name: "last_updated", operator: ">", value: "24h" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(true);
         });
 
         test("'>' returns false when timestamp is newer than duration", () => {
@@ -355,7 +331,7 @@ describe("Filter", () => {
             entity.setLastUpdated(recentDate);
 
             const filter = createFilter({ name: "last_updated", operator: ">", value: "24h" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(false);
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(false);
         });
 
         test("'<' returns true when timestamp is newer than duration", () => {
@@ -365,7 +341,7 @@ describe("Filter", () => {
             entity.setLastUpdated(recentDate);
 
             const filter = createFilter({ name: "last_updated", operator: "<", value: "24h" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(true);
         });
 
         test("'<' returns false when timestamp is older than duration", () => {
@@ -375,7 +351,7 @@ describe("Filter", () => {
             entity.setLastUpdated(oldDate);
 
             const filter = createFilter({ name: "last_updated", operator: "<", value: "24h" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(false);
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(false);
         });
 
         test("works with last_changed field", () => {
@@ -385,7 +361,7 @@ describe("Filter", () => {
             entity.setLastChanged(oldDate);
 
             const filter = createFilter({ name: "last_changed", operator: ">", value: "24h" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(true);
         });
 
         test("works with days unit", () => {
@@ -395,7 +371,7 @@ describe("Filter", () => {
             entity.setLastUpdated(oldDate);
 
             const filter = createFilter({ name: "last_updated", operator: ">", value: "7d" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(true);
         });
 
         test("returns false for empty timestamp", () => {
@@ -403,7 +379,7 @@ describe("Filter", () => {
             const entity = hassMock.addEntity("Entity name", "90");
 
             const filter = createFilter({ name: "last_updated", operator: ">", value: "24h" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(false);
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(false);
         });
 
         test("falls back to numeric comparison for non-time values", () => {
@@ -411,7 +387,7 @@ describe("Filter", () => {
             const entity = hassMock.addEntity("Entity name", "90", { battery_level: "45" });
 
             const filter = createFilter({ name: "attributes.battery_level", operator: ">", value: "30" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(true);
         });
     })
 
@@ -421,7 +397,7 @@ describe("Filter", () => {
             const entity = hassMock.addEntity("Entity name", "90", { battery_level: "45" });
 
             const filter = createFilter({ name: "attributes.battery_level", operator: "=", value: <any>["a", "b"] });
-            expect(() => filter.isValid(entity)).toThrow("does not support array values");
+            expect(() => filter.isValid(hassMock.createAccessor(entity.entity_id))).toThrow("does not support array values");
         });
 
         test("> operator throws when filter value is an array", () => {
@@ -429,7 +405,7 @@ describe("Filter", () => {
             const entity = hassMock.addEntity("Entity name", "90", { battery_level: "45" });
 
             const filter = createFilter({ name: "attributes.battery_level", operator: ">", value: <any>["1", "2"] });
-            expect(() => filter.isValid(entity)).toThrow("does not support array values");
+            expect(() => filter.isValid(hassMock.createAccessor(entity.entity_id))).toThrow("does not support array values");
         });
     })
 
@@ -441,7 +417,7 @@ describe("Filter", () => {
             entity.setLastUpdated(oldDate);
 
             const filter = createFilter({ name: "last_updated", operator: ">=", value: "24h" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(true);
         });
 
         test("'>=' returns false when timestamp is newer than duration", () => {
@@ -451,7 +427,7 @@ describe("Filter", () => {
             entity.setLastUpdated(recentDate);
 
             const filter = createFilter({ name: "last_updated", operator: ">=", value: "24h" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(false);
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(false);
         });
 
         test("'<=' returns true when timestamp is newer than duration", () => {
@@ -461,7 +437,7 @@ describe("Filter", () => {
             entity.setLastUpdated(recentDate);
 
             const filter = createFilter({ name: "last_updated", operator: "<=", value: "24h" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(true);
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(true);
         });
 
         test("'<=' returns false when timestamp is older than duration", () => {
@@ -471,31 +447,7 @@ describe("Filter", () => {
             entity.setLastUpdated(oldDate);
 
             const filter = createFilter({ name: "last_updated", operator: "<=", value: "24h" });
-            expect(filter.isValid(hassMock.hass.states[entity.entity_id])).toBe(false);
-        });
-    })
-
-    describe("composite filter requiredFields", () => {
-        test("returns required fields from advanced child filters", () => {
-            const filter = createFilter({
-                and: [
-                    { name: "entity.platform", value: "test" },
-                    { name: "device.name", value: "My Device" },
-                ]
-            });
-
-            expect(filter.requiredFields).toEqual(["entity", "device"]);
-        });
-
-        test("returns undefined when no child filters are advanced", () => {
-            const filter = createFilter({
-                and: [
-                    { name: "state", value: "50" },
-                    { name: "attributes.battery_level", value: "45" },
-                ]
-            });
-
-            expect(filter.requiredFields).toBeUndefined();
+            expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(false);
         });
     })
 });

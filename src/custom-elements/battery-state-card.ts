@@ -63,12 +63,24 @@ export class BatteryStateCard extends LovelaceCard<IBatteryStateCardConfig> {
             if (this.config.filters && !this.config.filter) {
                 this.config.filter = this.config.filters;
             }
+
             if (this.config.group && !this.config.collapse) {
                 this.config.collapse = this.config.group;
             }
 
-            // shallow merge: default config values are used for any properties the user doesn't specify
-            this.config = { ...defaultConfig, ...this.config };
+            if (this.config.default_config_base !== false) {
+                const adjustedDefaultConfig = { ...defaultConfig };
+
+                // if entities are provided by the user we don't want to apply default filters as they are meant for auto-adding entities
+                if (this.config.entities) {
+                    delete adjustedDefaultConfig.filter;
+                }
+
+                this.config = { ...adjustedDefaultConfig, ...this.config };
+            } else if (Object.keys(this.config).length == 1) {
+                // cloning default config
+                this.config = { ... defaultConfig };
+            }
 
             this.batteryProvider = new BatteryProvider(this.config);
         }
@@ -127,7 +139,7 @@ export class BatteryStateCard extends LovelaceCard<IBatteryStateCardConfig> {
      * Home Assistant uses this to automatically distribute all cards over
      * the available columns. One is equal 50px.
      *
-     * Unfortunatelly this func is called only once when layout is being
+     * Unfortunately this func is called only once when layout is being
      * rendered thus in case of dynamic number of entities (based on filters)
      * we cannot provide any reasonable estimation.
      */

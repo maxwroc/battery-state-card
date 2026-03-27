@@ -41,7 +41,7 @@ This card was inspired by [another great card](https://github.com/cbulock/lovela
 <details>
   <summary>Update to v2.X.X</summary>
 
-* When you want to use it as entity (e.g. in `entities` card) you need to use differnt type: `custom:battery-state-entity` instead of `custom:battery-state-card`.
+* When you want to use it as entity (e.g. in `entities` card) you need to use different type: `custom:battery-state-entity` instead of `custom:battery-state-card`.
 * Custom styles are not supported any more
 </details>
 
@@ -97,8 +97,9 @@ colors: {}
 | filter | [Filters](#filters) |  | v1.3.0 | Filter groups to automatically include or exclude entities ([example](#entity-filtering-and-bulk-renaming))
 | bulk_rename | list([Convert](#convert)) \| [BulkRename](#bulk-rename) |  | v1.3.0 | Rename rules applied for all entities ([example](#entity-filtering-and-bulk-renaming))
 | theme | string |  | v3.3.0 | Name of the theme to apply (must be installed in Home Assistant). ([example](#using-themes))
+| default_config_base | boolean | `true` | v4.1.0 | Whether to use default config values (sort, collapse, colors, etc.) as a base for the card configuration. When set to `false` only user-specified settings are used. Useful when entities are managed externally (e.g. via auto-entities card).
 
-+[common options](#common-options) (if specified they will be apllied to all entities)
++[common options](#common-options) (if specified they will be applied to all entities)
 
 ### Entity object
 
@@ -128,7 +129,7 @@ These options can be specified both per-entity and at the top level (affecting a
 | unit | string | `"%"` | v2.1.0 | Override for unit displayed next to the state/level value ([example](#other-use-cases))
 | value_override | [KString](#keyword-string-kstring) |  | v3.0.0 | Allows to override the battery level value. Note: when used the `multiplier`, `round`, `state_map` setting is ignored
 | non_battery_entity | boolean | `false` | v3.0.0 | Disables default battery state sources e.g. "battery_level" attribute
-| default_state_formatting | boolean | `true` | v3.1.0 | Can be used to disable default state formatting e.g. entity display precission setting
+| default_state_formatting | boolean | `true` | v3.1.0 | Can be used to disable default state formatting e.g. entity display precision setting
 | debug | boolean \| string | `false` | v3.2.0 | Whether to show debug output (all available entity data). You can use entity_id if you want to debug specific one.
 | respect_visibility_setting | boolean | `true` | v3.3.0 | Whether to hide entities which are marked in the UI as hidden on dashboards.
 | unpack | boolean | `false` | v4.0.0 | Whether to unpack entities that have an `entity_id` array attribute (e.g. sensor groups) into separate batteries. ([example](#unpacking-grouped-entities))
@@ -289,7 +290,7 @@ filter:
 
 Operator is an optional property. If operator is not specified it depends on `value` config property:
 * if `value` is not specified the default operator is `exists`
-* if `value` starts and ends with shalsh "`/`" or if it contains wildcard "`*`" the operator is `matches`
+* if `value` starts and ends with slash "`/`" or if it contains wildcard "`*`" the operator is `matches`
 * if `value` property is set but above conditions are not met the operator is "`=`"
 
 | Name | Since | Type |
@@ -388,7 +389,7 @@ tap_action:
 |:-----|:-----|:-----|:-----|:-----|
 | from | any | **(required)** | v1.1.0 | Value to convert. Note it is type sensitive (eg. `false` != `"false"`)
 | to | any | **(required)** | v1.1.0 | Target value
-| display | string |  | v3.0.0 | Override for displayed entity state (when the current entiy state matches the `from` value)
+| display | string |  | v3.0.0 | Override for displayed entity state (when the current entity state matches the `from` value)
 
 ### Bulk rename
 
@@ -428,7 +429,7 @@ Note: All of these values are optional but at least `entity_id` or `state` or `a
 | max | number |  | v1.4.0 | Maximal battery level. Batteries above that level won't be assigned to this group.
 | filter | list([Filter](#filter-object)) |  | v4.0.0 | Advanced filters for assigning batteries to the group (same filter syntax as card-level [filters](#filters)). When specified `min`/`max` are ignored. Supports [composite filters](#composite-filters).
 | by | string |  | v4.0.0 | Property path to automatically create sub-groups by (e.g. `"area.name"`). Each unique value becomes a separate group. Entities with missing values stay ungrouped. Can be combined with `filter`. ([example](#dynamic-grouping-with-by))
-| entities | list(string) |  | v1.4.0 | List of endity ids
+| entities | list(string) |  | v1.4.0 | List of entity ids
 
 ## Examples
 
@@ -492,7 +493,7 @@ entities:
   - entity: "sensor.bathroom_motion_battery_level"
     name: "Bathroom motion sensor"
   - entity: "sensor.bedroom_balcony_battery_level"
-    name: "Bedroom balkony door sensor"
+    name: "Bedroom balcony door sensor"
   - entity: "sensor.bedroom_motion_battery_level"
     name: "Bedroom motion sensor"
   - entity: "sensor.bedroom_switch_battery_level"
@@ -518,7 +519,7 @@ entities:
   - entity: "sensor.bathroom_motion_battery_level"
     name: "Bathroom motion sensor"
   - entity: "sensor.bedroom_balcony_battery_level"
-    name: "Bedroom balkony door sensor"
+    name: "Bedroom balcony door sensor"
   - entity: "sensor.bedroom_motion_battery_level"
     name: "Bedroom motion sensor"
   - entity: "sensor.bedroom_switch_battery_level"
@@ -607,12 +608,12 @@ collapse:
     secondary_info: No icon # Secondary info text
     icon: null # removing default icon for this group (from HA group definition)
   - group_id: "group.temp_sensors_batteries"
-    min: 99 # all entities below that level should show up ungroupped
+    min: 99 # all entities below that level should show up as ungrouped
     icon: 'mdi:thermometer' # override for HA group icon
 entities:
   # if you need to specify some properties for any entity in the group
   - entity: "sensor.bedroom_balcony_battery_level"
-    name: "Bedroom balkony door"
+    name: "Bedroom balcony door"
     multiplier: 10
   # entities from below HA group won't be grouped as there is no corresponding collapsed group
   - group.switches_batteries
@@ -660,7 +661,7 @@ collapse:
 
 Instead of defining groups manually, you can use the `by` property to automatically create groups based on an entity data property. Each unique value of the property becomes a separate group. Entities where the value is missing, null, or empty stay ungrouped.
 
-> **Note:** When using dot-notation paths (e.g. `battery_notes.battery_type` or `area.name`), always wrap the value in quotes in YAML to prevent it from being interpreted as a nested key.
+> **Note:** When using dot-notation paths (e.g. `attributes.battery_type` or `area.name`), always wrap the value in quotes in YAML to prevent it from being interpreted as a nested key.
 
 **Group by area:**
 ```yaml
@@ -676,13 +677,13 @@ group:
 **Group by battery type (Battery Notes):**
 ```yaml
 type: "custom:battery-state-card"
-secondary_info: "{battery_notes.battery_type}"
+secondary_info: "{attributes.battery_type}"
 filter:
   include:
     - name: "attributes.device_class"
       value: battery
 collapse:
-  - by: "battery_notes.battery_type"
+  - by: "attributes.battery_type"
     icon: "mdi:battery-alert"
     icon_color: red
     filter:
@@ -709,7 +710,7 @@ group:
 
 ### Non-numeric state values
 
-If your sensor doesn't produce numeric values you can use `state_map` property and provie mappings from one value to the other.
+If your sensor doesn't produce numeric values you can use `state_map` property and provide mappings from one value to the other.
 
 ```yaml
 type: "custom:battery-state-card"
@@ -843,7 +844,7 @@ secondary_info: "{last_updated}" # applied to all entities which don't have the 
 entities:
   - entity: "sensor.bedroom_motion_battery_level"
     name: "Bedroom motion sensor"
-  - entity: "sensor.mi_robrock"
+  - entity: "sensor.mi_roborock"
     secondary_info: "{charging.text}" # only appears when charging is detected
     charging_state:
       attribute:
@@ -1179,32 +1180,20 @@ colors:
 
 This card has built-in support for the [Battery Notes](https://github.com/andrew-codechimp/HA-Battery-Notes) integration. Battery Notes is a popular HACS integration that adds additional information about battery devices, such as battery type and quantity.
 
-When Battery Notes is installed it creates additional entities for each device (on the `battery_notes` platform). The card handles them in two ways:
+When Battery Notes is installed it creates additional entities for each device (on the `battery_notes` platform). The card automatically **deduplicates** these entities: when both the original battery entity and the Battery Notes "battery plus" entity (with `state_class: measurement`) are present, the card keeps only the battery plus entity, which has the most up-to-date state and extra attributes like `battery_type`.
 
-1. **Automatic filtering** - Battery Notes entities are automatically excluded when entities are discovered via include filters, preventing duplicate entries in the card.
-2. **Extra attributes** - Battery Notes data (e.g. `battery_type`, `battery_quantity`) is resolved from sibling entities and made available under the `battery_notes` key in entity data. This means you can use these values in templates such as `secondary_info`.
-
-This feature is **enabled by default**. If something doesn't work as expected you can turn it off:
+This deduplication is **enabled by default**. If you want to keep all entities (including duplicates), disable it:
 
 ```yaml
 type: "custom:battery-state-card"
-battery_notes_enabled: false
+battery_notes_dedup: false
 ```
 
-Or per-entity:
+With deduplication active, Battery Notes attributes are available directly on the entity. You can reference them in `secondary_info`:
 
 ```yaml
 type: "custom:battery-state-card"
-entities:
-  - entity: "sensor.my_device_battery"
-    battery_notes_enabled: false
-```
-
-When enabled, you can reference Battery Notes attributes in `secondary_info`:
-
-```yaml
-type: "custom:battery-state-card"
-secondary_info: "{battery_notes.battery_type}"
+secondary_info: "{attributes.battery_type}"
 filter:
   include:
     - name: "attributes.device_class"
@@ -1215,7 +1204,7 @@ You can also group batteries by battery type using the `by` property in [group c
 
 ```yaml
 type: "custom:battery-state-card"
-secondary_info: "{battery_notes.battery_type}"
+secondary_info: "{attributes.battery_type}"
 filter:
   include:
     - name: "attributes.device_class"
@@ -1223,7 +1212,7 @@ filter:
 sort:
   by: state
 collapse:
-  - by: "battery_notes.battery_type"
+  - by: "attributes.battery_type"
 ```
 
 ## Installation
@@ -1340,7 +1329,7 @@ npm install
 npm run build
 ```
 
-Bundeled transpiled code will appear in `dist` directory.
+Bundled transpiled code will appear in `dist` directory.
 
 For automatic compilation on detected changes use:
 ```
@@ -1376,7 +1365,7 @@ Tests in `card` and `entity` directory are e2e tests which run in Electron (head
 
 ## Do you like the card?
 
-If you do like the card please star it on [github](https://github.com/maxwroc/battery-state-card)!
+If you do like the card please star it on [GitHub](https://github.com/maxwroc/battery-state-card)!
 
 If you want to show your support please
 

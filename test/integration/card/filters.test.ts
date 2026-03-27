@@ -132,25 +132,28 @@ it("'filters' works as alias for 'filter' at card level", async () => {
     expect(card.itemsCount).to.equal(2);
 });
 
-it("Hidden entity with battery_notes sibling is shown", async () => {
+it("Explicit battery entity keeps its own state (no state substitution)", async () => {
     const hass = new HomeAssistantMock<BatteryStateCard>();
-    const batteryEntity = hass.addEntity("BN visible battery", "80", { device_class: "battery" }, "sensor");
-    const batteryNotesEntity = hass.addEntity("BN visible battery notes", "80", { device_class: "battery", battery_quantity: 1 }, "sensor");
+    // Original entity has state "50", battery_notes entity has state "80"
+    const batteryEntity = hass.addEntity("BN original battery", "50", { device_class: "battery" }, "sensor");
+    const batteryNotesEntity = hass.addEntity("BN battery notes entity", "80", { device_class: "battery", state_class: "measurement", battery_quantity: 1 }, "sensor");
 
-    // Set up entity registry with device linkage
     hass.hass.entities = <any>{
-        [batteryEntity.entity_id]: { entity_id: batteryEntity.entity_id, device_id: "device_bn1", hidden: true },
+        [batteryEntity.entity_id]: { entity_id: batteryEntity.entity_id, device_id: "device_bn1" },
         [batteryNotesEntity.entity_id]: { entity_id: batteryNotesEntity.entity_id, device_id: "device_bn1", platform: "battery_notes" },
     };
 
     const cardElem = hass.addCard("battery-state-card", <any>{
         entities: [{ entity: batteryEntity.entity_id }],
+        filter: {},
     });
 
     await cardElem.cardUpdated;
 
     const card = new CardElements(cardElem);
     expect(card.itemsCount).to.equal(1);
+    // Explicit entity keeps its own state (no state substitution anymore)
+    expect(card.item(0).stateText).to.equal("50 %");
 });
 
 it("Hidden entity without battery_notes sibling stays hidden", async () => {
@@ -172,45 +175,168 @@ it("Hidden entity without battery_notes sibling stays hidden", async () => {
     expect(card.itemsCount).to.equal(0);
 });
 
-it("Hidden entity stays hidden when battery_notes sibling is also hidden", async () => {
+it("Non-measurement battery_notes sibling does not affect original entity state", async () => {
     const hass = new HomeAssistantMock<BatteryStateCard>();
-    const batteryEntity = hass.addEntity("BN both hidden battery", "80", { device_class: "battery" }, "sensor");
-    const batteryNotesEntity = hass.addEntity("BN both hidden battery notes", "80", { device_class: "battery", battery_quantity: 1 }, "sensor");
+    const batteryEntity = hass.addEntity("BN no state class original", "50", { device_class: "battery" }, "sensor");
+    // battery_notes entity without state_class: "measurement"
+    const batteryNotesEntity = hass.addEntity("BN no state class notes", "80", { device_class: "battery", battery_quantity: 1 }, "sensor");
 
-    // Both entities are hidden
     hass.hass.entities = <any>{
-        [batteryEntity.entity_id]: { entity_id: batteryEntity.entity_id, device_id: "device_bn3", hidden: true },
-        [batteryNotesEntity.entity_id]: { entity_id: batteryNotesEntity.entity_id, device_id: "device_bn3", platform: "battery_notes", hidden: true },
+        [batteryEntity.entity_id]: { entity_id: batteryEntity.entity_id, device_id: "device_bn5" },
+        [batteryNotesEntity.entity_id]: { entity_id: batteryNotesEntity.entity_id, device_id: "device_bn5", platform: "battery_notes" },
     };
 
     const cardElem = hass.addCard("battery-state-card", <any>{
         entities: [{ entity: batteryEntity.entity_id }],
-    });
-
-    await cardElem.cardUpdated;
-
-    const card = new CardElements(cardElem);
-    expect(card.itemsCount).to.equal(0);
-});
-
-it("Hidden entity stays hidden when battery_notes_enabled is false", async () => {
-    const hass = new HomeAssistantMock<BatteryStateCard>();
-    const batteryEntity = hass.addEntity("BN disabled battery", "80", { device_class: "battery" }, "sensor");
-    const batteryNotesEntity = hass.addEntity("BN disabled battery notes", "80", { device_class: "battery", battery_quantity: 1 }, "sensor");
-
-    hass.hass.entities = <any>{
-        [batteryEntity.entity_id]: { entity_id: batteryEntity.entity_id, device_id: "device_bn4", hidden: true },
-        [batteryNotesEntity.entity_id]: { entity_id: batteryNotesEntity.entity_id, device_id: "device_bn4", platform: "battery_notes" },
-    };
-
-    const cardElem = hass.addCard("battery-state-card", <any>{
-        entities: [{ entity: batteryEntity.entity_id }],
-        battery_notes_enabled: false,
         filter: {},
     });
 
     await cardElem.cardUpdated;
 
     const card = new CardElements(cardElem);
-    expect(card.itemsCount).to.equal(0);
+    expect(card.itemsCount).to.equal(1);
+    // Original entity keeps its state
+    expect(card.item(0).stateText).to.equal("50 %");
+});
+
+it("Non-battery entity is not affected by battery_notes sibling", async () => {
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    // Original entity is not device_class "battery"
+    const voltageEntity = hass.addEntity("BN voltage sensor", "3.2", { device_class: "voltage" }, "sensor");
+    const batteryNotesEntity = hass.addEntity("BN voltage device notes", "80", { device_class: "battery", state_class: "measurement", battery_quantity: 1 }, "sensor");
+
+    hass.hass.entities = <any>{
+        [voltageEntity.entity_id]: { entity_id: voltageEntity.entity_id, device_id: "device_bn6" },
+        [batteryNotesEntity.entity_id]: { entity_id: batteryNotesEntity.entity_id, device_id: "device_bn6", platform: "battery_notes" },
+    };
+
+    const cardElem = hass.addCard("battery-state-card", <any>{
+        entities: [{ entity: voltageEntity.entity_id }],
+        filter: {},
+    });
+
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+    expect(card.itemsCount).to.equal(1);
+    // Voltage entity should keep its own state
+    expect(card.item(0).stateText).to.equal("3.2 %");
+});
+
+it("Dedup: include filter shows battery_plus instead of original when both match", async () => {
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    // Both entities have device_class "battery" so both match the include filter
+    const originalEntity = hass.addEntity("BN dedup original", "50", { device_class: "battery" }, "sensor");
+    const batteryPlusEntity = hass.addEntity("BN dedup battery plus", "80", { device_class: "battery", state_class: "measurement", battery_quantity: 1 }, "sensor");
+
+    hass.hass.entities = <any>{
+        [originalEntity.entity_id]: { entity_id: originalEntity.entity_id, device_id: "device_dedup1" },
+        [batteryPlusEntity.entity_id]: { entity_id: batteryPlusEntity.entity_id, device_id: "device_dedup1", platform: "battery_notes" },
+    };
+
+    const cardElem = hass.addCard("battery-state-card", <any>{
+        filter: {
+            include: [{ name: "attributes.device_class", value: "battery" }],
+        },
+    });
+
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+    // Only battery_plus entity should remain (original removed by dedup)
+    expect(card.itemsCount).to.equal(1);
+    expect(card.item(0).stateText).to.equal("80 %");
+});
+
+it("Dedup: explicit entity is protected from dedup removal", async () => {
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    const originalEntity = hass.addEntity("BN explicit original", "50", { device_class: "battery" }, "sensor");
+    const batteryPlusEntity = hass.addEntity("BN explicit battery plus", "80", { device_class: "battery", state_class: "measurement", battery_quantity: 1 }, "sensor");
+
+    hass.hass.entities = <any>{
+        [originalEntity.entity_id]: { entity_id: originalEntity.entity_id, device_id: "device_dedup2" },
+        [batteryPlusEntity.entity_id]: { entity_id: batteryPlusEntity.entity_id, device_id: "device_dedup2", platform: "battery_notes" },
+    };
+
+    const cardElem = hass.addCard("battery-state-card", <any>{
+        entities: [{ entity: originalEntity.entity_id }],
+        filter: {
+            include: [{ name: "attributes.device_class", value: "battery" }],
+        },
+    });
+
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+    // Both should be shown: explicit entity is protected, battery_plus matched filter
+    expect(card.itemsCount).to.equal(2);
+});
+
+it("Dedup: battery_notes_dedup false keeps duplicates", async () => {
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    const originalEntity = hass.addEntity("BN nodedup original", "50", { device_class: "battery" }, "sensor");
+    const batteryPlusEntity = hass.addEntity("BN nodedup battery plus", "80", { device_class: "battery", state_class: "measurement", battery_quantity: 1 }, "sensor");
+
+    hass.hass.entities = <any>{
+        [originalEntity.entity_id]: { entity_id: originalEntity.entity_id, device_id: "device_dedup3" },
+        [batteryPlusEntity.entity_id]: { entity_id: batteryPlusEntity.entity_id, device_id: "device_dedup3", platform: "battery_notes" },
+    };
+
+    const cardElem = hass.addCard("battery-state-card", <any>{
+        battery_notes_dedup: false,
+        filter: {
+            include: [{ name: "attributes.device_class", value: "battery" }],
+        },
+    });
+
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+    // Both entities should remain when dedup is disabled
+    expect(card.itemsCount).to.equal(2);
+});
+
+it("Dedup: non-battery entities on same device are untouched", async () => {
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    const voltageEntity = hass.addEntity("BN dedup voltage", "3.2", { device_class: "voltage" }, "sensor");
+    const batteryPlusEntity = hass.addEntity("BN dedup voltage device plus", "80", { device_class: "battery", state_class: "measurement", battery_quantity: 1 }, "sensor");
+
+    hass.hass.entities = <any>{
+        [voltageEntity.entity_id]: { entity_id: voltageEntity.entity_id, device_id: "device_dedup4" },
+        [batteryPlusEntity.entity_id]: { entity_id: batteryPlusEntity.entity_id, device_id: "device_dedup4", platform: "battery_notes" },
+    };
+
+    const cardElem = hass.addCard("battery-state-card", <any>{
+        entities: [{ entity: voltageEntity.entity_id }],
+        filter: {
+            include: [{ name: "attributes.device_class", value: "battery" }],
+        },
+    });
+
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+    // Voltage entity (explicit, non-battery) + battery_plus (from filter) — both kept
+    expect(card.itemsCount).to.equal(2);
+});
+
+it("Dedup: user-specified battery_plus entity is respected by filter", async () => {
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    // User explicitly adds the battery_plus entity
+    const batteryPlusEntity = hass.addEntity("BN user plus entity", "80", { device_class: "battery", state_class: "measurement", battery_quantity: 1 }, "sensor");
+
+    hass.hass.entities = <any>{
+        [batteryPlusEntity.entity_id]: { entity_id: batteryPlusEntity.entity_id, device_id: "device_dedup6", platform: "battery_notes" },
+    };
+
+    const cardElem = hass.addCard("battery-state-card", <any>{
+        entities: [{ entity: batteryPlusEntity.entity_id }],
+        filter: {},
+    });
+
+    await cardElem.cardUpdated;
+
+    const card = new CardElements(cardElem);
+    expect(card.itemsCount).to.equal(1);
+    expect(card.item(0).stateText).to.equal("80 %");
 });

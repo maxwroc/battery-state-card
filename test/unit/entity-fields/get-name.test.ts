@@ -1,15 +1,21 @@
 import { getName } from "../../../src/entity-fields/get-name";
 import { HomeAssistantMock } from "../../helpers";
+import { EntityDataAccessor } from "../../../src/entity-data-accessor";
 
 describe("Get name", () => {
     test("returns name from the config", () => {
-        let name = getName({ entity: "test", name: "Entity name" }, new HomeAssistantMock(true).hass, {})
+        const hassMock = new HomeAssistantMock(true);
+        // accessor for non-existent entity - attributes will be undefined
+        let name = getName({ entity: "test", name: "Entity name" }, new EntityDataAccessor(hassMock.hass, "test"));
 
         expect(name).toBe("Entity name");
     });
 
     test("returns entity id when friendly_name is missing", () => {
-        let name = getName({ entity: "sensor.my_entity_id" }, new HomeAssistantMock(true).hass, { attributes: {} })
+        const hassMock = new HomeAssistantMock(true);
+        hassMock.addEntity("My entity id", "", { friendly_name: undefined }, "sensor");
+
+        let name = getName({ entity: "sensor.my_entity_id" }, hassMock.createAccessor("sensor.my_entity_id"));
 
         expect(name).toBe("sensor.my_entity_id");
     });
@@ -18,7 +24,7 @@ describe("Get name", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("My entity", "45", { friendly_name: "My entity name" });
 
-        let name = getName({ entity: "my_entity" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
+        let name = getName({ entity: "my_entity" }, hassMock.createAccessor(entity.entity_id));
 
         expect(name).toBe("My entity name");
     });
@@ -27,7 +33,7 @@ describe("Get name", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("My entity", "45", { friendly_name: undefined });
 
-        let name = getName({ entity: "my_entity" }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
+        let name = getName({ entity: "my_entity" }, hassMock.createAccessor(entity.entity_id));
 
         expect(name).toBe("my_entity");
     });
@@ -36,7 +42,7 @@ describe("Get name", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("My entity", "45", { friendly_name: "Battery" });
 
-        let name = getName({ entity: "my_entity", bulk_rename: [{ from: "Battery", to: "" }] }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
+        let name = getName({ entity: "my_entity", bulk_rename: [{ from: "Battery", to: "" }] }, hassMock.createAccessor(entity.entity_id));
 
         expect(name).toBe("");
     });
@@ -51,7 +57,7 @@ describe("Get name", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("My entity", "45", { friendly_name: entityName });
 
-        let name = getName({ entity: "my_entity", bulk_rename: renameRules }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
+        let name = getName({ entity: "my_entity", bulk_rename: renameRules }, hassMock.createAccessor(entity.entity_id));
 
         expect(name).toBe(expectedResult);
     });
@@ -66,7 +72,7 @@ describe("Get name", () => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("My entity", "45", { friendly_name: entityName });
 
-        let name = getName({ entity: "my_entity", bulk_rename: renameRules }, hassMock.hass, hassMock.hass.states[entity.entity_id]);
+        let name = getName({ entity: "my_entity", bulk_rename: renameRules }, hassMock.createAccessor(entity.entity_id));
 
         expect(name).toBe(expectedResult);
     });
@@ -81,7 +87,7 @@ describe("Get name", () => {
 
         hassMock.addEntity("Other entity", "CR2032", undefined, "sensor");
 
-        let result = getName({entity: mockEntity.entity_id, name}, hassMock.hass, hassMock.hass.states[mockEntity.entity_id]);
+        let result = getName({entity: mockEntity.entity_id, name}, hassMock.createAccessor(mockEntity.entity_id));
         expect(result).toBe(expectedResult);
     })
 
@@ -92,11 +98,11 @@ describe("Get name", () => {
         ["Battery kitchen4", { rules: { from: "/Battery\\s?/", to: "" }, capitalize_first: false }, "kitchen4"],
         ["battery kitchen5", { capitalize_first: false }, "battery kitchen5"],
         ["battery kitchen6", undefined, "Battery kitchen6"],
-    ])("KString in the name", (entityName: string, renameRules: IBulkRename | IConvert | IConvert[] | undefined, expectedResult: string) => {
+    ])("bulk rename with capitalize", (entityName: string, renameRules: IBulkRename | IConvert | IConvert[] | undefined, expectedResult: string) => {
         const hassMock = new HomeAssistantMock(true);
         const entity = hassMock.addEntity("My entity", "45", { friendly_name: entityName });
 
-        let result = getName({entity: "my_entity", bulk_rename: renameRules}, hassMock.hass, hassMock.hass.states[entity.entity_id]);
+        let result = getName({entity: "my_entity", bulk_rename: renameRules}, hassMock.createAccessor(entity.entity_id));
         expect(result).toBe(expectedResult);
     })
 });

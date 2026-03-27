@@ -1,19 +1,45 @@
 import { IBatteryCollection, IBatteryCollectionItem } from "../../src/battery-provider";
 import { getBatteryGroups } from "../../src/grouping";
-import { convertoToEntityId } from "../helpers";
+import { convertToEntityId } from "../helpers";
+import { EntityDataAccessor } from "../../src/entity-data-accessor";
+import { HomeAssistantExt } from "../../src/type-extensions";
+
+let areaCounter = 0;
+const mockHass: HomeAssistantExt = <any>{ states: {}, entities: {}, devices: {}, areas: {} };
 
 const createBattery = (name: string, state: string, entityData?: IMap<any>, extraProps?: Partial<IBatteryCollectionItem>): IBatteryCollectionItem => {
-    const id = convertoToEntityId(name);
+    const id = convertToEntityId(name);
+
+    // Build state object from entityData, but handle special accessor prefixes
+    const stateData: any = {
+        entity_id: id,
+        state: state,
+        attributes: { friendly_name: name },
+    };
+
+    if (entityData) {
+        // Set up area registry if area data is provided
+        if (entityData.area) {
+            const areaId = entityData.area.name ? `area_${entityData.area.name.toString().toLowerCase().replace(/\s/g, "_")}` : `area_${++areaCounter}`;
+            mockHass.areas![areaId] = { area_id: areaId, name: entityData.area.name, picture: null, aliases: [] };
+            mockHass.entities![id] = <any>{ entity_id: id, area_id: areaId };
+        }
+
+        // Copy remaining entityData to state (for paths like battery_notes.*)
+        for (const key of Object.keys(entityData)) {
+            if (key !== "area") {
+                stateData[key] = entityData[key];
+            }
+        }
+    }
+
+    mockHass.states[id] = stateData;
+
     return <IBatteryCollectionItem><any>{
         entityId: id,
         name: name,
         state: state,
-        entityData: {
-            entity_id: id,
-            state: state,
-            attributes: { friendly_name: name },
-            ...entityData,
-        },
+        accessor: new EntityDataAccessor(mockHass, id),
         ...extraProps,
     };
 }
@@ -218,16 +244,16 @@ describe("Grouping - group_by (by)", () => {
 
     test("group_by with nested attribute path", () => {
         const batteries = [
-            createBattery("Device A", "80", { battery_notes: { attributes: { battery_type: "CR2032" } } }),
-            createBattery("Device B", "60", { battery_notes: { attributes: { battery_type: "CR2032" } } }),
-            createBattery("Device C", "90", { battery_notes: { attributes: { battery_type: "AAA" } } }),
-            createBattery("Device D", "50"), // no battery_notes
+            createBattery("Device A", "80", { attributes: { battery_type: "CR2032" } }),
+            createBattery("Device B", "60", { attributes: { battery_type: "CR2032" } }),
+            createBattery("Device C", "90", { attributes: { battery_type: "AAA" } }),
+            createBattery("Device D", "50"), // no battery_type
         ];
         const collection = toCollection(batteries);
         const sortedIds = batteries.map(b => b.entityId!);
 
         const result = getBatteryGroups(collection, sortedIds, [
-            { by: "battery_notes.attributes.battery_type" },
+            { by: "attributes.battery_type" },
         ], {});
 
         expect(result.groups).toHaveLength(2);
@@ -284,20 +310,20 @@ describe("Grouping - group_by (by)", () => {
         expect(result.list).toHaveLength(2);
     });
 
-    test("group_by battery_notes.battery_type with state filter - user scenario", () => {
+    test("group_by attributes.battery_type with state filter - user scenario", () => {
         const batteries = [
-            createBattery("Device A", "30", { battery_notes: { battery_type: "CR2032" } }),
-            createBattery("Device B", "80", { battery_notes: { battery_type: "CR2032" } }),
-            createBattery("Device C", "10", { battery_notes: { battery_type: "AAA" } }),
-            createBattery("Device D", "60", { battery_notes: { battery_type: "AAA" } }),
-            createBattery("Device E", "90"), // no battery_notes
+            createBattery("Device A", "30", { attributes: { battery_type: "CR2032" } }),
+            createBattery("Device B", "80", { attributes: { battery_type: "CR2032" } }),
+            createBattery("Device C", "10", { attributes: { battery_type: "AAA" } }),
+            createBattery("Device D", "60", { attributes: { battery_type: "AAA" } }),
+            createBattery("Device E", "90"), // no battery_type
         ];
         const collection = toCollection(batteries);
         const sortedIds = batteries.map(b => b.entityId!);
 
         const result = getBatteryGroups(collection, sortedIds, [
             {
-                by: "battery_notes.battery_type",
+                by: "attributes.battery_type",
                 icon: "mdi:battery-alert",
                 icon_color: "red",
                 filter: [{ name: "state", operator: "<", value: 50 }],

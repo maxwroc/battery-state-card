@@ -6,7 +6,7 @@ import { log, safeGetArray } from "../utils";
  * @param config Entity config
  * @param state Battery level/state
  * @param hass HomeAssistant state object
- * @returns Whether battery is in chargin mode
+ * @returns Whether battery is in charging mode
  */
  export const getChargingState = (config: IBatteryEntityConfig, state: string, hass: HomeAssistantExt, siblings?: ISiblingEntity[]): boolean => {
     const chargingConfig = config.charging_state;
@@ -36,10 +36,10 @@ import { log, safeGetArray } from "../utils";
     // check if we should take the state from attribute
     if (attributesLookup.length != 0) {
         // take first attribute name which exists on entity
-        const exisitngAttrib = attributesLookup.find(attr => getValueFromJsonPath(entityWithChargingState.attributes, attr.name) !== undefined);
-        if (exisitngAttrib) {
-            return exisitngAttrib.value !== undefined ?
-                getValueFromJsonPath(entityWithChargingState.attributes, exisitngAttrib.name) == exisitngAttrib.value :
+        const existingAttribute = attributesLookup.find(attr => getValueFromJsonPath(entityWithChargingState.attributes, attr.name) !== undefined);
+        if (existingAttribute) {
+            return existingAttribute.value !== undefined ?
+                getValueFromJsonPath(entityWithChargingState.attributes, existingAttribute.name) == existingAttribute.value :
                 true;
         }
         else {

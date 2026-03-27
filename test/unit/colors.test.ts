@@ -18,7 +18,7 @@ describe("Colors", () => {
     test.each([
         [-5],
         [120],
-    ])("default color retuned when level outisde of range, steps have no values and gradient turned on", (batteryLevel: number) => {
+    ])("default color returned when level outside of range, steps have no values and gradient turned on", (batteryLevel: number) => {
         const result = getColorForBatteryLevel({ entity: "", colors: { gradient: true, steps: [ { color: "#ff0000" }, { color: "#00ff00" } ] } }, batteryLevel, false);
 
         expect(result).toBe("inherit");
@@ -86,7 +86,7 @@ describe("Colors", () => {
         expect(result).toBe(expectedColor);
     })
 
-    test("diabling colors", () => {
+    test("disabling colors", () => {
         const config = <IBatteryEntityConfig>{
             entity: "",
             colors: {

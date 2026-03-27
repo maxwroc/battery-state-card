@@ -31,7 +31,7 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
     protected config: TConfig;
 
     /**
-     * Queue of the collbacks to call after next update
+     * Queue of the callbacks to call after next update
      */
     private updateNotifyQueue: { (): void }[] = [];
 
@@ -117,7 +117,7 @@ export abstract class LovelaceCard<TConfig> extends LitElement {
     /**
      * Handler called when updated happened
      * @param config Whether config has been updated since the last call
-     * @param hass Whetther hass has been updated since the last call
+     * @param hass Whether Home Assistant has been updated since the last call
      */
     abstract internalUpdate(config: boolean, hass:boolean): Promise<void>;
 

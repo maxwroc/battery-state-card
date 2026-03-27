@@ -133,7 +133,7 @@ interface IChargingState {
 type FilterGroupTypes = "exclude" | "include";
 
 /**
- * Supprted filter operators
+ * Supported filter operators
  */
 type FilterOperator = "exists" | "not_exists" | "=" | ">" | "<" | ">=" | "<=" | "contains" | "matches";
 
@@ -166,20 +166,10 @@ type FilterSpec = IFilter | { not: FilterSpec | FilterSpec[] } | { and: FilterSp
 
 type FilterGroup = { [key in FilterGroupTypes]: FilterSpec[] };
 
-type RegistryDataField = "entity" | "device" | "area" | "siblings";
-
 interface ISiblingEntity {
     entity_id: string;
     device_class?: string;
     state_class?: string;
-}
-
-interface IEntityRegistryCache {
-    entity?: import("./type-extensions").EntityRegistryEntry;
-    device?: import("./type-extensions").DeviceRegistryEntry;
-    area?: import("./type-extensions").AreaRegistryEntry;
-    siblings: ISiblingEntity[];
-    battery_notes?: IMap<any>;
 }
 
 interface IBatteryEntityConfig {
@@ -200,7 +190,7 @@ interface IBatteryEntityConfig {
     icon?: string | null;
 
     /**
-     * Attribute name to extract batterly level from
+     * Attribute name to extract battery level from
      */
     attribute?: string;
 
@@ -290,9 +280,10 @@ interface IBatteryEntityConfig {
     style?: string,
 
     /**
-     * Whether to use battery_notes integration data (filter duplicates, add attributes)
+     * Whether to deduplicate battery_notes entities per device (prefer battery_plus over original).
+     * Defaults to true when not specified.
      */
-    battery_notes_enabled?: boolean;
+    battery_notes_dedup?: boolean;
 }
 
 interface IBatteryCardConfig {
@@ -335,6 +326,11 @@ interface IBatteryCardConfig {
      * Name of the theme to apply (must be installed in Home Assistant)
      */
     theme?: string;
+
+    /**
+     * Whether to use default config values for settings not specified by the user
+     */
+    default_config_base?: boolean;
 }
 
 /**
@@ -376,7 +372,7 @@ interface IGroupConfig {
      */
     filters?: FilterSpec[];
     /**
-     * Property path to automatically create sub-groups by (e.g. "area.name", "battery_notes.attributes.battery_type")
+     * Property path to automatically create sub-groups by (e.g. "area.name", "attributes.battery_type")
      */
     by?: string;
 }
