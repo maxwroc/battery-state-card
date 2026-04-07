@@ -225,6 +225,16 @@ Note: Include filters should rely on static entity properties. E.g. you should n
 
 **Note:** In v4.1.0 the `state` value is the original entity state (something what you may find in the HA developer tools). If you use `state_map`, any other state transformation or if you want to filter based on the final state shown in the card please use `computed.state` instead.
 
+**Template values in filters:** You can use `{entity_id}` syntax in the filter `value` to reference another entity's state. This lets you create dynamic filters based on values from other entities (e.g. input numbers, sensors). For example, `{input_number.low_battery_threshold}` will be resolved to the current state of that entity before comparison. You can also reference attributes: `{sensor.my_sensor.attributes.some_attr}`.
+
+```yaml
+filter:
+  exclude:
+    - name: computed.state
+      operator: '>'
+      value: '{input_number.low_battery_threshold}'
+```
+
 ### Composite filters
 
 Since v3.3.0, you can create complex filter conditions using logical operators:
@@ -244,7 +254,7 @@ filter:
     - and:
         - name: entity_id
           value: "*_battery*"
-        - name: state
+        - name: computed.state
           operator: "<"
           value: 50
 ```
@@ -268,7 +278,7 @@ filter:
       value: battery
   exclude:
     - not:
-        name: state
+        name: computed.state
         operator: "<"
         value: 20
 ```

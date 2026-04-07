@@ -20,13 +20,12 @@ on:
           - master
           - vNext
       version_override:
-        description: 'Version override for stable release (e.g. 4.1.0). Leave empty to auto-resolve.'
+        description: 'Version override for stable release (e.g. 4.1.0, 4.1.0-beta.0). Leave empty to auto-resolve.'
         required: false
         type: string
   push:
     branches:
       - master
-      - vNext
 
 jobs:
   validate_release:
@@ -74,8 +73,9 @@ jobs:
         id: resolve_version
         uses: release-drafter/release-drafter@v7
         with:
-          config-name: ${{ github.ref_name == 'vNext' && 'release-config-beta-vnext.yml' || 'release-config-beta-master.yml' }}
-          commitish: ${{ github.ref_name }}
+          config-name: ${{ (github.event.inputs.branch || github.ref_name) == 'vNext' && 'release-config-beta-vnext.yml' || 'release-config-beta-master.yml' }}
+          commitish: ${{ github.event.inputs.branch || github.ref_name }}
+          version: ${{ github.event.inputs.version_override || '' }}
           dry-run: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -93,8 +93,9 @@ jobs:
         id: create_release
         uses: release-drafter/release-drafter@v7
         with:
-          config-name: ${{ github.ref_name == 'vNext' && 'release-config-beta-vnext.yml' || 'release-config-beta-master.yml' }}
-          commitish: ${{ github.ref_name }}
+          config-name: ${{ (github.event.inputs.branch || github.ref_name) == 'vNext' && 'release-config-beta-vnext.yml' || 'release-config-beta-master.yml' }}
+          commitish: ${{ github.event.inputs.branch || github.ref_name }}
+          version: ${{ github.event.inputs.version_override || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -128,23 +129,13 @@ jobs:
         with:
           config-name: release-config.yml
           commitish: ${{ github.event.inputs.branch }}
+          version: ${{ github.event.inputs.version_override || '' }}
           dry-run: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Determine version
-        id: version
-        run: |
-          OVERRIDE="${{ github.event.inputs.version_override }}"
-          RESOLVED="${{ steps.resolve_version.outputs.resolved_version }}"
-          if [ -n "$OVERRIDE" ]; then
-            echo "value=$OVERRIDE" >> $GITHUB_OUTPUT
-          else
-            echo "value=$RESOLVED" >> $GITHUB_OUTPUT
-          fi
-
       - name: Update package.json version
-        run: npm version ${{ steps.version.outputs.value }} --no-git-tag-version --allow-same-version
+        run: npm version ${{ steps.resolve_version.outputs.resolved_version }} --no-git-tag-version --allow-same-version
 
       - name: Installing dependencies
         run: npm ci
@@ -158,7 +149,7 @@ jobs:
         with:
           config-name: release-config.yml
           commitish: ${{ github.event.inputs.branch }}
-          version: ${{ steps.version.outputs.value }}
+          version: ${{ github.event.inputs.version_override || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

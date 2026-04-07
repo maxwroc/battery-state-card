@@ -94,9 +94,11 @@ export class EntityDataAccessor {
                 return undefined;
             }
             const remainingPath = chunks.slice(2).join(".");
+            // When no sub-path is given (e.g. "input_number.threshold"), return
+            // the entity's state value rather than the full state object.
             return remainingPath
                 ? getValueFromObject(stateObj, remainingPath)
-                : stateObj;
+                : stateObj.state;
         }
 
         if (path.startsWith("entity.")) {

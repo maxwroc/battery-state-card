@@ -450,4 +450,64 @@ describe("Filter", () => {
             expect(filter.isValid(hassMock.createAccessor(entity.entity_id))).toBe(false);
         });
     })
+
+    test("template value resolved from another entity state", () => {
+        const hassMock = new HomeAssistantMock();
+
+        hassMock.addEntity("Low battery threshold", "40", {}, "input_number");
+        const entity = hassMock.addEntity("Entity name", "30");
+
+        const filter = createFilter({ name: "state", value: "{input_number.low_battery_threshold}", operator: ">" });
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
+
+        expect(isValid).toBe(false); // 30 is not > 40
+    })
+
+    test("template value resolved from another entity - entity state is greater", () => {
+        const hassMock = new HomeAssistantMock();
+
+        hassMock.addEntity("Low battery threshold", "40", {}, "input_number");
+        const entity = hassMock.addEntity("Entity name", "50");
+
+        const filter = createFilter({ name: "state", value: "{input_number.low_battery_threshold}", operator: ">" });
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
+
+        expect(isValid).toBe(true); // 50 > 40
+    })
+
+    test("template value resolved from another entity attribute", () => {
+        const hassMock = new HomeAssistantMock();
+
+        hassMock.addEntity("Threshold sensor", "on", { threshold: "25" }, "sensor");
+        const entity = hassMock.addEntity("Entity name", "20");
+
+        const filter = createFilter({ name: "state", value: "{sensor.threshold_sensor.attributes.threshold}", operator: "<" });
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
+
+        expect(isValid).toBe(true); // 20 < 25
+    })
+
+    test("template value with equality check", () => {
+        const hassMock = new HomeAssistantMock();
+
+        hassMock.addEntity("Mode selector", "eco", {}, "input_select");
+        const entity = hassMock.addEntity("Entity name", "eco");
+
+        const filter = createFilter({ name: "state", value: "{input_select.mode_selector}" });
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
+
+        expect(isValid).toBe(true);
+    })
+
+    test("template value non-matching equality", () => {
+        const hassMock = new HomeAssistantMock();
+
+        hassMock.addEntity("Mode selector", "eco", {}, "input_select");
+        const entity = hassMock.addEntity("Entity name", "normal");
+
+        const filter = createFilter({ name: "state", value: "{input_select.mode_selector}" });
+        const isValid = filter.isValid(hassMock.createAccessor(entity.entity_id));
+
+        expect(isValid).toBe(false);
+    })
 });

@@ -13,7 +13,7 @@ jobs:
   autolabel:
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@v7
+      - uses: release-drafter/release-drafter/autolabeler@v7
         with:
           config-name: release-config.yml
         env:

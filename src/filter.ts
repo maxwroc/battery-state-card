@@ -1,4 +1,5 @@
 import { EntityDataAccessor } from "./entity-data-accessor";
+import { RichStringProcessor } from "./rich-string-processor";
 import { getRegexFromString, getValueFromObject, isNumber, log, parseRelativeTime, safeGetArray, toNumber } from "./utils";
 
 /**
@@ -144,7 +145,7 @@ export class FieldFilter extends Filter {
 
     isValid(data: EntityDataAccessor): boolean {
         const val = this.getValue(data);
-        return this.meetsExpectations(val);
+        return this.meetsExpectations(val, data);
     }
 
     /**
@@ -164,18 +165,26 @@ export class FieldFilter extends Filter {
      * Checks whether value meets the filter conditions.
      * @param val Value to validate
      */
-    private meetsExpectations(val: FilterValueType): boolean {
+    private meetsExpectations(val: FilterValueType, data: EntityDataAccessor): boolean {
+        // Resolve template strings in the filter value (e.g., "{input_number.low_battery_threshold}")
+        let expectedValue = this.config.value;
+        if (typeof expectedValue === "string" && expectedValue.includes("{")) {
+            const processor = new RichStringProcessor(data);
+            const resolved = processor.process(expectedValue);
+            expectedValue = isNumber(resolved) ? toNumber(resolved) : resolved;
+        }
+
         // Determine the operator to use
         let operator = this.config.operator;
         if (!operator) {
-            if (this.config.value === undefined) {
+            if (expectedValue === undefined) {
                 operator = "exists";
             }
-            else if (this.config.value === null) {
+            else if (expectedValue === null) {
                 operator = "=";
             }
             else {
-                const expectedVal = this.config.value.toString();
+                const expectedVal = expectedValue.toString();
                 const regex = getRegexFromString(expectedVal);
                 operator = (expectedVal.includes("*") || regex) ? "matches" : "=";
             }
@@ -187,7 +196,7 @@ export class FieldFilter extends Filter {
             return false;
         }
 
-        return func(val, this.config.value);
+        return func(val, expectedValue);
     }
 }
 
