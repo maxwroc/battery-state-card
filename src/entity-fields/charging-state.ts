@@ -11,7 +11,7 @@ import { log, safeGetArray } from "../utils";
  export const getChargingState = (config: IBatteryEntityConfig, state: string, hass: HomeAssistantExt, siblings?: ISiblingEntity[]): boolean => {
     const chargingConfig = config.charging_state;
     if (!chargingConfig) {
-        return getDefaultChargingState(hass, siblings);
+        return getDefaultChargingState(config.entity, hass, siblings);
     }
 
     let entityWithChargingState = hass.states[config.entity];
@@ -53,8 +53,18 @@ import { log, safeGetArray } from "../utils";
     return statesIndicatingCharging.length == 0 ? !!state : statesIndicatingCharging.some(s => s == state);
 }
 
-const getDefaultChargingState = (hass?: HomeAssistantExt, siblings?: ISiblingEntity[]): boolean => {
-    if (!hass || !siblings || siblings.length === 0) {
+const getDefaultChargingState = (entityId: string, hass?: HomeAssistantExt, siblings?: ISiblingEntity[]): boolean => {
+    if (!hass) {
+        return false;
+    }
+
+    // check if the entity icon indicates charging
+    const icon = hass.states[entityId]?.attributes?.icon;
+    if (typeof icon === "string" && icon.startsWith("mdi:battery-charging")) {
+        return true;
+    }
+
+    if (!siblings || siblings.length === 0) {
         return false;
     }
 
