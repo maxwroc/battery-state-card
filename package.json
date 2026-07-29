@@ -58,7 +58,7 @@
     "@types/jest": "^30.0.0",
     "@web/dev-server-esbuild": "^1.0.5",
     "@web/test-runner": "^0.20.2",
-    "@web/test-runner-commands": "^0.9.0",
+    "@web/test-runner-commands": "^1.0.1",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.4.1",
     "nyc": "^18.0.0",
