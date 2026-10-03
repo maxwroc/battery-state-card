@@ -35,8 +35,13 @@
     transform: rotate(-90deg) scaleX(-1);
 }
 .expandWrapper > .toggler + div {
+    display: grid;
+    grid-template-rows: 1fr;
+    overflow: hidden;
+}
+.groupItems > div {
     overflow: hidden;
 }
 .expandWrapper > .toggler:not(.expanded) + div {
-    max-height: 0 !important;
+    grid-template-rows: 0fr;
 }

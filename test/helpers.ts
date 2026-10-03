@@ -129,7 +129,7 @@ export class GroupElement extends EntityElements {
     }
 
     private get batteryNodes(): NodeListOf<BatteryStateEntity> {
-        return this.elem.querySelectorAll<BatteryStateEntity>(".groupItems > * > battery-state-entity");
+        return this.elem.querySelectorAll<BatteryStateEntity>(".groupItems battery-state-entity");
     }
 
     get itemsCount() {
