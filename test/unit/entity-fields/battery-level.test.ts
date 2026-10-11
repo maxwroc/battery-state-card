@@ -12,7 +12,7 @@ describe("Battery level", () => {
         expect(unit).toBe("%");
     });
 
-    test.each([
+    test.each<[string, string | number, string | undefined, string, string | undefined]>([
         ["Wifi", 0, "Wifi", "Wifi", undefined],
         ["Wifi - Guest", 1, "Guest network", "Guest network", undefined],
         ["Wifi", 0, undefined, "0", "%"],
@@ -21,7 +21,7 @@ describe("Battery level", () => {
         ["Wifi", 0, "{attributes.essid}", "Wifi", undefined],
     ])("maps the processed override %s to %s", (ssid, target, display, expectedState, expectedUnit) => {
         const hassMock = new HomeAssistantMock(true);
-        const entity = hassMock.addEntity("Phone", "home", { essid: ssid, battery_level: 80 });
+        const entity = hassMock.addEntity("Phone", "home", { essid: ssid, battery_level: "80" });
         const result = getBatteryLevel({
             entity: entity.entity_id,
             value_override: "{attributes.essid}",
