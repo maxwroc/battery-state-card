@@ -16,6 +16,7 @@ describe("Battery level", () => {
         ["Wifi", 0, "Wifi", "Wifi", undefined],
         ["Wifi - Guest", 1, "Guest network", "Guest network", undefined],
         ["Wifi", 0, undefined, "0", "%"],
+        ["Wifi", 0, "", "0", "%"],
         ["Wifi", "Offline", undefined, "Offline", undefined],
         ["Wifi", 0, "{attributes.essid}", "Wifi", undefined],
     ])("maps the processed override %s to %s", (ssid, target, display, expectedState, expectedUnit) => {
@@ -24,7 +25,7 @@ describe("Battery level", () => {
         const result = getBatteryLevel({
             entity: entity.entity_id,
             value_override: "{attributes.essid}",
-            state_map: [{ from: ssid, to: target, display }],
+            state_map: [{ from: ssid, to: target.toString(), display }],
         }, hassMock.hass, hassMock.createAccessor(entity.entity_id));
 
         expect(result).toEqual({ state: expectedState, level: typeof target === "number" ? target : undefined, unit: expectedUnit });
@@ -32,13 +33,13 @@ describe("Battery level", () => {
 
     test.each(["wifi", "45%", "", "0"])("preserves unmatched overrides: %s", (value) => {
         const hassMock = new HomeAssistantMock(true);
-        const result = getBatteryLevel({ entity: "any", value_override: value, multiplier: 100, round: 2, state_map: [{ from: "other", to: 50 }] }, hassMock.hass, undefined);
+        const result = getBatteryLevel({ entity: "any", value_override: value, multiplier: 100, round: 2, state_map: [{ from: "other", to: "50" }] }, hassMock.hass, undefined);
         expect(result).toEqual({ state: value, level: value === "0" ? 0 : undefined, unit: value === "0" ? "%" : undefined });
     });
 
     test("maps a numeric zero override without an entity and preserves override formatting", () => {
         const hassMock = new HomeAssistantMock(true);
-        expect(getBatteryLevel({ entity: "any", value_override: 0, multiplier: 100, round: 2, unit: "dBm", state_map: [{ from: "0", to: 1.25 }] }, hassMock.hass, undefined))
+        expect(getBatteryLevel({ entity: "any", value_override: 0, multiplier: 100, round: 2, unit: "dBm", state_map: [{ from: "0", to: "1.25" }] }, hassMock.hass, undefined))
             .toEqual({ state: "1.25", level: 1.25, unit: "dBm" });
     });
 

@@ -35,7 +35,7 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistan
             ? stringProcessor.process(mappedValue.display)
             : undefined;
         return {
-            state: display ?? value,
+            state: display || value,
             level: isNumber(value) ? toNumber(value) : undefined,
             unit: getUnit(value, display, undefined, config, hass),
         }
