@@ -29,10 +29,15 @@ export const getBatteryLevel = (config: IBatteryEntityConfig, hass: HomeAssistan
 
     if (config.value_override !== undefined) {
         const processedValue = stringProcessor.process(config.value_override.toString());
+        const mappedValue = config.state_map?.find(mapping => mapping.from === processedValue);
+        const value = mappedValue ? mappedValue.to.toString() : processedValue;
+        const display = mappedValue?.display !== undefined
+            ? stringProcessor.process(mappedValue.display)
+            : undefined;
         return {
-            state: processedValue,
-            level: isNumber(processedValue) ? toNumber(processedValue) : undefined,
-            unit: getUnit(processedValue, undefined, undefined, config, hass),
+            state: display ?? value,
+            level: isNumber(value) ? toNumber(value) : undefined,
+            unit: getUnit(value, display, undefined, config, hass),
         }
     }
 
