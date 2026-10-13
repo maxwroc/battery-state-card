@@ -51,6 +51,17 @@ export class BatteryStateCard extends LovelaceCard<IBatteryStateCardConfig> {
     public batteries: IBatteryCollection = {};
 
     /**
+     * Keeps the card attached while Home Assistant's card wrapper is hidden,
+     * so it can show itself again when batteries match the filters
+     */
+    public connectedWhileHidden = true;
+
+    /**
+     * Whether the batteries were resolved from Home Assistant states at least once
+     */
+    private batteriesResolved = false;
+
+    /**
      * Card CSS styles
      */
     static get styles(): CSSResult {
@@ -87,6 +98,7 @@ export class BatteryStateCard extends LovelaceCard<IBatteryStateCardConfig> {
 
         if (hassUpdated) {
             await this.batteryProvider.update(this.hass!);
+            this.batteriesResolved = true;
         }
 
         this.header = this.config.title;
@@ -121,16 +133,37 @@ export class BatteryStateCard extends LovelaceCard<IBatteryStateCardConfig> {
         if (this.list.length == 0 && this.groups.length == 0) {
             // if there are no entities to show we don't want to render anything
             this.style.display = "none";
+            // hiding the container only after the first update to avoid layout shifts while loading
+            this.setHidden(this.batteriesResolved);
             return html``;
         }
 
         this.style.removeProperty("display");
+        this.setHidden(false);
 
         return cardHtml(this);
     }
 
     onError(): void {
         this.style.removeProperty("display");
+        this.setHidden(false);
+    }
+
+    /**
+     * Lets the parent container (e.g. hui-card in sections view) know that it
+     * should hide or show itself, so an empty card doesn't leave a gap
+     */
+    private setHidden(hidden: boolean) {
+        if (this.hidden == hidden) {
+            return;
+        }
+
+        this.hidden = hidden;
+        this.dispatchEvent(new CustomEvent("card-visibility-changed", {
+            detail: { value: !hidden },
+            bubbles: true,
+            composed: true,
+        }));
     }
 
     /**
