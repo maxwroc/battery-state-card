@@ -1452,10 +1452,12 @@ npm run test
 Or (to see tests coverage report)
 
 ```shell
-npm run test+coverage
+npm run test:coverage
 ```
 
-Tests in `card` and `entity` directory are e2e tests which run in Electron (headless) browser. All the other tests run in node env (hence they are much faster).
+Tests in `test/integration` run in Chrome using Web Test Runner. Tests in `test/unit` run in Jest with jsdom. Build the card before running integration tests.
+
+Dependabot groups npm patch/minor version updates and patch/minor security updates into separate PRs. Major upgrades remain separate so toolchain migrations can be reviewed and validated independently.
 
 </details>
 
