@@ -67,6 +67,70 @@ it("Include via entity_id and exclude via state - empty result", async () => {
 });
 
 
+it("Empty card is hidden and notifies its container", async () => {
+
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    const sensor = hass.addEntity("Bedroom motion battery level", "90");
+
+    const cardElem = hass.addCard("battery-state-card", {
+        filter: {
+            exclude: [
+                {
+                    name: "state",
+                    value: 40,
+                    operator: ">"
+                }
+            ]
+        },
+        entities: [sensor.entity_id]
+    });
+
+    const visibilityEvents: boolean[] = [];
+    cardElem.addEventListener("card-visibility-changed", e => visibilityEvents.push((<CustomEvent>e).detail.value));
+
+    await cardElem.cardUpdated;
+    await cardElem.updateComplete;
+
+    expect(new CardElements(cardElem).itemsCount).to.equal(0);
+    expect(cardElem.hidden).to.equal(true);
+    expect(cardElem.connectedWhileHidden).to.equal(true);
+    expect(visibilityEvents).to.deep.equal([false]);
+
+    sensor.setState("30");
+
+    await cardElem.cardUpdated;
+    await cardElem.updateComplete;
+
+    expect(new CardElements(cardElem).itemsCount).to.equal(1);
+    expect(cardElem.hidden).to.equal(false);
+    expect(visibilityEvents).to.deep.equal([false, true]);
+});
+
+it("Non-empty card stays visible without visibility events", async () => {
+
+    const hass = new HomeAssistantMock<BatteryStateCard>();
+    const sensor = hass.addEntity("Bedroom motion battery level", "90");
+
+    const cardElem = hass.addCard("battery-state-card", {
+        entities: [sensor.entity_id]
+    });
+
+    const visibilityEvents: boolean[] = [];
+    cardElem.addEventListener("card-visibility-changed", e => visibilityEvents.push((<CustomEvent>e).detail.value));
+
+    await cardElem.cardUpdated;
+    await cardElem.updateComplete;
+
+    sensor.setState("80");
+
+    await cardElem.cardUpdated;
+    await cardElem.updateComplete;
+
+    expect(new CardElements(cardElem).itemsCount).to.equal(1);
+    expect(cardElem.hidden).to.equal(false);
+    expect(visibilityEvents).to.deep.equal([]);
+});
+
 const hiddenStateTests = [
     [false, undefined, 1],
     [true, undefined, 0],

@@ -23,6 +23,13 @@ describe("Utils", () => {
             expect(result).toBeUndefined();
         });
 
+        test("returns undefined when a nested path crosses null", () => {
+            const obj = { device: { metadata: null } };
+            const result = getValueFromObject(obj, "device.metadata.name");
+
+            expect(result).toBeUndefined();
+        });
+
         test("returns JSON string for object values", () => {
             const obj = {
                 device: {

@@ -195,6 +195,10 @@ export const getValueFromObject = (dataObject: any, path: string): string | numb
     const chunks = path.split(".");
 
     for (let i = 0; i < chunks.length; i++) {
+        if (dataObject === null || dataObject === undefined) {
+            dataObject = undefined;
+            break;
+        }
         dataObject = dataObject[chunks[i]];
         if (dataObject === undefined) {
             break;

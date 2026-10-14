@@ -105,4 +105,59 @@ describe("Get name", () => {
         let result = getName({entity: "my_entity", bulk_rename: renameRules}, hassMock.createAccessor(entity.entity_id));
         expect(result).toBe(expectedResult);
     })
+
+    // Structured names (HA 2026.4+)
+
+    const withEntityNameSupport = (hassMock: HomeAssistantMock<any>) => {
+        (<any>hassMock.hass).config = { version: "2026.4.0" };
+        hassMock.mockFunc(<any>"formatEntityName", (stateObj: any, name: any) =>
+            name === undefined
+                ? "Composed name"
+                : `[${name.map((n: any) => n.type).join("+")}]`);
+    };
+
+    test("resolves a structured name through formatEntityName", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("My entity", "45", { friendly_name: "My entity name" });
+        withEntityNameSupport(hassMock);
+
+        let result = getName(
+            { entity: "my_entity", name: [{ type: "area" }, { type: "entity" }] },
+            hassMock.createAccessor(entity.entity_id));
+
+        expect(result).toBe("[area+entity]");
+    })
+
+    test("uses the composed entity name when no name is configured", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("My entity", "45", { friendly_name: "My entity name" });
+        withEntityNameSupport(hassMock);
+
+        let result = getName({ entity: "my_entity" }, hassMock.createAccessor(entity.entity_id));
+
+        expect(result).toBe("Composed name");
+    })
+
+    test("falls back to friendly_name for a structured name on older Home Assistant", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("My entity", "45", { friendly_name: "My entity name" });
+
+        let result = getName(
+            { entity: "my_entity", name: [{ type: "area" }, { type: "entity" }] },
+            hassMock.createAccessor(entity.entity_id));
+
+        expect(result).toBe("My entity name");
+    })
+
+    test("still applies bulk_rename to the composed name", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const entity = hassMock.addEntity("My entity", "45", { friendly_name: "unused" });
+        withEntityNameSupport(hassMock);
+
+        let result = getName(
+            { entity: "my_entity", bulk_rename: { from: "Composed ", to: "" } },
+            hassMock.createAccessor(entity.entity_id));
+
+        expect(result).toBe("Name");
+    })
 });

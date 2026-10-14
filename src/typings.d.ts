@@ -172,6 +172,13 @@ interface ISiblingEntity {
     state_class?: string;
 }
 
+/** A `name` option: a plain string, or name parts resolved from the registry. */
+type EntityName = string | EntityNameItem | EntityNameItem[];
+
+type EntityNameItem =
+    | { type: "entity" | "device" | "area" | "floor" }
+    | { type: "text"; text: string };
+
 interface IBatteryEntityConfig {
 
     /**
@@ -180,9 +187,11 @@ interface IBatteryEntityConfig {
     entity: string;
 
     /**
-     * Override for entity name / friendly_name
+     * Override for the entity name. A plain string is processed as a rich-string
+     * template; a structured name is resolved from the entity's registry context
+     * (HA 2026.4 and later).
      */
-    name?: string;
+    name?: EntityName;
 
     /**
      * Icon override. Set to null to use entity's default icon.
