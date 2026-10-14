@@ -16,7 +16,7 @@ jobs:
       - name: Checkout files
         uses: actions/checkout@v6
       - name: NodeJS setup
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org/
