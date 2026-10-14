@@ -49,7 +49,7 @@ export class EntityDataAccessor {
     private _computed: IMap<any> = {};
 
     constructor(
-        private hass: HomeAssistantExt,
+        readonly hass: HomeAssistantExt,
         private entityId: string,
     ) {}
 

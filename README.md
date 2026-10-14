@@ -107,7 +107,7 @@ colors: {}
 |:-----|:-----|:-----|:-----|:-----|
 | type | string | | v0.9.0 | Must be `custom:battery-state-entity` if used as entity row e.g. in entity-list card  |
 | entity | string | **(required)** | v0.9.0 | Entity ID
-| name | string |  | v0.9.0 | Entity name override
+| name | [KString](#keyword-string-kstring) \| list |  | v0.9.0 | Entity name override. Accepts a [structured name](#structured-names) on Home Assistant 2026.4 and later
 | icon | string \| null |  | v1.6.0 | Icon override. Set to a custom icon (e.g. `mdi:battery`), use entity attribute (e.g. `attributes.battery_icon`), or set to `null` to use the entity's default icon
 | attribute | string | | v0.9.0 | Name of attribute (override) to extract the value from. By default we look for values in the following attributes: `battery_level`, `battery`. If they are not present we take entity state.
 | multiplier | number | `1` | v0.9.0 | If the value is not in 0-100 range we can adjust it by specifying multiplier. E.g. if the values are in 0-10 range you can make them working by putting `10` as multiplier.
@@ -127,13 +127,44 @@ These options can be specified both per-entity and at the top level (affecting a
 | secondary_info | [KString](#keyword-string-kstring) |  | v3.0.0 | Secondary info text. It can be a custom text with keywords (dynamic values) ([example](#secondary-info))
 | round | number |  | v2.1.0 | Rounds the value to number of fractional digits
 | unit | string | `"%"` | v2.1.0 | Override for unit displayed next to the state/level value ([example](#other-use-cases))
-| value_override | [KString](#keyword-string-kstring) |  | v3.0.0 | Allows to override the battery level value. Note: when used the `multiplier`, `round`, `state_map` setting is ignored
+| value_override | [KString](#keyword-string-kstring) |  | v3.0.0 | Allows to override the battery level value. The processed override can be converted with `state_map`. The `multiplier` and `round` settings are ignored
 | non_battery_entity | boolean | `false` | v3.0.0 | Disables default battery state sources e.g. "battery_level" attribute
 | default_state_formatting | boolean | `true` | v3.1.0 | Can be used to disable default state formatting e.g. entity display precision setting
 | debug | boolean \| string | `false` | v3.2.0 | Whether to show debug output (all available entity data). You can use entity_id if you want to debug specific one.
 | respect_visibility_setting | boolean | `true` | v3.3.0 | Whether to hide entities which are marked in the UI as hidden on dashboards.
 | unpack | boolean | `false` | v4.0.0 | Whether to unpack entities that have an `entity_id` array attribute (e.g. sensor groups) into separate batteries. ([example](#unpacking-grouped-entities))
 | style | string |  | v4.0.0 | Custom CSS rules injected into the element's shadow DOM. Allows targeting inner elements (e.g. `.name`, `.state`, `.icon`). Can be used together with card-level `theme`. ([example](#custom-styles))
+
+### Structured names
+
+*Requires Home Assistant 2026.4 or later. On earlier versions a structured `name` falls back to the entity'"'"'s friendly name.*
+
+Home Assistant composes an entity'"'"'s display name out of its registry context
+(entity, device, area, floor) rather than one `friendly_name` string. From 2026.4
+the card uses that composed name as its default, which means a lot of what
+[`bulk_rename`](#bulk-rename) was needed for - stripping the repeated device or
+area out of every entity - now happens upstream.
+
+To pick the parts yourself, set `name` to a list instead of a string:
+
+```yaml
+entities:
+  - entity: sensor.kitchen_motion_battery
+    name:
+      - type: device
+      - type: entity
+```
+
+Available part types are `entity`, `device`, `area`, `floor`, and
+`text` (a literal, written as `{type: text, text: Battery}`). Parts that resolve to
+nothing are dropped.
+
+A structured `name` is **not** a [KString](#keyword-string-kstring) - it is resolved
+from the registry rather than templated, so the two cannot be combined in one value.
+Use a `text` part for literal text, or keep a string `name` if you need a template.
+`bulk_rename` still applies either way.
+
+See the [Home Assistant developer documentation](https://developers.home-assistant.io/docs/frontend/data#hassformatentitynamestateobj-name-options) for details.
 
 ### Keyword string (KString)
 

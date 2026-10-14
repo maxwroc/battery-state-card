@@ -1,6 +1,7 @@
 import { getRegexFromString, safeGetArray } from "../utils";
 import { RichStringProcessor } from "../rich-string-processor";
 import { EntityDataAccessor } from "../entity-data-accessor";
+import { computeEntityName } from "./entity-name";
 
 
 /**
@@ -10,11 +11,20 @@ import { EntityDataAccessor } from "../entity-data-accessor";
  */
 export const getName = (config: IBatteryEntityConfig, accessor: EntityDataAccessor): string => {
     if (config.name) {
+        // A structured name is resolved from the registry. Unlike a string it is
+        // not a rich-string template, so it must not go through the processor -
+        // that would walk the object and hand back something unusable.
+        if (typeof config.name !== "string") {
+            return computeEntityName(accessor.hass, accessor.state, config.name) || config.entity;
+        }
+
         const proc = new RichStringProcessor(accessor);
         return proc.process(config.name);
     }
 
-    let name = accessor.attributes?.friendly_name;
+    // Resolve the entity's own name from its registry context rather than
+    // reading friendly_name, so it matches what the built-in cards show.
+    let name = computeEntityName(accessor.hass, accessor.state, undefined);
 
     // when we have failed to get the name we just return entity id
     if (!name) {
