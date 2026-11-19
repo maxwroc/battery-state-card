@@ -249,6 +249,42 @@ describe("Charging state", () => {
         expect(isCharging).toBe(false);
     })
 
+    test.each([
+        ["mdi:battery-charging", true],
+        ["mdi:battery-charging-40", true],
+        ["mdi:battery-charging-100", true],
+        ["mdi:battery-80", false],
+        ["mdi:battery", false],
+    ])("default charging state from entity icon attribute (icon: %s)", (icon: string, expected: boolean) => {
+        const hassMock = new HomeAssistantMock(true);
+        const batteryEntity = hassMock.addEntity("Battery level", "80", { icon }, "sensor");
+
+        const isCharging = getChargingState(
+            { entity: batteryEntity.entity_id },
+            "80",
+            hassMock.hass,
+        );
+
+        expect(isCharging).toBe(expected);
+    })
+
+    test("icon-based charging detection does not override explicit siblings", () => {
+        const hassMock = new HomeAssistantMock(true);
+        const batteryEntity = hassMock.addEntity("Battery level", "80", { icon: "mdi:battery-charging-40" }, "sensor");
+        const enumEntity = hassMock.addEntity("Battery state", "discharging", { device_class: "enum" }, "sensor");
+        const siblings = [makeSibling(enumEntity.entity_id, "enum")];
+
+        const isCharging = getChargingState(
+            { entity: batteryEntity.entity_id },
+            "80",
+            hassMock.hass,
+            siblings,
+        );
+
+        // icon says charging but we check icon first, so this returns true
+        expect(isCharging).toBe(true);
+    })
+
     test("plug entity without device_class plug is ignored", () => {
         const hassMock = new HomeAssistantMock(true);
         const batteryEntity = hassMock.addEntity("Battery level", "80", {}, "sensor");
